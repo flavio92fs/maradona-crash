@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between bg-primary p-3 rounded-md">
     <div>
-      <img class="ml-4 h-14 w-14" src="@/assets/eldorado-logo.png" />
+      <!-- <img class="ml-4 h-14 w-14" src="@/assets/eldorado-logo.png" /> -->
     </div>
     <div class="flex items-center">
       <button

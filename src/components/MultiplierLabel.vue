@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-black" :style="'color: ' + color">{{ value.toFixed(2) }}x</div>
+  <div :style="'background-color: ' + color + ' ; color: white'">
+    {{ value.toFixed(2) }}x
+  </div>
 </template>
 
 <script>
@@ -19,9 +21,9 @@ export default {
         case this.value >= 2 && this.value < 10:
           return "yellow";
         case this.value >= 10:
-          return "red";
+          return "#8203D0";
         default:
-          return "white";
+          return "#57aadc";
       }
     },
   },

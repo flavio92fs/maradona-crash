@@ -1,28 +1,25 @@
 <template>
   <div class="flex flex-col h-full">
     <Navigation :data="gameData" @setAudio="setAudio" @setMusic="setMusic" />
-    <div class="flex flex-col flex-grow pb-5 lg:pb-0">
-      <div class="flex-row">
-        <MultiplierHistory class="mt-5" />
+    <div class="flex flex-col flex-grow pb-0">
+      <div class="hidden lg:flex flex-row">
+        <MultiplierHistory class="flex mt-5" />
       </div>
-      <div class="flex flex-col xl:flex-row mt-5 flex-grow justify-around">
-        <div class="2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0">
-          <BetHistory class="h-full" @getLeaderboard="getLeaderBoard" />
+      <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
+        <div
+          class="hidden lg:flex 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
+        >
+          <BetHistory class="flex h-full" @getLeaderboard="getLeaderBoard" />
         </div>
 
         <div
           class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5"
         >
           <div id="game-container" class="flex-grow">
-            <ion-phaser
-              v-show="false"
-              :game.prop="game"
-              :initialize.prop="false"
-            />
             <MaradonaGame />
           </div>
           <div
-            class="flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-8"
+            class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-8"
           >
             <div class="order-1 3xl:order-0 mx-5">
               <BetBox
@@ -200,5 +197,9 @@ canvas {
   position: absolute;
   margin: 0 auto;
   max-height: 100%;
+}
+
+#game-container > canvas {
+  display: none;
 }
 </style>

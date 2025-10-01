@@ -39,7 +39,7 @@ import { RouterView } from "vue-router";
       </div>
     </Transition>
 
-    <RouterView class="p-5" :class="loading ? 'overflow-hidden' : ''" />
+    <RouterView class="p-0 lg:p-5" :class="loading ? 'overflow-hidden' : ''" />
   </div>
 </template>
 

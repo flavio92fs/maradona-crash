@@ -53,14 +53,14 @@ export default class GameScene extends BaseScene {
       this.music.volume = 1;
     }
 
-    this.music.play();
+    // this.music.play();
 
     this.flap_sound.volume = 0;
     if (this.isAudioOn) {
       this.flap_sound.volume = 1;
     }
 
-    this.flap_sound.play();
+    // this.flap_sound.play();
 
     console.log("Hello from GAME SCENE");
 
@@ -79,7 +79,7 @@ export default class GameScene extends BaseScene {
     this._explosion = this.add
       .sprite(300, 1080 - 100, "explosion", "0.png")
       .setScale(1.2);
-    this._player.play("fly");
+    // this._player.play("fly");
 
     this.multiplierText = this.add
       .text(
@@ -201,19 +201,19 @@ export default class GameScene extends BaseScene {
 
     this.currentPlayingTween?.stop();
     this._explosion?.setPosition(this._player?.x, this._player?.y);
-    this._explosion?.play("explosion");
+    // this._explosion?.play("explosion");
 
     if (!this.isAudioOn) {
       this.shot_sound.volume = 0;
       this.quack_sound.volume = 0;
     }
 
-    this.shot_sound.play();
+    // this.shot_sound.play();
 
     this._explosion?.on("animationupdate", () => {
       if (this._explosion?.frame.name === "30.png") {
         this.sound.stopAll();
-        this.quack_sound.play();
+        // this.quack_sound.play();
         this._player?.anims.stop();
         this._player?.setVisible(false);
         this._crashedPlayer?.setPosition(this._player?.x, this._player?.y);
@@ -286,7 +286,7 @@ export default class GameScene extends BaseScene {
       y: 2000,
       ease: Phaser.Math.Easing.Back.In,
       duration: 1500,
-      onStart: () => this.fall_sound.play(),
+      // onStart: () => this.fall_sound.play(),
     });
   }
 

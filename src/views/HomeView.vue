@@ -3,7 +3,7 @@
     <Navigation :data="gameData" @setAudio="setAudio" @setMusic="setMusic" />
     <div class="flex flex-col flex-grow pb-0">
       <div class="hidden lg:flex flex-row">
-        <MultiplierHistory class="flex mt-5" />
+        <MultiplierHistory class="flex mt-5 mb-5" />
       </div>
       <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
         <div

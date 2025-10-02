@@ -18,7 +18,7 @@
     "custom_typings/"
   ],
   "types": ["Phaser"],
-  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
@@ -31,7 +31,9 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": false
   },
 
   "references": [

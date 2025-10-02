@@ -55,7 +55,7 @@ export default class LoadingScene extends BaseScene {
     if (this.isMusicOn) {
       this.loading_music.volume = 1;
     }
-    this.loading_music.play();
+    // this.loading_music.play();
     this.createLoadingAnimation();
 
     this._background = this.add

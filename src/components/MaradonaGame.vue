@@ -3,7 +3,7 @@
   <div class="relative h-full w-full" ref="threeContainer" id="three-container">
     <div
       id="multipliers-overlay"
-      class="game-overlay flex flex-row absolute top-0 w-full z-10 p-2"
+      class="game-overlay flex lg:hidden flex-row absolute top-0 w-full z-10 p-2"
     >
       <MultiplierLabel
         class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
@@ -14,7 +14,7 @@
     </div>
     <div
       id="bet-overlay"
-      class="game-overlay absolute bottom-0 w-full z-10 p-3 pb-0"
+      class="game-overlay block lg:hidden absolute bottom-0 w-full z-10 p-3 pb-0"
     >
       <div class="flex justify-center w-100">
         <div class="btn-container rounded-lg w-full mx-2 p-2">
@@ -35,24 +35,67 @@
         </div>
       </div>
 
-      <div id="history-overlay" class="flex mt-4 p-2 rounded-t-lg">
-        <button
-          class="btn history-button rounded-xl text-xl px-2 w-full text-white"
-        >
-          <p class="font-bold">All Bets</p>
-        </button>
+      <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
+        <div class="flex flex-row">
+          <button
+            class="btn history-button rounded-xl text-xl px-2 w-full text-white"
+            :style="
+              selected_category == 1
+                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                : ''
+            "
+            @click="openHistory(1)"
+          >
+            <p class="font-bold">All Bets</p>
+          </button>
 
-        <button
-          class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
-        >
-          <p class="font-bold">My Bets</p>
-        </button>
+          <button
+            class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
+            :style="
+              selected_category == 2
+                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                : ''
+            "
+            @click="openHistory(2)"
+          >
+            <p class="font-bold">My Bets</p>
+          </button>
 
-        <button
-          class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+          <button
+            class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+            :style="
+              selected_category == 3
+                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                : ''
+            "
+            @click="openHistory(3)"
+          >
+            <p class="font-bold">Top</p>
+          </button>
+        </div>
+
+        <div
+          id="history-container"
+          :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
+          class="flex rounded-xl mt-2"
         >
-          <p class="font-bold">Top</p>
-        </button>
+          <div
+            id="history-content"
+            :class="isOpen ? 'flex' : 'hidden'"
+            class="text-white"
+          >
+            <p>Top</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
+          <button
+            class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
+            @click="closeHistory()"
+          >
+            <p class="font-bold">Close</p>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -64,6 +107,18 @@ import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 
 const threeContainer = ref("");
+let isOpen = ref(false);
+let selected_category = ref(0);
+
+function openHistory(category) {
+  isOpen.value = true;
+  selected_category.value = category;
+}
+
+function closeHistory() {
+  isOpen.value = false;
+  selected_category.value = 0;
+}
 
 onMounted(() => {
   console.log(threeContainer.value);
@@ -85,6 +140,11 @@ onMounted(() => {
 
 #history-overlay {
   background-color: rgba(0, 0, 0, 0.4);
+}
+
+#history-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  transition: all ease-in-out 0.3s;
 }
 
 .btn-container {

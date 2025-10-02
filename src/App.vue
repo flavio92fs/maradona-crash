@@ -54,7 +54,7 @@ export default {
   },
 
   data: () => ({
-    loading: true,
+    loading: false,
     loading_progress: 0,
     disconnected: false,
   }),

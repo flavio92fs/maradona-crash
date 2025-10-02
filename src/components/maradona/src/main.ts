@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import LoadingManager from "./loadingManager";
 import AudioManager from "./audioManager";
+import gsap from "gsap";
 
 export function initScene(container: HTMLElement) {
 const clock = new THREE.Clock();
@@ -40,7 +41,7 @@ loadDivisaTextures();
 loadCampoTextures();
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, 16 / 9, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -77,6 +78,7 @@ const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
     normalMap: divisaNormalMap,
     normalScale: new THREE.Vector2(1, 1),
     transparent: true,
+    side: THREE.DoubleSide,
     opacity: 0, // parte invisibile
   }),
   pelle: new THREE.MeshStandardMaterial({
@@ -84,6 +86,7 @@ const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
     normalMap: pelleNormalMap,
     normalScale: new THREE.Vector2(1, 1),
     transparent: true,
+    side: THREE.DoubleSide,
     opacity: 0,
   }),
   capelli: new THREE.MeshStandardMaterial({
@@ -91,17 +94,20 @@ const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
     metalness: 1.0,
     roughness: 1.0,
     transparent: true,
+    side: THREE.DoubleSide,
     opacity: 0,
   }),
   palla: new THREE.MeshStandardMaterial({
     map: pallaBaseColor,
     transparent: true,
+    side: THREE.DoubleSide,
     opacity: 0,
   }),
  wireMat: new THREE.MeshBasicMaterial({
     color: 0x0000ff,
     wireframe: true,
     transparent: true,
+    side: THREE.DoubleSide,
     opacity: 0,
   })
 };
@@ -267,6 +273,45 @@ controls.enablePan = false;      // disabilita trascinamento piano XY (solo rota
 controls.minDistance = 0.215;        // distanza minima
 controls.maxDistance = 5;       // distanza massima
 
+//#region CAMERA ANIMATION
+
+let autoOrbit = false;
+let angle = 0;
+
+const radius = 0.25;
+
+const pointA = new THREE.Vector3(0, 0.05, 0);
+const pointB = new THREE.Vector3(5, 0, 5);
+
+function getOrbitPosition(target: THREE.Vector3, angle: number): THREE.Vector3 {
+  return new THREE.Vector3(
+    target.x + radius * Math.cos(angle),
+    target.y + 0,
+    target.z + radius * Math.sin(angle)
+  );
+}
+
+function transitionToPointB() {
+  // punto di arrivo per la camera nell’orbita di B
+  const destPos = getOrbitPosition(pointB, angle);
+
+  gsap.to(camera.position, {
+    x: destPos.x,
+    y: destPos.y,
+    z: destPos.z,
+    duration: 3,
+    onUpdate: () => {
+      camera.lookAt(pointB);
+    },
+    onComplete: () => {
+      // alla fine del tween, imposta il nuovo target come punto B e riprendi l’orbita automatica
+      autoOrbit = true;
+    },
+  });
+}
+
+//#endregion
+
 function animate() {
   requestAnimationFrame(animate);
 
@@ -274,7 +319,16 @@ function animate() {
   if (mixerMaradonaDiffuse) mixerMaradonaDiffuse.update(delta);
   if (mixerMaradonaWireframe) mixerMaradonaWireframe.update(delta);
 
-  controls.update();
+  if(autoOrbit){
+    angle -= 0.001;
+    const currentTarget = (camera.position.distanceTo(pointB) < 0.1) ? pointB : pointA;
+
+    const pos = getOrbitPosition(currentTarget, angle);
+    camera.position.copy(pos);
+    camera.lookAt(currentTarget);
+  }else{
+    controls.update();
+  }
 
   renderer.render(scene, camera);
 }
@@ -367,5 +421,4 @@ ambientLightFolder.addColor({ color: ambientLight.color.getHex() }, 'color').onC
 const wireframeMatFolder = gui.addFolder('WireframeMat');
 wireframeMatFolder.add(materialLibrary['wireMat'], 'opacity', 0, 1, 0.1);
 wireframeMatFolder.addColor(materialLibrary['wireMat'], 'color');
-
 }

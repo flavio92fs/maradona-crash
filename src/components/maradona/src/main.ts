@@ -35,10 +35,10 @@ let lineeCampoMap: THREE.Texture;
 let stadioBaseColor: THREE.Texture;
 //#endregion
 
-const audioManager = new AudioManager(loadingManager.loadingManager);
-
 loadDivisaTextures();
 loadCampoTextures();
+
+const audioManager = new AudioManager(loadingManager.loadingManager);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
@@ -53,8 +53,6 @@ container.appendChild(renderer.domElement);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 function resizeRenderer() {
     const windowWidth = container.clientWidth;
@@ -72,7 +70,7 @@ resizeRenderer();
 let actions: { [key: string]: THREE.AnimationAction } = {};
 let currentAction: THREE.AnimationAction;
 
-const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
+const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
   divisa: new THREE.MeshStandardMaterial({
     map: divisaBaseColor,
     normalMap: divisaNormalMap,
@@ -112,7 +110,7 @@ const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
   })
 };
 
-//MARADONA WIREFRAME
+//region MARADONA WIREFRAME
 // fbxLoader.load('models/maradona_con_palla.fbx',
 //   (model) => {
 //     model.scale.set(0.01, 0.01, 0.01);
@@ -144,7 +142,9 @@ const materialLibrary: Record<string, THREE.MeshStandardMaterial> = {
 //   }
 // );
 
-//MARADONA
+//#endregion
+
+//#region MARADONA FBX
 fbxLoader.load('models/maradona_con_palla.fbx',
   (model) => {
     model.scale.set(0.01, 0.01, 0.01);
@@ -157,16 +157,16 @@ fbxLoader.load('models/maradona_con_palla.fbx',
         const mat = mesh.material as THREE.Material;
 
         if(mat.name === 'divisa' || mat.name === 'colletto_ai' || mat.name === 'maglietta_ai' || mat.name === 'pantaloncini_ai' || mat.name === 'gambe_ai'){
-          mesh.material = materialLibrary['divisa'];
+          mesh.material = maradonaMaterialLibrary['divisa'];
         }
         if (mat.name === 'capelli_ai') {
-          mesh.material = materialLibrary['capelli'];
+          mesh.material = maradonaMaterialLibrary['capelli'];
         }
         if (mat.name === 'pelle_ai1' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
-          mesh.material = materialLibrary['pelle'];
+          mesh.material = maradonaMaterialLibrary['pelle'];
         }
         if (mat.name === 'palla'){
-          mesh.material = materialLibrary['palla'];
+          mesh.material = maradonaMaterialLibrary['palla'];
         }
 
         // mesh.castShadow = true;
@@ -190,7 +190,9 @@ fbxLoader.load('models/maradona_con_palla.fbx',
   }
 );
 
-//STADIO
+//#endregion
+
+//#region STADIO FBX
 // fbxLoader.load('models/stadio.fbx',
 //   (model) => {
 //     model.scale.set(0.01, 0.01, 0.01);
@@ -255,84 +257,9 @@ prato.rotation.x = -Math.PI / 2; // orizzontale
 prato.position.y = 0; // altezza
 
 scene.add(prato);
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
-scene.add(ambientLight);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-
-controls.target.set(0, 0.25, 0);
-controls.enableDamping = true;   // rende il movimento più fluido
-controls.dampingFactor = 0.05;   // velocità di smorzamento
-
-controls.minPolarAngle = 0;              // non andare più in alto di sopra
-controls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
-
-// opzioni utili
-controls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
-controls.minDistance = 0.215;        // distanza minima
-controls.maxDistance = 5;       // distanza massima
-
-//#region CAMERA ANIMATION
-
-let autoOrbit = false;
-let angle = 0;
-
-const radius = 0.25;
-
-const pointA = new THREE.Vector3(0, 0.05, 0);
-const pointB = new THREE.Vector3(5, 0, 5);
-
-function getOrbitPosition(target: THREE.Vector3, angle: number): THREE.Vector3 {
-  return new THREE.Vector3(
-    target.x + radius * Math.cos(angle),
-    target.y + 0,
-    target.z + radius * Math.sin(angle)
-  );
-}
-
-function transitionToPointB() {
-  // punto di arrivo per la camera nell’orbita di B
-  const destPos = getOrbitPosition(pointB, angle);
-
-  gsap.to(camera.position, {
-    x: destPos.x,
-    y: destPos.y,
-    z: destPos.z,
-    duration: 3,
-    onUpdate: () => {
-      camera.lookAt(pointB);
-    },
-    onComplete: () => {
-      // alla fine del tween, imposta il nuovo target come punto B e riprendi l’orbita automatica
-      autoOrbit = true;
-    },
-  });
-}
-
 //#endregion
 
-function animate() {
-  requestAnimationFrame(animate);
-
-  const delta = clock.getDelta();
-  if (mixerMaradonaDiffuse) mixerMaradonaDiffuse.update(delta);
-  if (mixerMaradonaWireframe) mixerMaradonaWireframe.update(delta);
-
-  if(autoOrbit){
-    angle -= 0.001;
-    const currentTarget = (camera.position.distanceTo(pointB) < 0.1) ? pointB : pointA;
-
-    const pos = getOrbitPosition(currentTarget, angle);
-    camera.position.copy(pos);
-    camera.lookAt(currentTarget);
-  }else{
-    controls.update();
-  }
-
-  renderer.render(scene, camera);
-}
-
+//#region TEXTURES FUNCTIONS
 function loadDivisaTextures(){
     divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradonaNapoli_BaseColor.png');
     divisaBaseColor.colorSpace = THREE.SRGBColorSpace;
@@ -354,7 +281,7 @@ function loadCampoTextures(){
     pratoMap = textureLoader.load('textures/stadio/prato.jpeg')
     pratoMap.wrapS = THREE.RepeatWrapping;
     pratoMap.wrapT = THREE.RepeatWrapping;
-    pratoMap.repeat.set(590,500)
+    pratoMap.repeat.set(4000, 4000)
     pratoMap.colorSpace = THREE.SRGBColorSpace;
 
     lineeCampoMap = textureLoader.load('textures/stadio/lineecampo.png')
@@ -363,7 +290,22 @@ function loadCampoTextures(){
     stadioBaseColor = textureLoader.load('textures/stadio/STADIO01_BaseColor.png')
     stadioBaseColor.colorSpace = THREE.SRGBColorSpace;
 }
+//#endregion
 
+//#region LIGHTS
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+scene.add(ambientLight);
+
+const directionalLight: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 3);
+directionalLight.position.set(38, 36.7, -50);
+// directionalLight.castShadow = true;
+// directionalLight.shadow.mapSize.width = 2048;
+// directionalLight.shadow.mapSize.height = 2048;
+scene.add(directionalLight);
+
+//#endregion
+
+//#region DOM
 const geometry = new THREE.SphereGeometry(300, 60, 40);
 geometry.scale(-1, 1, 1); // Inverti la sfera (così si vede dall’interno)
 
@@ -374,51 +316,134 @@ const material = new THREE.MeshBasicMaterial({ map: domeTexture });
 
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
+//#endregion
 
-// const imageDomeFolder = gui.addFolder('StadiumImage');
+camera.position.set(0.14, 0.06, 0.11);
 
-const directionalLight: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 3);
-directionalLight.position.set(38, 36.7, -50);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-scene.add(directionalLight);
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.target.set(0, 0.06, 0);
+orbitControls.enableDamping = true;   // rende il movimento più fluido
+orbitControls.dampingFactor = 0.05;   // velocità di smorzamento
 
-// helper per visualizzare la direzione
-const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
-scene.add(lightHelper);
+orbitControls.minPolarAngle = 0;              // non andare più in alto di sopra
+orbitControls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
 
-function updateHelper() {
-  lightHelper.update();
+orbitControls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
+// controls.minDistance = _minCameraZoom;        // distanza minima
+// controls.maxDistance = _maxCameraZoom;       // distanza massima
+
+orbitControls.minDistance = 0;        // distanza minima
+orbitControls.maxDistance = 3;       // distanza massima
+
+orbitControls.update()
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = clock.getDelta();
+  mixerMaradonaDiffuse.update(delta);
+
+  renderer.render(scene, camera);
 }
 
-const directionalLightFolder = gui.addFolder('Directional Light');
+//#region CAMERA ANIMATION
 
-// intensità
-directionalLightFolder.add(directionalLight, 'intensity', 0, 5, 0.1);
+let autoOrbit = false;
+let angle = 0;
 
-// posizione
-directionalLightFolder.add(directionalLight.position, 'x', -200, 200, 0.01).onChange(updateHelper);
-directionalLightFolder.add(directionalLight.position, 'y', -200, 200, 0.01).onChange(updateHelper);
-directionalLightFolder.add(directionalLight.position, 'z', -200, 200, 0.01).onChange(updateHelper);
+const radius = 0.25;
 
-// colore
-directionalLightFolder.addColor({ color: directionalLight.color.getHex() }, 'color').onChange((val: number) => {
-  directionalLight.color.setHex(val);
+const pointA = new THREE.Vector3(0, 0.05, 0);
+
+const cameraMoves = [
+  { pos: new THREE.Vector3(0.14, 0.06, 0.11), look: new THREE.Vector3(0, 0.03, 0)}, // guarda box1
+  { pos: new THREE.Vector3(-0.25, 0.23, -0.09), look: new THREE.Vector3(0, 0.03, 0)},
+];
+
+let currentIndex = 0;
+
+function playIntroAnimation(camera, controls, startPos, startLookAt) {
+  // posizione iniziale e look iniziale
+  camera.position.copy(startPos);
+  controls.target.copy(startLookAt);
+  controls.update();
+
+  const orbit = {
+    angle: Math.atan2(
+      camera.position.z - startLookAt.z,
+      camera.position.x - startLookAt.x
+    ),
+    radius: camera.position.distanceTo(startLookAt),
+    targetY: startLookAt.y
+  };
+
+  const tl = gsap.timeline({
+    onUpdate: () => {
+      camera.position.x = Math.cos(orbit.angle) * orbit.radius + startLookAt.x;
+      camera.position.z = Math.sin(orbit.angle) * orbit.radius + startLookAt.z;
+      camera.position.y = startPos.y;
+      controls.target.set(startLookAt.x, orbit.targetY, startLookAt.z);
+      controls.update();
+    }
+  });
+
+  // mezzo giro a sinistra + zoom out
+  tl.to(orbit, {
+    angle: orbit.angle + Math.PI,
+    targetY: 0.05,
+    radius: orbit.radius + 0.3, // 👈 aggiungi distanza
+    duration: 1.5,
+    ease: "power1.inOut"
+  });
+
+  // mezzo giro a destra + altro zoom out
+  tl.to(orbit, {
+    angle: orbit.angle - Math.PI,
+    targetY: 0.2,
+    duration: 1.5,
+    ease: "power1.inOut"
+  });
+
+    tl.to(orbit, {
+    angle: orbit.angle - Math.PI,
+    targetY: 0.2,
+    radius: orbit.radius + 0.4, // 👈 ancora più indietro
+    duration: 1.5,
+    ease: "power1.inOut"
+  });
+}
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    playIntroAnimation(
+      camera,
+      orbitControls,
+      new THREE.Vector3(0.14, 0.06, 0.11),   // startPos
+      new THREE.Vector3(0, 0.06, 0),         // startLookAt
+    );
+  }
 });
 
+  const g = gui.addFolder('Camera Position (readonly)');
+  g.add(camera.position, 'x').listen().disable();
+  g.add(camera.position, 'y').listen().disable();
+  g.add(camera.position, 'z').listen().disable();
 
-const ambientLightFolder = gui.addFolder('Ambient Light');
+  const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
+  const lookAtPosition = { x: 0, y: 0.06, z: 0 };
 
-// intensità
-ambientLightFolder.add(ambientLight, 'intensity', 0, 5, 0.1);
+  cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
+    orbitControls.target.set(0, lookAtPosition.y, 0)
+    orbitControls.update()
+  });
 
-// colore
-ambientLightFolder.addColor({ color: ambientLight.color.getHex() }, 'color').onChange((val: number) => {
-  ambientLight.color.setHex(val);
-});
+// const cameraPositionFolder = gui.addFolder('CameraPosition');
+// cameraPositionFolder.add(camera.position, 'x', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
+// cameraPositionFolder.add(camera.position, 'y', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
+// cameraPositionFolder.add(camera.position, 'z', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
 
-const wireframeMatFolder = gui.addFolder('WireframeMat');
-wireframeMatFolder.add(materialLibrary['wireMat'], 'opacity', 0, 1, 0.1);
-wireframeMatFolder.addColor(materialLibrary['wireMat'], 'color');
+// const cameraLookAtPositionFolder = gui.addFolder('CameraLookAt');
+// cameraPositionFolder.add(camera.position, 'x', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
+
+//#endregion
 }

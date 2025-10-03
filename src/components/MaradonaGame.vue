@@ -81,10 +81,15 @@
         >
           <div
             id="history-content"
-            :class="isOpen ? 'flex' : 'hidden'"
-            class="text-white"
+            :class="isOpen ? 'flex flex-col' : 'hidden'"
+            class="text-white w-full overflow-auto"
+            @mousedown="stopCloseTimer()"
+            @mouseup="startCloseTimer()"
+            @mouseleave="startCloseTimer()"
+            @scroll="stopCloseTimer()"
+            @scrollend="startCloseTimer()"
           >
-            <p>Top</p>
+            <p v-for="i in 100">Bet {{ i }}</p>
           </div>
         </div>
 
@@ -106,11 +111,22 @@ import { ref, onMounted } from "vue";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 
+//Data
+
 const threeContainer = ref("");
 let isOpen = ref(false);
 let selected_category = ref(0);
+let close_timer = ref(() => {});
+
+//Methods
 
 function openHistory(category) {
+  if (close_timer) {
+    clearTimeout(close_timer.value);
+  }
+
+  startCloseTimer();
+
   isOpen.value = true;
   selected_category.value = category;
 }
@@ -118,6 +134,20 @@ function openHistory(category) {
 function closeHistory() {
   isOpen.value = false;
   selected_category.value = 0;
+}
+
+function stopCloseTimer() {
+  console.log("Stopping Timer");
+  if (close_timer) {
+    clearTimeout(close_timer.value);
+  }
+}
+
+function startCloseTimer() {
+  console.log("Resuming Timer");
+  close_timer.value = setTimeout(() => {
+    closeHistory();
+  }, 3000);
 }
 
 onMounted(() => {

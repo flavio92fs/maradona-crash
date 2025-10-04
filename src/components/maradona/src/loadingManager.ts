@@ -19,18 +19,20 @@ export default class LoadingManager {
         return this._textureLoader;
     }
 
-    constructor(animateFunction: () => void) {
+    constructor(onComplete: () => void) {
         this._loadingManager = new THREE.LoadingManager();
         this._loadingManager.onStart = (url) =>  console.log(`Inizio caricamento: ${url}`);
 
         this._loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
             // console.log(`Caricato ${itemsLoaded} di ${itemsTotal} file.`);
             const percent = (itemsLoaded / itemsTotal) * 100;
+
+            console.log(percent);
             
-            const progressBar = document.getElementById('progress-bar');
-            if(progressBar != null){
-                progressBar.style.width = percent + '%';
-            }   
+            // const progressBar = document.getElementById('progress-bar');
+            // if(progressBar != null){
+            //     progressBar.style.width = percent + '%';
+            // }   
         };
     
         this._loadingManager.onLoad = () => {
@@ -40,7 +42,7 @@ export default class LoadingManager {
                 loadingScreen.style.display = 'none';
             }
 
-            animateFunction();
+            onComplete();
         };
     
         this._loadingManager.onError = (url) => {

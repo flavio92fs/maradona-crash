@@ -10,8 +10,11 @@ const clock = new THREE.Clock();
 let mixerMaradonaDiffuse: THREE.AnimationMixer;
 let mixerMaradonaWireframe: THREE.AnimationMixer;
 
-const gui = new GUI();
-const loadingManager = new LoadingManager(animate);
+// const gui = new GUI();
+const loadingManager = new LoadingManager(() => {
+  animate();
+  playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
+});
 
 const fbxLoader = loadingManager.fbxLoader;
 const textureLoader = loadingManager.textureLoader;
@@ -325,15 +328,13 @@ orbitControls.target.set(0, 0.06, 0);
 orbitControls.enableDamping = true;   // rende il movimento più fluido
 orbitControls.dampingFactor = 0.05;   // velocità di smorzamento
 
-orbitControls.minPolarAngle = 0;              // non andare più in alto di sopra
+orbitControls.minPolarAngle = 0.5;              // non andare più in alto di sopra
 orbitControls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
 
 orbitControls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
-// controls.minDistance = _minCameraZoom;        // distanza minima
-// controls.maxDistance = _maxCameraZoom;       // distanza massima
 
-orbitControls.minDistance = 0;        // distanza minima
-orbitControls.maxDistance = 3;       // distanza massima
+// orbitControls.minDistance = 0.6;        // distanza minima
+// orbitControls.maxDistance = 0.75;       // distanza massima
 
 orbitControls.update()
 
@@ -342,27 +343,18 @@ function animate() {
 
   const delta = clock.getDelta();
   mixerMaradonaDiffuse.update(delta);
+  orbitControls.update();
 
   renderer.render(scene, camera);
 }
 
 //#region CAMERA ANIMATION
 
-let autoOrbit = false;
-let angle = 0;
-
-const radius = 0.25;
-
-const pointA = new THREE.Vector3(0, 0.05, 0);
-
-const cameraMoves = [
-  { pos: new THREE.Vector3(0.14, 0.06, 0.11), look: new THREE.Vector3(0, 0.03, 0)}, // guarda box1
-  { pos: new THREE.Vector3(-0.25, 0.23, -0.09), look: new THREE.Vector3(0, 0.03, 0)},
-];
-
-let currentIndex = 0;
-
 function playIntroAnimation(camera, controls, startPos, startLookAt) {
+  orbitControls.minDistance = 0;        // distanza minima
+  orbitControls.maxDistance = 5;       // distanza massima
+  orbitControls.enabled = false;
+
   // posizione iniziale e look iniziale
   camera.position.copy(startPos);
   controls.target.copy(startLookAt);
@@ -384,6 +376,11 @@ function playIntroAnimation(camera, controls, startPos, startLookAt) {
       camera.position.y = startPos.y;
       controls.target.set(startLookAt.x, orbit.targetY, startLookAt.z);
       controls.update();
+    },
+    onComplete: () => {
+      controls.enabled = true;
+      orbitControls.minDistance = 0.6;        // distanza minima
+      orbitControls.maxDistance = 0.75;       // distanza massima
     }
   });
 
@@ -413,37 +410,27 @@ function playIntroAnimation(camera, controls, startPos, startLookAt) {
   });
 }
 
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space") {
-    playIntroAnimation(
-      camera,
-      orbitControls,
-      new THREE.Vector3(0.14, 0.06, 0.11),   // startPos
-      new THREE.Vector3(0, 0.06, 0),         // startLookAt
-    );
-  }
-});
+// window.addEventListener("keydown", (e) => {
+//   if (e.code === "Space") {
+//     playIntroAnimation(
+//       camera,
+//       orbitControls,
+//       new THREE.Vector3(0.14, 0.06, 0.11),   // startPos
+//       new THREE.Vector3(0, 0.06, 0),         // startLookAt
+//     );
+//   }
+// });
 
-  const g = gui.addFolder('Camera Position (readonly)');
-  g.add(camera.position, 'x').listen().disable();
-  g.add(camera.position, 'y').listen().disable();
-  g.add(camera.position, 'z').listen().disable();
+  // const g = gui.addFolder('Camera Position (readonly)');
+  // g.add(camera.position, 'x').listen().disable();
+  // g.add(camera.position, 'y').listen().disable();
+  // g.add(camera.position, 'z').listen().disable();
 
-  const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
-  const lookAtPosition = { x: 0, y: 0.06, z: 0 };
+  // const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
+  // const lookAtPosition = { x: 0, y: 0.06, z: 0 };
 
-  cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
-    orbitControls.target.set(0, lookAtPosition.y, 0)
-    orbitControls.update()
-  });
-
-// const cameraPositionFolder = gui.addFolder('CameraPosition');
-// cameraPositionFolder.add(camera.position, 'x', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
-// cameraPositionFolder.add(camera.position, 'y', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
-// cameraPositionFolder.add(camera.position, 'z', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
-
-// const cameraLookAtPositionFolder = gui.addFolder('CameraLookAt');
-// cameraPositionFolder.add(camera.position, 'x', 0, 1, 0.01).onChange(() => camera.lookAt(0, 0.25, 0));
-
-//#endregion
+  // cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
+  //   orbitControls.target.set(0, lookAtPosition.y, 0)
+  //   orbitControls.update()
+  // });
 }

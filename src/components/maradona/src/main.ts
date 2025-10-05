@@ -10,7 +10,7 @@ const clock = new THREE.Clock();
 let mixerMaradonaDiffuse: THREE.AnimationMixer;
 let mixerMaradonaWireframe: THREE.AnimationMixer;
 
-const gui = new GUI();
+// const gui = new GUI();
 const loadingManager = new LoadingManager(() => {
   animate();
   playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
@@ -348,8 +348,8 @@ directionalLight.shadow.mapSize.height = 2048;
 directionalLight.shadow.bias = -0.00005;
 scene.add(directionalLight);
 
-gui.add(directionalLight, 'intensity')
-gui.add(ambientLight, 'intensity')
+// gui.add(directionalLight, 'intensity')
+// gui.add(ambientLight, 'intensity')
 
 //#endregion
 
@@ -469,18 +469,18 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-  const g = gui.addFolder('Camera Position (readonly)');
-  g.add(camera.position, 'x').listen().disable();
-  g.add(camera.position, 'y').listen().disable();
-  g.add(camera.position, 'z').listen().disable();
+  // const g = gui.addFolder('Camera Position (readonly)');
+  // g.add(camera.position, 'x').listen().disable();
+  // g.add(camera.position, 'y').listen().disable();
+  // g.add(camera.position, 'z').listen().disable();
 
-  g.add(camera, 'fov')
+  // g.add(camera, 'fov')
 
-  const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
-  const lookAtPosition = { x: 0, y: 0.06, z: 0 };
+  // const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
+  // const lookAtPosition = { x: 0, y: 0.06, z: 0 };
 
-  cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
-    orbitControls.target.set(0, lookAtPosition.y, 0)
-    orbitControls.update()
-  });
+  // cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
+  //   orbitControls.target.set(0, lookAtPosition.y, 0)
+  //   orbitControls.update()
+  // });
 }

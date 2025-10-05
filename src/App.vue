@@ -54,6 +54,7 @@ export default {
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;
       this.loading_progress = value.percent;
+      console.log(this.loading_progress);
       if (value.percent >= 100) {
         this.loading = false;
         this.loading_progress = 0;
@@ -61,16 +62,16 @@ export default {
     });
     this.$mitt.on("GameScene", () => {
       console.log("loaded");
-      this.loading_progress = 100;
+      // this.loading_progress = 100;
       this.loading = false;
     });
     this.$mitt.on("LoadingScene", () => {
       console.log("loaded");
-      this.loading_progress = 100;
+      // this.loading_progress = 100;
       this.loading = false;
     });
     this.$mitt.on("disconnection", () => {
-      this.loading_progress = 100;
+      // this.loading_progress = 100;
       this.disconnected = true;
     });
   },

@@ -14,19 +14,10 @@ import { RouterView } from "vue-router";
             <div
               class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
             >
-              <img src="@/assets/eldorado-logo.png" style="height: 200px" />
-              <!-- <p class="text-center text-3xl font-bold">
-                {{ $t("game_load") }}
-              </p> -->
-              <progress
-                class="my-3"
-                max="100"
-                :value="loading_progress"
-              ></progress>
-              <div class="flex flex-row items-center">
-                <span class="mt-3 mr-5">POWERED BY</span>
-                <img src="@/assets/gzone.png" style="height: 100px" />
-              </div>
+              <h2 class="text-xl font-bold">Loading. Please wait.</h2>
+              <h3 class="text-2xl font-bold">
+                {{ parseInt(loading_progress) }} %
+              </h3>
             </div>
           </div>
         </div>
@@ -54,12 +45,20 @@ export default {
   },
 
   data: () => ({
-    loading: false,
+    loading: true,
     loading_progress: 0,
     disconnected: false,
   }),
 
   created() {
+    this.$mitt.on("loadingProgress", (value) => {
+      this.loading = true;
+      this.loading_progress = value.percent;
+      if (value.percent >= 100) {
+        this.loading = false;
+        this.loading_progress = 0;
+      }
+    });
     this.$mitt.on("GameScene", () => {
       console.log("loaded");
       this.loading_progress = 100;

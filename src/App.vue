@@ -15,9 +15,7 @@ import { RouterView } from "vue-router";
               class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
             >
               <h2 class="text-xl font-bold">Loading. Please wait.</h2>
-              <h3 class="text-2xl font-bold">
-                {{ parseInt(loading_progress) }} %
-              </h3>
+              <h3 class="text-2xl font-bold">{{ loading_progress }} %</h3>
             </div>
           </div>
         </div>
@@ -53,7 +51,7 @@ export default {
   created() {
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;
-      this.loading_progress = value.percent;
+      this.loading_progress = Math.round(value.percent);
       console.log(this.loading_progress);
       if (value.percent >= 100) {
         this.loading = false;

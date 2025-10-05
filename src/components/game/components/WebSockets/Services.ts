@@ -130,7 +130,7 @@ export default class MyWebSocket {
       }
     }
 
-    console.log(json);
+    // console.log(json);
 
     // console.log(
     //   "Received message from server:" + JSON.stringify(this.gameData)

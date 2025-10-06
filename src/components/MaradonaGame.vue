@@ -1,6 +1,6 @@
 // ThreeScene.vue
 <template>
-  <div class="relative h-full w-full" ref="threeContainer" id="three-container">
+  <div class="relative h-full w-full" ref="threeContainer" id="three-container" style="display: flex; justify-content: center; background-color: black; align-items: center;">
     <div
       id="multipliers-overlay"
       class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
@@ -13,7 +13,7 @@
           :value="10.0"
         />
       </div>
-      <div class="w-full text-right">
+      <!-- <div class="w-full text-right">
         <button
           class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
           v-if="isFullscreen == true"
@@ -29,7 +29,7 @@
         >
           <ArrowsPointingOutIcon class="text-white h-8 w-8" />
         </button>
-      </div>
+      </div> -->
     </div>
 
     <div
@@ -39,7 +39,7 @@
       <div class="flex justify-center w-100">
         <div class="btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="btn bet-button rounded-xl text-xl p-5 w-full text-white"
+            class="btn bet-button rounded-xl text-xl p-2 w-full text-white"
           >
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>
@@ -47,7 +47,7 @@
         </div>
         <div class="btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="btn bet-button rounded-xl bg-green-600 text-xl p-5 w-full text-white"
+            class="btn bet-button rounded-xl bg-green-600 text-xl p-2 w-full text-white"
           >
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>

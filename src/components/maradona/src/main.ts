@@ -203,6 +203,30 @@ fbxLoader.load('models/maradona_con_palla.fbx',
   }
 );
 
+fbxLoader.load('models/strisce.fbx',
+  (model) => {
+    model.scale.set(0.02, 0, 0.02);
+    model.position.set(0, 0.002, 0);
+    model.rotation.set(0, Math.PI/2, 0)
+
+    model.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh
+
+
+        const mat = mesh.material as THREE.Material;
+
+        mesh.material.opacity = 1;
+      }
+    });
+
+    scene.add(model);
+
+    currentAction = actions['riscaldamento'];  // <-- sostituisci col nome giusto
+    currentAction.play();
+  }
+);
+
 //#endregion
 
 //#region STADIO FBX
@@ -275,6 +299,7 @@ const pratoGeometry = new THREE.PlaneGeometry(3, 3);
 // materiale che reagisce alla luce
 const pratoMaterial = new THREE.MeshBasicMaterial({
   map: pratoMap,
+  transparent: true,
 });
 
 pratoMaterial.roughness = 1
@@ -299,6 +324,9 @@ pratoShadow.rotation.x = -Math.PI / 2;
 pratoShadow.receiveShadow = true;
 pratoShadow.position.set(0, 0.001, 0);
 scene.add(pratoShadow);
+
+const pratoGUI = gui.addFolder('Prato');
+pratoGUI.add(prato.scale, 'x', 0, 100, 0.1).onChange(() => prato.scale.y = prato.scale.x).name('scale');
 
 //#endregion
 
@@ -329,7 +357,7 @@ function loadCampoTextures(){
     pratoMap = textureLoader.load('textures/stadio/prato.jpeg')
     pratoMap.wrapS = THREE.RepeatWrapping;
     pratoMap.wrapT = THREE.RepeatWrapping;
-    pratoMap.repeat.set(1, 1)
+    pratoMap.repeat.set(1000, 1000)
     pratoMap.colorSpace = THREE.SRGBColorSpace;
 
     lineeCampoMap = textureLoader.load('textures/stadio/lineecampo.png')
@@ -376,10 +404,12 @@ const sphere = new THREE.Mesh(geometry, material);
 sphere.position.set(0, 4, 0);
 scene.add(sphere);
 
+const sphereDom = gui.addFolder('Sphere DOM');
+sphereDom.add(sphere.scale, 'x', 0, 1, 0.00001).name('Scale').onChange(() => sphere.scale.set(sphere.scale.x, sphere.scale.x, sphere.scale.x))
+
 //#endregion
 
 camera.position.set(0.14, 0.06, 0.11);
-
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.target.set(0, 0.06, 0);

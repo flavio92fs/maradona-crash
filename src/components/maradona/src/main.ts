@@ -7,10 +7,17 @@ import gsap from "gsap";
 
 export function initScene(container: HTMLElement) {
 const clock = new THREE.Clock();
+
 let mixerMaradonaDiffuse: THREE.AnimationMixer;
 let mixerMaradonaWireframe: THREE.AnimationMixer;
 
-// const gui = new GUI();
+const gui = new GUI();
+const dirLightGUI = gui.addFolder('Directional Light');
+const ambientLightGUI = gui.addFolder('Ambient Light');
+
+const minZoom: number = 1.5;
+const maxZoom: number = 2.05;
+  
 const loadingManager = new LoadingManager(() => {
   animate();
   playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
@@ -45,7 +52,7 @@ loadCampoTextures();
 const audioManager = new AudioManager(loadingManager.loadingManager);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(80, 16 / 9, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -156,12 +163,9 @@ fbxLoader.load('models/maradona_con_palla.fbx',
   (model) => {
     model.scale.set(0.01, 0.01, 0.01);
 
-    const materials = new Set<THREE.MeshStandardMaterial>();
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
 
         const mat = mesh.material as THREE.Material;
 
@@ -178,8 +182,8 @@ fbxLoader.load('models/maradona_con_palla.fbx',
           mesh.material = maradonaMaterialLibrary['palla'];
         }
 
-        // mesh.castShadow = true;
-        // mesh.receiveShadow = true;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         mesh.material.opacity = 1;
         mesh.material.transparent = (mesh.material.opacity < 1);
       }
@@ -338,15 +342,21 @@ function loadCampoTextures(){
 
 //#region LIGHTS
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+ambientLightGUI.add(ambientLight, 'intensity');
+
 scene.add(ambientLight);
 
-const directionalLight: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 3);
-directionalLight.position.set(38, 36.7, -50);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-directionalLight.shadow.bias = -0.00005;
-scene.add(directionalLight);
+// Luce originale (sopra/diagonale)
+createDirectionalLight(38, 36.7, -50);
+
+// Luce opposta
+createDirectionalLight(-38, 36.7, 50);
+
+// Luce laterale destra
+createDirectionalLight(50, 36.7, 38);
+
+// Luce laterale sinistra
+createDirectionalLight(-50, 36.7, -38);
 
 // gui.add(directionalLight, 'intensity')
 // gui.add(ambientLight, 'intensity')
@@ -380,9 +390,6 @@ orbitControls.minPolarAngle = 0.5;              // non andare più in alto di so
 orbitControls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
 
 orbitControls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
-
-// orbitControls.minDistance = 0.6;        // distanza minima
-// orbitControls.maxDistance = 0.75;       // distanza massima
 
 orbitControls.update()
 
@@ -427,8 +434,8 @@ function playIntroAnimation(camera, controls, startPos, startLookAt) {
     },
     onComplete: () => {
       controls.enabled = true;
-      orbitControls.minDistance = 0.7;        // distanza minima
-      orbitControls.maxDistance = 1.2;      // distanza massima
+      orbitControls.minDistance = minZoom;        // distanza minima
+      orbitControls.maxDistance = maxZoom;      // distanza massima
     }
   });
 
@@ -451,8 +458,8 @@ function playIntroAnimation(camera, controls, startPos, startLookAt) {
 
     tl.to(orbit, {
     angle: orbit.angle - Math.PI,
-    targetY: 0.28,
-    radius: orbit.radius + 0.6, // 👈 ancora più indietro
+    targetY: 0.14,
+    radius: orbit.radius + 1.7, // 👈 ancora più indietro
     duration: 1.5,
     ease: "power1.inOut"
   });
@@ -469,18 +476,65 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-  // const g = gui.addFolder('Camera Position (readonly)');
-  // g.add(camera.position, 'x').listen().disable();
-  // g.add(camera.position, 'y').listen().disable();
-  // g.add(camera.position, 'z').listen().disable();
+  const g = gui.addFolder('Camera');
+  g.add(camera.position, 'x').listen().disable();
+  g.add(camera.position, 'y').listen().disable();
+  g.add(camera.position, 'z').listen().disable();
 
-  // g.add(camera, 'fov')
+  g.add(camera, 'fov', 0, 120, 0.1).onChange(() =>  camera.updateProjectionMatrix());
 
   // const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
-  // const lookAtPosition = { x: 0, y: 0.06, z: 0 };
+  const lookAtPosition = { x: 0, y: 0.06, z: 0 };
 
-  // cameraLookAtPositionFolder.add(lookAtPosition, 'y', 0, 1, 0.01).onChange(() => {
-  //   orbitControls.target.set(0, lookAtPosition.y, 0)
-  //   orbitControls.update()
-  // });
+  g.add(lookAtPosition, 'y', 0, 1, 0.01)
+  .onChange(() => {
+    orbitControls.target.set(0, lookAtPosition.y, 0)
+    orbitControls.update()
+  })
+  .name('Camera Target Y');
+
+const minCtrl = g.add(orbitControls, 'minDistance', 0.01, 5, 0.01).name('Min Zoom').listen();
+const maxCtrl = g.add(orbitControls, 'maxDistance', 0.01, 10, 0.01).name('Max Zoom').listen();
+
+// quando cambia minDistance
+minCtrl.onChange((v: number) => {
+  if (v > orbitControls.maxDistance) {
+    orbitControls.maxDistance = v;
+    maxCtrl.updateDisplay(); // aggiorna GUI
+  }
+});
+
+// quando cambia maxDistance
+maxCtrl.onChange((v: number) => {
+  if (v < orbitControls.minDistance) {
+    orbitControls.minDistance = v;
+    minCtrl.updateDisplay(); // aggiorna GUI
+  }
+});
+
+  function createDirectionalLight(x: number, y: number, z: number): THREE.DirectionalLight {
+      const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare
+      light.position.set(x, y, z);
+      light.castShadow = true;
+
+      // dimensioni shadow map
+      light.shadow.mapSize.width = 1024;
+      light.shadow.mapSize.height = 1024;
+      light.shadow.bias = -0.00001;
+
+      // frustum della camera delle ombre
+      // const d = 50;
+      // light.shadow.camera.left = -d;
+      // light.shadow.camera.right = d;
+      // light.shadow.camera.top = d;
+      // light.shadow.camera.bottom = -d;
+      // light.shadow.camera.near = 1;
+      // light.shadow.camera.far = 200;
+
+      scene.add(light);
+
+      dirLightGUI.add(light, 'intensity')
+
+      return light;
+  }
 }

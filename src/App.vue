@@ -3,7 +3,7 @@ import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <div class="h-full">
+  <div id="main" class="h-full" ref="el">
     <Transition>
       <div
         v-if="loading && !disconnected"
@@ -29,16 +29,29 @@ import { RouterView } from "vue-router";
     </Transition>
 
     <RouterView class="p-0 lg:p-5" :class="loading ? 'overflow-hidden' : ''" />
+
+    <!-- How to Play Modal -->
+
+    <HowToPlayModal ref="howToPlayModal" />
+
+    <!-- Chat Mobile -->
+
+    <ChatMobile ref="chatMobilePanel" />
   </div>
 </template>
 
 <script lang="ts">
+import ChatMobile from "@/components/ChatMobile.vue";
+import HowToPlayModal from "@/components/HowToPlayModal.vue";
 import DisconnectionModal from "@/components/DisconnectionModal.vue";
+import { mapActions, mapState } from "vuex";
 
 export default {
   name: "App",
 
   components: {
+    ChatMobile,
+    HowToPlayModal,
     DisconnectionModal,
   },
 
@@ -47,6 +60,24 @@ export default {
     loading_progress: 0,
     disconnected: false,
   }),
+
+  computed: {
+    ...mapState({
+      isFullscreen: "isFullscreen",
+    }),
+  },
+
+  methods: {
+    ...mapActions(["setFullscreen"]),
+
+    enterFullscreen() {
+      if (this.$refs.el.requestFullscreen) {
+        this.setFullscreen(true);
+        console.log(this.isFullscreen);
+        this.$refs.el.requestFullscreen();
+      }
+    },
+  },
 
   created() {
     this.$mitt.on("loadingProgress", (value) => {

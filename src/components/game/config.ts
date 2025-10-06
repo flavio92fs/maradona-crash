@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import WebSocketPlugin from "./plugin/WebSocketPlugin";
-import BootScene from "./scenes/BootScene";
 import GameScene from "./scenes/GameScene";
 import LoadingScene from "./scenes/LoadingScene";
 
@@ -18,10 +17,15 @@ export const game: Phaser.Types.Core.GameConfig = {
   },
   plugins: {
     global: [
-      { key: 'wsPlugin', plugin: WebSocketPlugin, mapping: 'wsplugin', start: true }
-    ]
+      {
+        key: "wsPlugin",
+        plugin: WebSocketPlugin,
+        mapping: "wsplugin",
+        start: true,
+      },
+    ],
   },
-  scene: [BootScene, GameScene, LoadingScene],
+  scene: [GameScene, LoadingScene],
 };
 
 export const gameSize = {

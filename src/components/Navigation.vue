@@ -1,12 +1,12 @@
 <template>
-  <div class="flex justify-between bg-primary p-3 rounded-md">
+  <div class="flex justify-between bg-primary p-3 rounded-md z-[9999]">
     <div>
       <!-- <img class="ml-4 h-14 w-14" src="@/assets/eldorado-logo.png" /> -->
     </div>
     <div class="flex items-center">
       <button
         class="cursor-pointer flex flex-row items-center bg-orange-300 rounded-full p-1 sm:rounded-xl sm:py-0 sm:px-2 text-black"
-        @click="$refs.howToPlayModal.openModal()"
+        @click="$root.$refs.howToPlayModal.openModal()"
       >
         <InformationCircleIcon class="text-black h-5 w-5 sm:mr-1" />
         <span class="hidden sm:inline-block">{{ $t("how_to_play") }}?</span>
@@ -19,7 +19,7 @@
       </div>
       <div
         class="flex cursor-pointer 2xl:hidden items-center border border-secondary rounded-xl px-2 mr-2"
-        @click="$refs.chatMobilePanel.openChatPanel()"
+        @click="$root.$refs.chatMobilePanel.openChatPanel()"
       >
         <ChatBubbleOvalLeftEllipsisIcon class="text-secondary h-5 w-5" />
       </div>
@@ -80,14 +80,6 @@
         </div>
       </div>
     </div>
-
-    <!-- How to Play Modal -->
-
-    <HowToPlayModal ref="howToPlayModal" />
-
-    <!-- Chat Mobile -->
-
-    <ChatMobile ref="chatMobilePanel" />
   </div>
 </template>
 
@@ -102,8 +94,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { mapActions, mapState } from "vuex";
-import HowToPlayModal from "./HowToPlayModal.vue";
-import ChatMobile from "./ChatMobile.vue";
 import { Dropdown, Ripple, initTE } from "tw-elements";
 
 export default {
@@ -114,8 +104,6 @@ export default {
     MusicalNoteIcon,
     SparklesIcon,
     InformationCircleIcon,
-    HowToPlayModal,
-    ChatMobile,
     ChatBubbleOvalLeftEllipsisIcon,
   },
 

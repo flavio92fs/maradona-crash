@@ -7,6 +7,7 @@ export default createStore({
     coins: [],
     player: {},
     chatMessages: [],
+    isFullscreen: false,
   },
   mutations: {
     setBalance(state, balance) {
@@ -20,6 +21,9 @@ export default createStore({
     },
     setPlayer(state, player) {
       state.player = player;
+    },
+    setFullscreen(state, isFullscreen) {
+      state.isFullscreen = isFullscreen;
     },
     setChatMessages(state, chatMessages) {
       state.chatMessages = chatMessages;
@@ -46,6 +50,9 @@ export default createStore({
     },
     setPlayer({ commit }, player) {
       commit("setPlayer", player);
+    },
+    setFullscreen({ commit }, isFullscreen) {
+      commit("setFullscreen", isFullscreen);
     },
     setChatMessages({ commit }, chatMessages) {
       commit("setChatMessages", chatMessages);

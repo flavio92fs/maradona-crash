@@ -16,10 +16,10 @@ export default {
   computed: {
     color() {
       switch (true) {
-        case this.value > 0 && this.value < 3:
-          return "green";
-        case this.value >= 2 && this.value < 10:
-          return "yellow";
+        // case this.value > 0 && this.value < 3:
+        //   return "green";
+        // case this.value >= 2 && this.value < 10:
+        //   return "yellow";
         case this.value >= 10:
           return "#8203D0";
         default:

@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="open">
-    <Dialog as="div" class="relative z-10" @close="open = false">
+    <Dialog as="div" class="relative z-[9999]" @close="open = false">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -42,10 +42,12 @@
                         class="text-base font-semibold leading-6 text-white"
                         >{{ $t("how_to_play") }}</DialogTitle
                       >
-                      <XMarkIcon
-                        class="cursor-pointer h-5 w-5"
-                        @click="open = false"
-                      />
+                      <button>
+                        <XMarkIcon
+                          class="cursor-pointer h-5 w-5"
+                          @click="open = false"
+                        />
+                      </button>
                     </div>
                     <div class="text-white mt-2 px-4">
                       <p class="font-bold text-center text-lg my-4">
@@ -81,7 +83,7 @@ import { XMarkIcon } from "@heroicons/vue/24/outline";
 const open = ref(false);
 
 function openModal() {
-  console.log("Opening Modal");
+  // console.log("Opening Modal");
   open.value = true;
 }
 

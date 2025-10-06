@@ -3,15 +3,35 @@
   <div class="relative h-full w-full" ref="threeContainer" id="three-container">
     <div
       id="multipliers-overlay"
-      class="game-overlay flex lg:hidden flex-row absolute top-0 w-full z-10 p-2"
+      class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
     >
-      <MultiplierLabel
-        class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-        v-for="i in 5"
-        :key="i"
-        :value="10.0"
-      />
+      <div class="flex flex-row">
+        <MultiplierLabel
+          class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
+          v-for="i in 5"
+          :key="i"
+          :value="10.0"
+        />
+      </div>
+      <div class="w-full text-right">
+        <button
+          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+          v-if="isFullscreen == true"
+          @click.stop="exitFullscreen"
+        >
+          <ArrowsPointingInIcon class="text-white h-8 w-8" />
+        </button>
+
+        <button
+          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+          v-if="isFullscreen == false"
+          @click.stop="enterFullscreen"
+        >
+          <ArrowsPointingOutIcon class="text-white h-8 w-8" />
+        </button>
+      </div>
     </div>
+
     <div
       id="bet-overlay"
       class="game-overlay block lg:hidden absolute bottom-0 w-full z-10 p-3 pb-0"
@@ -108,12 +128,19 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { computed } from "@vue/reactivity";
+import store from "@/store";
+import {
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
+} from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 
 //Data
 
-const threeContainer = ref("");
+const threeContainer = ref(null);
+const isFullscreen = computed(() => store.state.isFullscreen);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
@@ -148,6 +175,16 @@ function startCloseTimer() {
   close_timer.value = setTimeout(() => {
     closeHistory();
   }, 3000);
+}
+
+function enterFullscreen() {
+  store.dispatch("setFullscreen", true);
+  document.body.requestFullscreen();
+}
+
+function exitFullscreen() {
+  store.dispatch("setFullscreen", false);
+  document.exitFullscreen();
 }
 
 onMounted(() => {
@@ -187,5 +224,9 @@ onMounted(() => {
 
 .history-button {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+.fullscreen-button {
+  background: rgba(0, 0, 0, 0.7);
 }
 </style>

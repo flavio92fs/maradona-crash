@@ -4,6 +4,7 @@
     <div
       id="multipliers-overlay"
       class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
+      @click.stop="closeHistory()"
     >
       <div class="flex flex-row">
         <MultiplierLabel
@@ -39,7 +40,7 @@
       <div class="flex justify-center w-100">
         <div class="btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="btn bet-button rounded-xl text-xl p-5 w-full text-white"
+            class="btn bet-button rounded-xl text-xl p-2 w-full text-white"
           >
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>
@@ -47,7 +48,7 @@
         </div>
         <div class="btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="btn bet-button rounded-xl bg-green-600 text-xl p-5 w-full text-white"
+            class="btn bet-button rounded-xl bg-green-600 text-xl p-2 w-full text-white"
           >
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>
@@ -127,8 +128,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { computed } from "@vue/reactivity";
+import { vOnClickOutside } from "@vueuse/components";
 import store from "@/store";
 import {
   ArrowsPointingOutIcon,
@@ -159,22 +161,23 @@ function openHistory(category) {
 }
 
 function closeHistory() {
+  // console.log("Closing history");
   isOpen.value = false;
   selected_category.value = 0;
 }
 
 function stopCloseTimer() {
-  console.log("Stopping Timer");
+  // console.log("Stopping Timer");
   if (close_timer) {
     clearTimeout(close_timer.value);
   }
 }
 
 function startCloseTimer() {
-  console.log("Resuming Timer");
+  // console.log("Resuming Timer");
   close_timer.value = setTimeout(() => {
     closeHistory();
-  }, 3000);
+  }, 10000);
 }
 
 function enterFullscreen() {
@@ -192,6 +195,10 @@ onMounted(() => {
   if (threeContainer.value) {
     initScene(threeContainer.value);
   }
+
+  document
+    .getElementsByTagName("canvas")[1]
+    .addEventListener("click", closeHistory);
 });
 </script>
 

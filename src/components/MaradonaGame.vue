@@ -1,12 +1,22 @@
 // ThreeScene.vue
 <template>
-  <div class="relative h-full w-full" ref="threeContainer" id="three-container" style="display: flex; justify-content: center; background-color: black; align-items: center;">
+  <div
+    class="relative h-full w-full"
+    ref="threeContainer"
+    id="three-container"
+    style="
+      display: flex;
+      justify-content: center;
+      background-color: black;
+      align-items: center;
+    "
+  >
     <div
       id="multipliers-overlay"
       class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
       @click.stop="closeHistory()"
     >
-      <div class="flex flex-row">
+      <div class="flex flex-row overflow-auto pb-5">
         <MultiplierLabel
           class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
           v-for="i in 5"
@@ -197,7 +207,7 @@ onMounted(() => {
   }
 
   document
-    .getElementsByTagName("canvas")[1]
+    .getElementsByTagName("canvas")[0]
     .addEventListener("click", closeHistory);
 });
 </script>

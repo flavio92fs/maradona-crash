@@ -83,7 +83,7 @@ export default {
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;
       this.loading_progress = Math.round(value.percent);
-      console.log(this.loading_progress);
+      // console.log(this.loading_progress);
       if (value.percent >= 100) {
         this.loading = false;
         this.loading_progress = 0;

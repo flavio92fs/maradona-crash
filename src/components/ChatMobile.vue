@@ -111,6 +111,7 @@ const messages = document.getElementById("mobile-messages-container");
 emitter.on("chat-messages", () => {
   nextTick(() => {
     console.log(messages);
+    if(messages != null)
     messages.scrollTop = messages.scrollHeight - messages.clientHeight;
   });
 });

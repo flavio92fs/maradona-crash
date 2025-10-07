@@ -9,63 +9,55 @@ const clock = new THREE.Clock();
 
 let mixerMaradonaDiffuse: THREE.AnimationMixer;
 
-const gui = new GUI();
-const dirLightGUI = gui.addFolder('Directional Light');
-const ambientLightGUI = gui.addFolder('Ambient Light');
+  const gui = new GUI();
+  const dirLightGUI = gui.addFolder("Directional Light");
+  const ambientLightGUI = gui.addFolder("Ambient Light");
 
-const minZoom: number = 1.5;
-const maxZoom: number = 2.05;
-  
-const loadingManager = new LoadingManager(() => {
-  animate();
-  // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
-});
+  const minZoom: number = 1.5;
+  const maxZoom: number = 2.05;
 
-const fbxLoader = loadingManager.fbxLoader;
-const textureLoader = loadingManager.textureLoader;
+  const loadingManager = new LoadingManager(() => {
+    animate();
+    // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
+  });
 
-//#region Maradona Textures
-let divisaBaseColor: THREE.Texture;
-let divisaNormalMap: THREE.Texture;
+  const fbxLoader = loadingManager.fbxLoader;
+  const textureLoader = loadingManager.textureLoader;
 
-let pelleBaseColor: THREE.Texture;
-let pelleNormalMap: THREE.Texture;
+  //#region Maradona Textures
+  let divisaBaseColor: THREE.Texture;
+  let divisaNormalMap: THREE.Texture;
 
-let capelliBaseColor: THREE.Texture;
+  let pelleBaseColor: THREE.Texture;
+  let pelleNormalMap: THREE.Texture;
 
-let pallaBaseColor: THREE.Texture;
-let pallaNormal: THREE.Texture;
+  let capelliBaseColor: THREE.Texture;
 
-//#endregion
+  let pallaBaseColor: THREE.Texture;
+  let pallaNormal: THREE.Texture;
 
-//#region Stadio Textures
-let pratoMap: THREE.Texture;
-let lineeCampoMap: THREE.Texture;
-let stadioBaseColor: THREE.Texture;
-//#endregion
+  //#endregion
 
 loadDivisaTextures();
 // loadCampoTextures();
 
-const audioManager = new AudioManager(loadingManager.loadingManager);
-
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
 
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-});
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(container.clientWidth, container.clientHeight);
-container.appendChild(renderer.domElement);
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
 
-function resizeRenderer() {
+  function resizeRenderer() {
     const windowWidth = container.clientWidth;
     const windowHeight = container.clientHeight;
 
@@ -73,10 +65,10 @@ function resizeRenderer() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(windowWidth, windowHeight);
-}
+  }
 
-window.addEventListener('resize', resizeRenderer);
-resizeRenderer();
+  window.addEventListener("resize", resizeRenderer);
+  resizeRenderer();
 
 let actions: { [key: string]: THREE.AnimationAction } = {};
 let subActions: { [key: string]: THREE.AnimationAction } = {};
@@ -130,12 +122,18 @@ fbxLoader.load('models/maradona_single_file.fbx',
 
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh
+        const mesh = child as THREE.Mesh;
 
         const mat = mesh.material as THREE.Material;
 
-        if(mat.name === 'divisa' || mat.name === 'colletto_ai' || mat.name === 'maglietta_ai' || mat.name === 'pantaloncini_ai' || mat.name === 'gambe_ai'){
-          mesh.material = maradonaMaterialLibrary['divisa'];
+        if (
+          mat.name === "divisa" ||
+          mat.name === "colletto_ai" ||
+          mat.name === "maglietta_ai" ||
+          mat.name === "pantaloncini_ai" ||
+          mat.name === "gambe_ai"
+        ) {
+          mesh.material = maradonaMaterialLibrary["divisa"];
         }
         if (mat.name === 'capelli') {
           mesh.material = maradonaMaterialLibrary['capelli'];
@@ -143,8 +141,8 @@ fbxLoader.load('models/maradona_single_file.fbx',
         if (mat.name === 'pelle' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
           mesh.material = maradonaMaterialLibrary['pelle'];
         }
-        if (mat.name === 'palla'){
-          mesh.material = maradonaMaterialLibrary['palla'];
+        if (mat.name === "palla") {
+          mesh.material = maradonaMaterialLibrary["palla"];
         }
       }
     });
@@ -152,7 +150,7 @@ fbxLoader.load('models/maradona_single_file.fbx',
     scene.add(model);
 
     mixerMaradonaDiffuse = new THREE.AnimationMixer(model);
-    
+
     model.animations.forEach((clip) => {
       const action = mixerMaradonaDiffuse.clipAction(clip);
       actions[clip.name] = action;
@@ -199,31 +197,41 @@ fbxLoader.load('models/maradona_single_file.fbx',
     video.play();
 
     const videoTexture = new THREE.VideoTexture(video);
-    scene.background = videoTexture;
+    // scene.background = videoTexture;
   });
+
+  
 
 //#region TEXTURES FUNCTIONS
 function loadDivisaTextures(){
     divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradonaBarcellona_BaseColor.png');
     divisaBaseColor.colorSpace = THREE.SRGBColorSpace;
 
-    divisaNormalMap = textureLoader.load('textures/maradona/DivisaMaradona_Normal.png');
-    
-    pelleBaseColor = textureLoader.load('textures/maradona/PelleMaradona_BaseColor.png');
+    divisaNormalMap = textureLoader.load(
+      "textures/maradona/DivisaMaradona_Normal.png"
+    );
+
+    pelleBaseColor = textureLoader.load(
+      "textures/maradona/PelleMaradona_BaseColor.png"
+    );
     pelleBaseColor.colorSpace = THREE.SRGBColorSpace;
-    pelleNormalMap = textureLoader.load('textures/maradona/PelleMaradona_Normal.png');
-    
-    capelliBaseColor = textureLoader.load('textures/maradona/Capelli_Diffuse.png');
+    pelleNormalMap = textureLoader.load(
+      "textures/maradona/PelleMaradona_Normal.png"
+    );
+
+    capelliBaseColor = textureLoader.load(
+      "textures/maradona/Capelli_Diffuse.png"
+    );
     capelliBaseColor.colorSpace = THREE.SRGBColorSpace;
-    
-    pallaBaseColor = textureLoader.load('textures/palla/palla_BaseColor.png');
+
+    pallaBaseColor = textureLoader.load("textures/palla/palla_BaseColor.png");
     pallaBaseColor.colorSpace = THREE.SRGBColorSpace;
     pallaBaseColor.minFilter = THREE.LinearMipmapLinearFilter; // qualità alta su distanza
-    pallaBaseColor.magFilter = THREE.LinearFilter;             // qualità alta da vicino
+    pallaBaseColor.magFilter = THREE.LinearFilter; // qualità alta da vicino
     // pallaBaseColor.anisotropy = renderer.capabilities.getMaxAnisotropy(); // massimo dettaglio angoli
 
-    pallaNormal = textureLoader.load('textures/palla/palla_Normal.png');
-}
+    pallaNormal = textureLoader.load("textures/palla/palla_Normal.png");
+  }
 
 // function loadCampoTextures(){
 //     pratoMap = textureLoader.load('textures/stadio/prato.jpeg')
@@ -301,15 +309,16 @@ function animate() {
       const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare
       light.position.set(x, y, z);
 
-      scene.add(light);
+    scene.add(light);
 
-      dirLightGUI.add(light, 'intensity')
+    dirLightGUI.add(light, "intensity");
 
-      return light;
+    return light;
   }
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "h") { // premi "h" per hide
+    if (e.key === "h") {
+      // premi "h" per hide
       if (gui.domElement.style.display === "none") {
         gui.domElement.style.display = "";
       } else {

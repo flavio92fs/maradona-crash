@@ -1,11 +1,22 @@
 // ThreeScene.vue
 <template>
-  <div class="relative h-full w-full" ref="threeContainer" id="three-container" style="display: flex; justify-content: center; background-color: black; align-items: center;">
+  <div
+    class="flex flex-col h-full w-full"
+    ref="threeContainer"
+    id="three-container"
+    style="
+      display: flex;
+      justify-content: center;
+      background-color: black;
+      align-items: center;
+    "
+  >
     <div
       id="multipliers-overlay"
-      class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
+      class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-10 p-2"
+      @click.stop="closeHistory()"
     >
-      <div class="flex flex-row">
+      <div class="flex flex-row overflow-auto pb-5">
         <MultiplierLabel
           class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
           v-for="i in 5"
@@ -33,93 +44,103 @@
     </div>
 
     <div
-      id="bet-overlay"
-      class="game-overlay block lg:hidden absolute bottom-0 w-full z-10 p-3 pb-0"
-    >
-      <div class="flex justify-center w-100">
-        <div class="btn-container rounded-lg w-full mx-2 p-2">
-          <button
-            class="btn bet-button rounded-xl text-xl p-2 w-full text-white"
-          >
-            <p class="font-bold">BET</p>
-            <p class="font-bold">1.00€</p>
-          </button>
-        </div>
-        <div class="btn-container rounded-lg w-full mx-2 p-2">
-          <button
-            class="btn bet-button rounded-xl bg-green-600 text-xl p-2 w-full text-white"
-          >
-            <p class="font-bold">BET</p>
-            <p class="font-bold">1.00€</p>
-          </button>
-        </div>
-      </div>
+      ref="threeGameContainer"
+      class="flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
+      @click="closeHistory()"
+    ></div>
 
-      <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
-        <div class="flex flex-row">
-          <button
-            class="btn history-button rounded-xl text-xl px-2 w-full text-white"
-            :style="
-              selected_category == 1
-                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                : ''
-            "
-            @click="openHistory(1)"
-          >
-            <p class="font-bold">All Bets</p>
-          </button>
-
-          <button
-            class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
-            :style="
-              selected_category == 2
-                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                : ''
-            "
-            @click="openHistory(2)"
-          >
-            <p class="font-bold">My Bets</p>
-          </button>
-
-          <button
-            class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
-            :style="
-              selected_category == 3
-                ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                : ''
-            "
-            @click="openHistory(3)"
-          >
-            <p class="font-bold">Top</p>
-          </button>
-        </div>
-
-        <div
-          id="history-container"
-          :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
-          class="flex rounded-xl mt-2"
-        >
+    <div class="lg:hidden w-full" style="height: 10%">
+      <div
+        id="bet-overlay"
+        class="game-overlay absolute block lg:hidden bottom-0 w-full z-10 p-3 pb-0"
+      >
+        <div class="flex justify-center w-100">
           <div
-            id="history-content"
-            :class="isOpen ? 'flex flex-col' : 'hidden'"
-            class="text-white w-full overflow-auto"
-            @mousedown="stopCloseTimer()"
-            @mouseup="startCloseTimer()"
-            @mouseleave="startCloseTimer()"
-            @scroll="stopCloseTimer()"
-            @scrollend="startCloseTimer()"
+            class="flex flex-row items-center btn-container rounded-lg w-full mx-2 p-2"
           >
-            <p v-for="i in 100">Bet {{ i }}</p>
+            <button
+              class="btn button-70 rounded-xl text-xl p-2 w-full text-white"
+            >
+              <p class="font-bold">BET</p>
+              <p class="font-bold">1.00€</p>
+            </button>
+          </div>
+          <div class="btn-container rounded-lg w-full mx-2 p-2">
+            <button
+              class="btn button-70 rounded-xl bg-green-600 text-xl p-2 w-full text-white"
+            >
+              <p class="font-bold">BET</p>
+              <p class="font-bold">1.00€</p>
+            </button>
           </div>
         </div>
 
-        <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
-          <button
-            class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
-            @click="closeHistory()"
+        <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
+          <div class="flex flex-row">
+            <button
+              class="btn history-button rounded-xl text-xl px-2 w-full text-white"
+              :style="
+                selected_category == 1
+                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                  : ''
+              "
+              @click="openHistory(1)"
+            >
+              <p class="font-bold">All Bets</p>
+            </button>
+
+            <button
+              class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
+              :style="
+                selected_category == 2
+                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                  : ''
+              "
+              @click="openHistory(2)"
+            >
+              <p class="font-bold">My Bets</p>
+            </button>
+
+            <button
+              class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+              :style="
+                selected_category == 3
+                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                  : ''
+              "
+              @click="openHistory(3)"
+            >
+              <p class="font-bold">Top</p>
+            </button>
+          </div>
+
+          <div
+            id="history-container"
+            :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
+            class="flex rounded-xl mt-2"
           >
-            <p class="font-bold">Close</p>
-          </button>
+            <div
+              id="history-content"
+              :class="isOpen ? 'flex flex-col' : 'hidden'"
+              class="text-white w-full overflow-auto"
+              @mousedown="stopCloseTimer()"
+              @mouseup="startCloseTimer()"
+              @mouseleave="startCloseTimer()"
+              @scroll="stopCloseTimer()"
+              @scrollend="startCloseTimer()"
+            >
+              <p v-for="i in 100">Bet {{ i }}</p>
+            </div>
+          </div>
+
+          <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
+            <button
+              class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
+              @click="closeHistory()"
+            >
+              <p class="font-bold">Close</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -127,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { computed } from "@vue/reactivity";
 import store from "@/store";
 import {
@@ -139,7 +160,7 @@ import MultiplierLabel from "./MultiplierLabel.vue";
 
 //Data
 
-const threeContainer = ref(null);
+const threeGameContainer = ref(null);
 const isFullscreen = computed(() => store.state.isFullscreen);
 let isOpen = ref(false);
 let selected_category = ref(0);
@@ -159,22 +180,23 @@ function openHistory(category) {
 }
 
 function closeHistory() {
+  // console.log("Closing history");
   isOpen.value = false;
   selected_category.value = 0;
 }
 
 function stopCloseTimer() {
-  console.log("Stopping Timer");
+  // console.log("Stopping Timer");
   if (close_timer) {
     clearTimeout(close_timer.value);
   }
 }
 
 function startCloseTimer() {
-  console.log("Resuming Timer");
+  // console.log("Resuming Timer");
   close_timer.value = setTimeout(() => {
     closeHistory();
-  }, 3000);
+  }, 10000);
 }
 
 function enterFullscreen() {
@@ -188,10 +210,14 @@ function exitFullscreen() {
 }
 
 onMounted(() => {
-  console.log(threeContainer.value);
-  if (threeContainer.value) {
-    initScene(threeContainer.value);
+  console.log(threeGameContainer.value);
+  if (threeGameContainer.value) {
+    initScene(threeGameContainer.value);
   }
+
+  document
+    .getElementsByTagName("canvas")[0]
+    .addEventListener("click", closeHistory);
 });
 </script>
 
@@ -228,5 +254,23 @@ onMounted(() => {
 
 .fullscreen-button {
   background: rgba(0, 0, 0, 0.7);
+}
+
+.button-70 {
+  background-image: linear-gradient(#0dccea, #0d70ea);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 5px 15px;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  font-family: Montserrat, sans-serif;
+  font-size: 0.9em;
+  margin: 5px;
+  padding: 10px 15px;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 </style>

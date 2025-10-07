@@ -1,6 +1,6 @@
 // ThreeScene.vue
 <template>
-  <div class="relative h-full w-full" ref="threeContainer" id="three-container">
+  <div class="relative h-full w-full" ref="threeContainer" id="three-container" style="display: flex; justify-content: center; background-color: black; align-items: center;">
     <div
       id="multipliers-overlay"
       class="game-overlay flex flex-col lg:hidden flex-row absolute top-0 w-full z-10 p-2"
@@ -14,7 +14,7 @@
           :value="10.0"
         />
       </div>
-      <div class="w-full text-right">
+      <!-- <div class="w-full text-right">
         <button
           class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
           v-if="isFullscreen == true"
@@ -30,7 +30,7 @@
         >
           <ArrowsPointingOutIcon class="text-white h-8 w-8" />
         </button>
-      </div>
+      </div> -->
     </div>
 
     <div

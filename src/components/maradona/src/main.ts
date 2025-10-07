@@ -13,9 +13,6 @@ let mixerMaradonaDiffuse: THREE.AnimationMixer;
   const dirLightGUI = gui.addFolder("Directional Light");
   const ambientLightGUI = gui.addFolder("Ambient Light");
 
-  const minZoom: number = 1.5;
-  const maxZoom: number = 2.05;
-
   const loadingManager = new LoadingManager(() => {
     animate();
     // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
@@ -126,6 +123,9 @@ fbxLoader.load('models/maradona_single_file.fbx',
 
         const mat = mesh.material as THREE.Material;
 
+        mesh.castShadow = true;     // il modello proietta ombra
+        mesh.receiveShadow = true;
+
         if (
           mat.name === "divisa" ||
           mat.name === "colletto_ai" ||
@@ -186,21 +186,76 @@ fbxLoader.load('models/maradona_single_file.fbx',
 );
 //#endregion
 
+
+function createVideoPlane(path: string, size = { w: 16, h: 9 }): THREE.Mesh {
   const video = document.createElement('video');
-  video.src = 'video/video.mp4';
+  video.src = path;
   video.loop = true;
-  video.muted = true; // ⚠️ se non è muted, serve un’interazione utente per farlo partire
+  video.muted = true;        // autoplay solo se muted
+  video.playsInline = true;
   video.preload = 'auto';
 
-  video.addEventListener('canplaythrough', () => {
-    console.log("Video pronto!");
-    video.play();
+  // puoi decidere quando farlo partire (es. con click utente)
+  // video.play();
 
-    const videoTexture = new THREE.VideoTexture(video);
-    // scene.background = videoTexture;
+  const videoTexture = new THREE.VideoTexture(video);
+  const geometry = new THREE.PlaneGeometry(size.w, size.h);
+  const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+  const plane = new THREE.Mesh(geometry, material);
+
+  // opzionale: avvia il video appena è pronto
+  video.addEventListener('canplaythrough', () => {
+    console.log(`Video "${path}" pronto!`);
+    video.play();
   });
 
-  
+  return plane;
+}
+
+function addPlaneGui(gui: GUI, plane: THREE.Mesh, name: string) {
+  // posizione
+  const posFolder = gui.addFolder(`${name} Position`);
+  posFolder.add(plane.position, 'x', -50, 50, 0.1);
+  posFolder.add(plane.position, 'y', -50, 50, 0.1);
+  posFolder.add(plane.position, 'z', -50, 50, 0.1);
+
+  // rotazioni in gradi (proxy)
+  const rotProxy = {
+    x: THREE.MathUtils.radToDeg(plane.rotation.x),
+    y: THREE.MathUtils.radToDeg(plane.rotation.y),
+    z: THREE.MathUtils.radToDeg(plane.rotation.z),
+  };
+
+  const rotFolder = gui.addFolder(`${name} Rotation`);
+  rotFolder.add(rotProxy, 'x', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.x = THREE.MathUtils.degToRad(deg);
+  });
+  rotFolder.add(rotProxy, 'y', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.y = THREE.MathUtils.degToRad(deg);
+  });
+  rotFolder.add(rotProxy, 'z', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.z = THREE.MathUtils.degToRad(deg);
+  });
+}
+
+const plane1 = createVideoPlane('video/video.mp4');
+const plane2 = createVideoPlane('video/video.mp4');
+
+addPlaneGui(gui, plane1, 'Plane 1')
+addPlaneGui(gui, plane2, 'Plane 2')
+
+// li aggiungo alla scena
+scene.add(plane1);
+scene.add(plane2);
+
+// setto posizione/rotazione a piacere
+plane1.position.set(0, 0, 17.5);
+plane1.rotation.y = THREE.MathUtils.degToRad(180)
+
+plane2.position.set(0, -4.5, 13);
+plane2.rotation.y = THREE.MathUtils.degToRad(180)
+plane2.rotation.x = THREE.MathUtils.degToRad(90)
+
 
 //#region TEXTURES FUNCTIONS
 function loadDivisaTextures(){

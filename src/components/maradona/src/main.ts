@@ -50,7 +50,7 @@ loadDivisaTextures();
 const audioManager = new AudioManager(loadingManager.loadingManager);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -124,10 +124,10 @@ const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
 };
 
 // #region MARADONA FBX
-fbxLoader.load('models/maradona_con_palla.fbx',
+fbxLoader.load('models/maradona_single_file.fbx',
   (model) => {
     model.scale.set(0.01, 0.01, 0.01);
-    
+
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh
@@ -137,10 +137,10 @@ fbxLoader.load('models/maradona_con_palla.fbx',
         if(mat.name === 'divisa' || mat.name === 'colletto_ai' || mat.name === 'maglietta_ai' || mat.name === 'pantaloncini_ai' || mat.name === 'gambe_ai'){
           mesh.material = maradonaMaterialLibrary['divisa'];
         }
-        if (mat.name === 'capelli_ai') {
+        if (mat.name === 'capelli') {
           mesh.material = maradonaMaterialLibrary['capelli'];
         }
-        if (mat.name === 'pelle_ai1' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
+        if (mat.name === 'pelle' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
           mesh.material = maradonaMaterialLibrary['pelle'];
         }
         if (mat.name === 'palla'){
@@ -158,17 +158,19 @@ fbxLoader.load('models/maradona_con_palla.fbx',
       actions[clip.name] = action;
     });
 
-    addSubAction(actions['palleggio_loop1'], 'palleggio1', 386, 685, 30);
-    addSubAction(actions['palleggio_loop2'], 'palleggio2', 686, 987, 30);
-    addSubAction(actions['riscaldamento'], 'riscaldamento', 0, 297, 30);
+    addSubAction(actions['start'], 'start', 297, 384, 30);
+    addSubAction(actions['palleggio_loop1'], 'palleggio1', 385, 684, 30);
+    addSubAction(actions['palleggio_loop2'], 'palleggio2', 685, 986, 30);
+    addSubAction(actions['riscaldamento'], 'riscaldamento', 1, 296, 30);
 
-    currentAction =  subActions['palleggio2']
+    currentAction =  subActions['palleggio1']
     currentAction.play();
 
     const keyToSubAction: Record<string, string> = {
       Digit1: 'riscaldamento',
       Digit2: 'palleggio1',
       Digit3: 'palleggio2',
+      Digit4: 'start',
     };
 
     window.addEventListener("keydown", (e) => {
@@ -262,7 +264,7 @@ createDirectionalLight(38, 36.7, -50);
 //#endregion
 
 
-camera.position.set(-0, 0.30, -1.20);
+camera.position.set(0, 0.51, -1.2);
 camera.lookAt(0, 0.12, 0)
 
 function animate() {
@@ -276,13 +278,24 @@ function animate() {
 }
 
   const g = gui.addFolder('Camera');
-  g.add(camera.position, 'x').listen().disable();
-  g.add(camera.position, 'y').listen().disable();
-  g.add(camera.position, 'z').listen().disable();
+  g.add(camera.position, 'x').listen().onChange(() =>  updateCamera());
+  g.add(camera.position, 'y').listen().onChange(() =>  updateCamera());
+  g.add(camera.position, 'z').listen().onChange(() =>  updateCamera());
 
   g.add(camera, 'fov', 0, 120, 0.1).onChange(() =>  camera.updateProjectionMatrix());
-
+  
   const lookAtPosition = { x: 0, y: 0.06, z: 0 };
+
+  const targetFolder = gui.addFolder('LookAt');
+  targetFolder.add(lookAtPosition, 'x', -1, 1, 0.01).onChange(updateCamera);
+  targetFolder.add(lookAtPosition, 'y', -1, 1, 0.01).onChange(updateCamera);
+  targetFolder.add(lookAtPosition, 'z', -1, 1, 0.01).onChange(updateCamera);
+
+
+  function updateCamera() {
+    camera.updateProjectionMatrix();
+    camera.lookAt(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+  }
 
   function createDirectionalLight(x: number, y: number, z: number): THREE.DirectionalLight {
       const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare

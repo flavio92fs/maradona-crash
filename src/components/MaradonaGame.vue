@@ -13,10 +13,10 @@
   >
     <div
       id="multipliers-overlay"
-      class="game-overlay absolute flex flex-col lg:hidden flex-row top-0 w-full z-10 p-2"
+      class="game-overlay absolute flex flex-col lg:hidden flex-row top-0 w-full z-10 py-2"
       @click.stop="closeHistory()"
     >
-      <div class="flex flex-row overflow-auto pb-5">
+      <div class="flex flex-row overflow-auto">
         <MultiplierLabel
           class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
           v-for="i in 5"
@@ -225,7 +225,7 @@ onMounted(() => {
 }
 
 .game-overlay {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 #history-overlay {

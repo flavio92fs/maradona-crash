@@ -25,18 +25,10 @@ export default class LoadingManager {
       console.log(`Inizio caricamento: ${url}`);
 
     this._loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      // console.log(`Caricato ${itemsLoaded} di ${itemsTotal} file.`);
       const percent = (itemsLoaded / itemsTotal) * 100;
-
-      //   console.log(percent);
 
       emitter.on("loadingProgress", () => {});
       emitter.emit("loadingProgress", { percent: percent });
-
-      // const progressBar = document.getElementById('progress-bar');
-      // if(progressBar != null){
-      //     progressBar.style.width = percent + '%';
-      // }
     };
 
     this._loadingManager.onLoad = () => {

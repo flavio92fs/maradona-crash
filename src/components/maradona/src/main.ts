@@ -1,22 +1,17 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import LoadingManager from "./loadingManager";
 import AudioManager from "./audioManager";
-import gsap from "gsap";
+import { AnimationUtils } from 'three';
 
 export function initScene(container: HTMLElement) {
-  const clock = new THREE.Clock();
+const clock = new THREE.Clock();
 
-  let mixerMaradonaDiffuse: THREE.AnimationMixer;
-  let mixerMaradonaWireframe: THREE.AnimationMixer;
+let mixerMaradonaDiffuse: THREE.AnimationMixer;
 
   const gui = new GUI();
   const dirLightGUI = gui.addFolder("Directional Light");
   const ambientLightGUI = gui.addFolder("Ambient Light");
-
-  const minZoom: number = 1.5;
-  const maxZoom: number = 2.05;
 
   const loadingManager = new LoadingManager(() => {
     animate();
@@ -40,19 +35,11 @@ export function initScene(container: HTMLElement) {
 
   //#endregion
 
-  //#region Stadio Textures
-  let pratoMap: THREE.Texture;
-  let lineeCampoMap: THREE.Texture;
-  let stadioBaseColor: THREE.Texture;
-  //#endregion
+loadDivisaTextures();
+// loadCampoTextures();
 
-  loadDivisaTextures();
-  loadCampoTextures();
-
-  const audioManager = new AudioManager(loadingManager.loadingManager);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(30, 9 / 16, 0.1, 1000);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -80,86 +67,54 @@ export function initScene(container: HTMLElement) {
   window.addEventListener("resize", resizeRenderer);
   resizeRenderer();
 
-  let actions: { [key: string]: THREE.AnimationAction } = {};
-  let currentAction: THREE.AnimationAction;
+let actions: { [key: string]: THREE.AnimationAction } = {};
+let subActions: { [key: string]: THREE.AnimationAction } = {};
+let currentAction: THREE.AnimationAction;
 
-  const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
-    divisa: new THREE.MeshStandardMaterial({
-      map: divisaBaseColor,
-      normalMap: divisaNormalMap,
-      normalScale: new THREE.Vector2(1, 1),
-      transparent: true,
-      side: THREE.DoubleSide,
-      opacity: 0, // parte invisibile
-    }),
-    pelle: new THREE.MeshStandardMaterial({
-      map: pelleBaseColor,
-      normalMap: pelleNormalMap,
-      normalScale: new THREE.Vector2(1, 1),
-      transparent: true,
-      side: THREE.DoubleSide,
-      opacity: 0,
-    }),
-    capelli: new THREE.MeshStandardMaterial({
-      map: capelliBaseColor,
-      metalness: 1.0,
-      roughness: 1.0,
-      transparent: true,
-      side: THREE.DoubleSide,
-      opacity: 0,
-    }),
-    palla: new THREE.MeshStandardMaterial({
-      map: pallaBaseColor,
-      normal: pallaNormal,
-      transparent: true,
-      side: THREE.DoubleSide,
-      opacity: 0,
-    }),
-    wireMat: new THREE.MeshBasicMaterial({
-      color: 0x0000ff,
-      wireframe: true,
-      transparent: true,
-      side: THREE.DoubleSide,
-      opacity: 0,
-    }),
-  };
+const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
+  divisa: new THREE.MeshStandardMaterial({
+    map: divisaBaseColor,
+    normalMap: divisaNormalMap,
+    normalScale: new THREE.Vector2(1, 1),
+    // transparent: true,
+    side: THREE.DoubleSide,
+    opacity: 0, // parte invisibile
+  }),
+  pelle: new THREE.MeshStandardMaterial({
+    map: pelleBaseColor,
+    normalMap: pelleNormalMap,
+    normalScale: new THREE.Vector2(1, 1),
+    // transparent: true,
+    side: THREE.DoubleSide,
+    opacity: 0,
+  }),
+  capelli: new THREE.MeshStandardMaterial({
+    map: capelliBaseColor,
+    metalness: 1.0,
+    roughness: 1.0,
+    // transparent: true,
+    side: THREE.DoubleSide,
+    opacity: 0,
+  }),
+  palla: new THREE.MeshStandardMaterial({
+    map: pallaBaseColor,
+    normal: pallaNormal,
+    // transparent: true,
+    side: THREE.DoubleSide,
+    opacity: 0,
+  }),
+ wireMat: new THREE.MeshBasicMaterial({
+    color: 0x0000ff,
+    wireframe: true,
+    // transparent: true,
+    side: THREE.DoubleSide,
+    opacity: 0,
+  })
+};
 
-  //region MARADONA WIREFRAME
-  // fbxLoader.load('models/maradona_con_palla.fbx',
-  //   (model) => {
-  //     model.scale.set(0.01, 0.01, 0.01);
-
-  //     const materials = new Set<THREE.MeshStandardMaterial>();
-  //     model.traverse((child) => {
-  //       if ((child as THREE.Mesh).isMesh) {
-  //         const mesh = child as THREE.Mesh
-
-  //         const mat = mesh.material as THREE.Material;
-
-  //         mesh.material = materialLibrary['wireMat']
-  //         mesh.material.opacity = 1;
-  //         mesh.material.transparent = (mesh.material.opacity < 1);
-  //       }
-  //     });
-
-  //     scene.add(model);
-
-  //     mixerMaradonaWireframe = new THREE.AnimationMixer(model);
-
-  //     model.animations.forEach((clip) => {
-  //       const action = mixerMaradonaWireframe.clipAction(clip);
-  //       actions[clip.name] = action;
-  //     });
-
-  //     currentAction = actions['riscaldamento'];  // <-- sostituisci col nome giusto
-  //     currentAction.play();
-  //   }
-  // );
-
-  //#endregion
-
-  //#region MARADONA FBX
-  fbxLoader.load("models/maradona_con_palla.fbx", (model) => {
+// #region MARADONA FBX
+fbxLoader.load('models/maradona_single_file.fbx',
+  (model) => {
     model.scale.set(0.01, 0.01, 0.01);
 
     model.traverse((child) => {
@@ -167,6 +122,9 @@ export function initScene(container: HTMLElement) {
         const mesh = child as THREE.Mesh;
 
         const mat = mesh.material as THREE.Material;
+
+        mesh.castShadow = true;     // il modello proietta ombra
+        mesh.receiveShadow = true;
 
         if (
           mat.name === "divisa" ||
@@ -177,24 +135,15 @@ export function initScene(container: HTMLElement) {
         ) {
           mesh.material = maradonaMaterialLibrary["divisa"];
         }
-        if (mat.name === "capelli_ai") {
-          mesh.material = maradonaMaterialLibrary["capelli"];
+        if (mat.name === 'capelli') {
+          mesh.material = maradonaMaterialLibrary['capelli'];
         }
-        if (
-          mat.name === "pelle_ai1" ||
-          mat.name === "pelle_ai" ||
-          mat.name === "occhi_ai"
-        ) {
-          mesh.material = maradonaMaterialLibrary["pelle"];
+        if (mat.name === 'pelle' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
+          mesh.material = maradonaMaterialLibrary['pelle'];
         }
         if (mat.name === "palla") {
           mesh.material = maradonaMaterialLibrary["palla"];
         }
-
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        mesh.material.opacity = 1;
-        mesh.material.transparent = mesh.material.opacity < 1;
       }
     });
 
@@ -207,150 +156,110 @@ export function initScene(container: HTMLElement) {
       actions[clip.name] = action;
     });
 
-    currentAction = actions["riscaldamento"]; // <-- sostituisci col nome giusto
-    currentAction.play();
-  });
+    addSubAction(actions['start'], 'start', 297, 384, 30);
+    addSubAction(actions['palleggio_loop1'], 'palleggio1', 385, 684, 30);
+    addSubAction(actions['palleggio_loop2'], 'palleggio2', 685, 986, 30);
+    addSubAction(actions['riscaldamento'], 'riscaldamento', 1, 296, 30);
 
-  const video = document.createElement("video");
-  video.src = "video/video.mp4";
+    currentAction =  subActions['palleggio1']
+    currentAction.play();
+
+    const keyToSubAction: Record<string, string> = {
+      Digit1: 'riscaldamento',
+      Digit2: 'palleggio1',
+      Digit3: 'palleggio2',
+      Digit4: 'start',
+    };
+
+    window.addEventListener("keydown", (e) => {
+      const subName = keyToSubAction[e.code];
+      if (subName && subActions[subName]) {
+        fadeToAction(subActions[subName], 0.5); // fade 0.5s
+      }
+    });
+
+    // subAction.reset().play();
+
+    // currentAction = actions['riscaldamento'];
+    // currentAction.play();
+  }
+);
+//#endregion
+
+
+function createVideoPlane(path: string, size = { w: 16, h: 9 }): THREE.Mesh {
+  const video = document.createElement('video');
+  video.src = path;
   video.loop = true;
-  video.muted = true;
-  video.play();
+  video.muted = true;        // autoplay solo se muted
+  video.playsInline = true;
+  video.preload = 'auto';
+
+  // puoi decidere quando farlo partire (es. con click utente)
+  // video.play();
 
   const videoTexture = new THREE.VideoTexture(video);
-  scene.background = videoTexture;
+  const geometry = new THREE.PlaneGeometry(size.w, size.h);
+  const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+  const plane = new THREE.Mesh(geometry, material);
 
-  // fbxLoader.load('models/strisce.fbx',
-  //   (model) => {
-  //     model.scale.set(0.02, 0, 0.02);
-  //     model.position.set(0, 0.002, 0);
-  //     model.rotation.set(0, Math.PI/2, 0)
+  // opzionale: avvia il video appena è pronto
+  video.addEventListener('canplaythrough', () => {
+    console.log(`Video "${path}" pronto!`);
+    video.play();
+  });
 
-  //     model.traverse((child) => {
-  //       if ((child as THREE.Mesh).isMesh) {
-  //         const mesh = child as THREE.Mesh
+  return plane;
+}
 
-  //         const mat = mesh.material as THREE.Material;
+function addPlaneGui(gui: GUI, plane: THREE.Mesh, name: string) {
+  // posizione
+  const posFolder = gui.addFolder(`${name} Position`);
+  posFolder.add(plane.position, 'x', -50, 50, 0.1);
+  posFolder.add(plane.position, 'y', -50, 50, 0.1);
+  posFolder.add(plane.position, 'z', -50, 50, 0.1);
 
-  //         mesh.material.opacity = 1;
-  //       }
-  //     });
+  // rotazioni in gradi (proxy)
+  const rotProxy = {
+    x: THREE.MathUtils.radToDeg(plane.rotation.x),
+    y: THREE.MathUtils.radToDeg(plane.rotation.y),
+    z: THREE.MathUtils.radToDeg(plane.rotation.z),
+  };
 
-  //     scene.add(model);
+  const rotFolder = gui.addFolder(`${name} Rotation`);
+  rotFolder.add(rotProxy, 'x', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.x = THREE.MathUtils.degToRad(deg);
+  });
+  rotFolder.add(rotProxy, 'y', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.y = THREE.MathUtils.degToRad(deg);
+  });
+  rotFolder.add(rotProxy, 'z', 0, 360, 1).onChange((deg: number) => {
+    plane.rotation.z = THREE.MathUtils.degToRad(deg);
+  });
+}
 
-  //     currentAction = actions['riscaldamento'];  // <-- sostituisci col nome giusto
-  //     currentAction.play();
-  //   }
-  // );
+const plane1 = createVideoPlane('video/video.mp4');
+const plane2 = createVideoPlane('video/video.mp4');
 
-  //#endregion
+addPlaneGui(gui, plane1, 'Plane 1')
+addPlaneGui(gui, plane2, 'Plane 2')
 
-  //#region STADIO FBX
-  // fbxLoader.load('models/stadio.fbx',
-  //   (model) => {
-  //     model.scale.set(0.01, 0.01, 0.01);
+// li aggiungo alla scena
+scene.add(plane1);
+scene.add(plane2);
 
-  //     console.log(model.name)
+// setto posizione/rotazione a piacere
+plane1.position.set(0, 0, 17.5);
+plane1.rotation.y = THREE.MathUtils.degToRad(180)
 
-  //     const materials = new Set<THREE.MeshStandardMaterial>();
-  //     model.traverse((child) => {
-  //       if ((child as THREE.Mesh).isMesh) {
-  //         const mesh = child as THREE.Mesh
+plane2.position.set(0, -4.5, 13);
+plane2.rotation.y = THREE.MathUtils.degToRad(180)
+plane2.rotation.x = THREE.MathUtils.degToRad(90)
 
-  //         const mat = mesh.material as THREE.Material;
 
-  //         console.log(mat.name)
-
-  //         const newMat = new THREE.MeshStandardMaterial({
-  //           name: mat.name
-  //         });
-
-  //         mesh.material = newMat;
-  //         materials.add(newMat);
-  //       }
-  //     });
-
-  //     materials.forEach(material => {
-  //       if (material.name === 'stadio_ai' || material.name === 'Fari') {
-  //         material.map = stadioBaseColor;
-  //         material.emissive = new THREE.Color(0xffffff);
-  //         material.emissiveMap = stadioEmissive;
-  //         material.emissiveIntensity = 1.5;
-
-  //         material.needsUpdate = true;
-  //       }
-
-  //       if (material.name === 'strisce') {
-  //         material.map = lineecampo;
-  //         material.transparent = true;
-  //         material.needsUpdate = true;
-  //       }
-
-  //       if (material.name === 'stadio') {
-  //         material.map = pratoMap;
-  //         material.metalness = 0;
-  //         material.roughness = 1;
-  //         material.needsUpdate = true;
-  //       }
-  //     });
-
-  //     scene.add(model);
-  //   }
-  // );
-
-  // const blackPlaneGeometry = new THREE.PlaneGeometry(200, 200);
-
-  // // materiale che reagisce alla luce
-  // const blackMat = new THREE.MeshBasicMaterial();
-  // blackMat.color.set(0x000000);
-
-  // const blackPlane = new THREE.Mesh(blackPlaneGeometry, blackMat);
-  // blackPlane.rotation.x = -Math.PI / 2; // orizzontale
-  // blackPlane.position.y = -0.0001; // altezza
-
-  // scene.add(blackPlane);
-
-  // const pratoGeometry = new THREE.PlaneGeometry(3, 3);
-
-  // // materiale che reagisce alla luce
-  // const pratoMaterial = new THREE.MeshBasicMaterial({
-  //   map: pratoMap,
-  //   transparent: true,
-  // });
-
-  // pratoMaterial.roughness = 1
-  // pratoMaterial.metalness = 0
-
-  // const prato = new THREE.Mesh(pratoGeometry, pratoMaterial);
-  // prato.receiveShadow = true;
-  // prato.rotation.x = -Math.PI / 2; // orizzontale
-  // prato.position.y = 0; // altezza
-
-  // scene.add(prato);
-
-  // const pratoShadowGeometry = new THREE.PlaneGeometry(5, 5);
-
-  // // materiale che reagisce alla luce
-  // const pratoShadowMaterial = new THREE.ShadowMaterial();
-  // pratoShadowMaterial.opacity = 0.5;
-
-  // const pratoShadow = new THREE.Mesh( pratoShadowGeometry, pratoShadowMaterial);
-  // pratoShadow.rotation.x = -Math.PI / 2;
-
-  // pratoShadow.receiveShadow = true;
-  // pratoShadow.position.set(0, 0.001, 0);
-  // scene.add(pratoShadow);
-
-  // const pratoGUI = gui.addFolder('Prato');
-  // pratoGUI.add(prato.scale, 'x', 0, 100, 0.1).onChange(() => prato.scale.y = prato.scale.x).name('scale');
-
-  //#endregion
-
-  //#region TEXTURES FUNCTIONS
-  function loadDivisaTextures() {
-    divisaBaseColor = textureLoader.load(
-      "textures/maradona/DivisaMaradonaBarcellona_BaseColor.png"
-    );
+//#region TEXTURES FUNCTIONS
+function loadDivisaTextures(){
+    divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradonaBarcellona_BaseColor.png');
     divisaBaseColor.colorSpace = THREE.SRGBColorSpace;
 
     divisaNormalMap = textureLoader.load(
@@ -379,224 +288,81 @@ export function initScene(container: HTMLElement) {
     pallaNormal = textureLoader.load("textures/palla/palla_Normal.png");
   }
 
-  function loadCampoTextures() {
-    pratoMap = textureLoader.load("textures/stadio/prato.jpeg");
-    pratoMap.wrapS = THREE.RepeatWrapping;
-    pratoMap.wrapT = THREE.RepeatWrapping;
-    pratoMap.repeat.set(1000, 1000);
-    pratoMap.colorSpace = THREE.SRGBColorSpace;
+// function loadCampoTextures(){
+//     pratoMap = textureLoader.load('textures/stadio/prato.jpeg')
+//     pratoMap.wrapS = THREE.RepeatWrapping;
+//     pratoMap.wrapT = THREE.RepeatWrapping;
+//     pratoMap.repeat.set(1000, 1000)
+//     pratoMap.colorSpace = THREE.SRGBColorSpace;
 
-    lineeCampoMap = textureLoader.load("textures/stadio/lineecampo.png");
-    lineeCampoMap.colorSpace = THREE.SRGBColorSpace;
+//     lineeCampoMap = textureLoader.load('textures/stadio/lineecampo.png')
+//     lineeCampoMap.colorSpace = THREE.SRGBColorSpace;
+    
+//     stadioBaseColor = textureLoader.load('textures/stadio/STADIO01_BaseColor.png')
+//     stadioBaseColor.colorSpace = THREE.SRGBColorSpace;
+// }
+//#endregion
 
-    stadioBaseColor = textureLoader.load(
-      "textures/stadio/STADIO01_BaseColor.png"
-    );
-    stadioBaseColor.colorSpace = THREE.SRGBColorSpace;
-  }
-  //#endregion
+//#region LIGHTS
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+ambientLightGUI.add(ambientLight, 'intensity');
 
-  //#region LIGHTS
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
-  ambientLightGUI.add(ambientLight, "intensity");
+scene.add(ambientLight);
 
-  scene.add(ambientLight);
+// Luce originale (sopra/diagonale)
+createDirectionalLight(38, 36.7, -50);
 
-  // Luce originale (sopra/diagonale)
-  createDirectionalLight(38, 36.7, -50);
+// // Luce opposta
+// createDirectionalLight(-38, 36.7, 50);
 
-  // Luce opposta
-  createDirectionalLight(-38, 36.7, 50);
+// // Luce laterale destra
+// createDirectionalLight(50, 36.7, 38);
 
-  // Luce laterale destra
-  createDirectionalLight(50, 36.7, 38);
+// // Luce laterale sinistra
+// createDirectionalLight(-50, 36.7, -38);
 
-  // Luce laterale sinistra
-  createDirectionalLight(-50, 36.7, -38);
+// gui.add(directionalLight, 'intensity')
+// gui.add(ambientLight, 'intensity')
 
-  // gui.add(directionalLight, 'intensity')
-  // gui.add(ambientLight, 'intensity')
+//#endregion
 
-  //#endregion
 
-  //#region DOM
-  // const geometry = new THREE.SphereGeometry(300, 60, 40);
-  // geometry.scale(-1, 1, 1); // Inverti la sfera (così si vede dall’interno)
+camera.position.set(0, 0.51, -1.2);
+camera.lookAt(0, 0.12, 0)
 
-  // const domeTexture = textureLoader.load("stadium_01.jpg");
-  // domeTexture.colorSpace = THREE.SRGBColorSpace
+function animate() {
+  requestAnimationFrame(animate);
 
-  // const material = new THREE.MeshBasicMaterial({ map: domeTexture });
+  const delta = clock.getDelta();
+  mixerMaradonaDiffuse.update(delta);
+  // orbitControls.update();
 
-  // const sphere = new THREE.Mesh(geometry, material);
-  // sphere.position.set(0, 4, 0);
-  // scene.add(sphere);
+  renderer.render(scene, camera);
+}
 
-  // const sphereDom = gui.addFolder('Sphere DOM');
-  // sphereDom.add(sphere.scale, 'x', 0, 1, 0.00001).name('Scale').onChange(() => sphere.scale.set(sphere.scale.x, sphere.scale.x, sphere.scale.x))
+  const g = gui.addFolder('Camera');
+  g.add(camera.position, 'x').listen().onChange(() =>  updateCamera());
+  g.add(camera.position, 'y').listen().onChange(() =>  updateCamera());
+  g.add(camera.position, 'z').listen().onChange(() =>  updateCamera());
 
-  //#endregion
-
-  // camera.position.set(0.14, 0.06, 0.11);
-
-  // const orbitControls = new OrbitControls(camera, renderer.domElement);
-  // orbitControls.target.set(0, 0.06, 0);
-  // orbitControls.enableDamping = true;   // rende il movimento più fluido
-  // orbitControls.dampingFactor = 0.05;   // velocità di smorzamento
-
-  // orbitControls.minPolarAngle = 0.5;              // non andare più in alto di sopra
-  // orbitControls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
-
-  // orbitControls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
-
-  // orbitControls.update()
-
-  camera.position.set(-0.03, 0.3, -1.2);
-  camera.lookAt(0, 0.12, 0);
-
-  function animate() {
-    requestAnimationFrame(animate);
-
-    const delta = clock.getDelta();
-    mixerMaradonaDiffuse.update(delta);
-    // orbitControls.update();
-
-    renderer.render(scene, camera);
-  }
-
-  //#region CAMERA ANIMATION
-
-  // function playIntroAnimation(camera, controls, startPos, startLookAt) {
-  //   orbitControls.minDistance = 0;        // distanza minima
-  //   orbitControls.maxDistance = 5;       // distanza massima
-  //   orbitControls.enabled = false;
-
-  //   // posizione iniziale e look iniziale
-  //   camera.position.copy(startPos);
-  //   controls.target.copy(startLookAt);
-  //   controls.update();
-
-  //   const orbit = {
-  //     angle: Math.atan2(
-  //       camera.position.z - startLookAt.z,
-  //       camera.position.x - startLookAt.x
-  //     ),
-  //     radius: camera.position.distanceTo(startLookAt),
-  //     targetY: startLookAt.y
-  //   };
-
-  //   const tl = gsap.timeline({
-  //     onUpdate: () => {
-  //       camera.position.x = Math.cos(orbit.angle) * orbit.radius + startLookAt.x;
-  //       camera.position.z = Math.sin(orbit.angle) * orbit.radius + startLookAt.z;
-  //       camera.position.y = startPos.y;
-  //       controls.target.set(startLookAt.x, orbit.targetY, startLookAt.z);
-  //       controls.update();
-  //     },
-  //     onComplete: () => {
-  //       controls.enabled = true;
-  //       orbitControls.minDistance = minZoom;        // distanza minima
-  //       orbitControls.maxDistance = maxZoom;      // distanza massima
-  //     }
-  //   });
-
-  //   // mezzo giro a sinistra + zoom out
-  //   tl.to(orbit, {
-  //     angle: orbit.angle + Math.PI,
-  //     targetY: 0.05,
-  //     radius: orbit.radius + 0.3, // 👈 aggiungi distanza
-  //     duration: 1.5,
-  //     ease: "power1.inOut"
-  //   });
-
-  //   // mezzo giro a destra + altro zoom out
-  //   tl.to(orbit, {
-  //     angle: orbit.angle - Math.PI,
-  //     targetY: 0.2,
-  //     duration: 1.5,
-  //     ease: "power1.inOut"
-  //   });
-
-  //     tl.to(orbit, {
-  //     angle: orbit.angle - Math.PI,
-  //     targetY: 0.14,
-  //     radius: orbit.radius + 1.7, // 👈 ancora più indietro
-  //     duration: 1.5,
-  //     ease: "power1.inOut"
-  //   });
-  // }
-
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      // playIntroAnimation(
-      //   camera,
-      //   orbitControls,
-      //   new THREE.Vector3(0.14, 0.06, 0.11),   // startPos
-      //   new THREE.Vector3(0, 0.06, 0),         // startLookAt
-      // );
-    }
-  });
-
-  const g = gui.addFolder("Camera");
-  g.add(camera.position, "x").listen().disable();
-  g.add(camera.position, "y").listen().disable();
-  g.add(camera.position, "z").listen().disable();
-
-  g.add(camera, "fov", 0, 120, 0.1).onChange(() =>
-    camera.updateProjectionMatrix()
-  );
-
-  // const cameraLookAtPositionFolder = gui.addFolder('Look At Position');
+  g.add(camera, 'fov', 0, 120, 0.1).onChange(() =>  camera.updateProjectionMatrix());
+  
   const lookAtPosition = { x: 0, y: 0.06, z: 0 };
 
-  //   g.add(lookAtPosition, 'y', 0, 1, 0.01)
-  //   .onChange(() => {
-  //     orbitControls.target.set(0, lookAtPosition.y, 0)
-  //     orbitControls.update()
-  //   })
-  //   .name('Camera Target Y');
+  const targetFolder = gui.addFolder('LookAt');
+  targetFolder.add(lookAtPosition, 'x', -1, 1, 0.01).onChange(updateCamera);
+  targetFolder.add(lookAtPosition, 'y', -1, 1, 0.01).onChange(updateCamera);
+  targetFolder.add(lookAtPosition, 'z', -1, 1, 0.01).onChange(updateCamera);
 
-  // const minCtrl = g.add(orbitControls, 'minDistance', 0.01, 5, 0.01).name('Min Zoom').listen();
-  // const maxCtrl = g.add(orbitControls, 'maxDistance', 0.01, 10, 0.01).name('Max Zoom').listen();
 
-  // // quando cambia minDistance
-  // minCtrl.onChange((v: number) => {
-  //   if (v > orbitControls.maxDistance) {
-  //     orbitControls.maxDistance = v;
-  //     maxCtrl.updateDisplay(); // aggiorna GUI
-  //   }
-  // });
+  function updateCamera() {
+    camera.updateProjectionMatrix();
+    camera.lookAt(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+  }
 
-  // // quando cambia maxDistance
-  // maxCtrl.onChange((v: number) => {
-  //   if (v < orbitControls.minDistance) {
-  //     orbitControls.minDistance = v;
-  //     minCtrl.updateDisplay(); // aggiorna GUI
-  //   }
-  // });
-
-  function createDirectionalLight(
-    x: number,
-    y: number,
-    z: number
-  ): THREE.DirectionalLight {
-    const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare
-    light.position.set(x, y, z);
-    light.castShadow = true;
-
-    // dimensioni shadow map
-    light.shadow.mapSize.width = 1024;
-    light.shadow.mapSize.height = 1024;
-    light.shadow.bias = -0.00001;
-
-    // frustum della camera delle ombre
-    // const d = 50;
-    // light.shadow.camera.left = -d;
-    // light.shadow.camera.right = d;
-    // light.shadow.camera.top = d;
-    // light.shadow.camera.bottom = -d;
-    // light.shadow.camera.near = 1;
-    // light.shadow.camera.far = 200;
+  function createDirectionalLight(x: number, y: number, z: number): THREE.DirectionalLight {
+      const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare
+      light.position.set(x, y, z);
 
     scene.add(light);
 
@@ -615,4 +381,28 @@ export function initScene(container: HTMLElement) {
       }
     }
   });
+
+  function addSubAction(baseAction: THREE.AnimationAction, subName: string, start: number, end: number, fps: number) {
+    const clip = baseAction.getClip();
+    const subClip = THREE.AnimationUtils.subclip(clip, subName, start, end, fps);
+    const subAction = mixerMaradonaDiffuse.clipAction(subClip);
+    subActions[subName] = subAction;
+    return subAction;
+  }
+
+
+  function fadeToAction(nextAction: THREE.AnimationAction, duration: number = 0.1) {
+    if (currentAction !== nextAction) {
+      // prepara la nuova action
+      nextAction.reset().play();
+      nextAction.enabled = true;
+
+      // blend dalla corrente alla nuova
+      if (currentAction) {
+        currentAction.crossFadeTo(nextAction, duration, false);
+      }
+
+      currentAction = nextAction;
+    }
+  }
 }

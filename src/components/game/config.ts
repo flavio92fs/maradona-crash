@@ -25,7 +25,7 @@ export const game: Phaser.Types.Core.GameConfig = {
       },
     ],
   },
-  scene: [GameScene, LoadingScene],
+  scene: [],
 };
 
 export const gameSize = {

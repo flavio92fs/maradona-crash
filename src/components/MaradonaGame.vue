@@ -58,15 +58,28 @@
         <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
           <button
             class="relative flex flex-col btn button-70 rounded-xl text-xl p-2 w-full text-white"
+            @click.stop="console.log('bet')"
           >
+            <div
+              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7"
+              @click.stop="console.log('options')"
+            >
+              <EllipsisHorizontalCircleIcon />
+            </div>
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>
           </button>
         </div>
         <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="btn button-70 rounded-xl bg-green-600 text-xl p-2 w-full text-white"
+            class="relative flex flex-col btn button-70 rounded-xl text-xl p-2 w-full text-white"
           >
+            <div
+              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7"
+              @click.stop="console.log('options')"
+            >
+              <EllipsisHorizontalCircleIcon />
+            </div>
             <p class="font-bold">BET</p>
             <p class="font-bold">1.00€</p>
           </button>
@@ -151,6 +164,7 @@ import store from "@/store";
 import {
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
+  EllipsisHorizontalCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
@@ -269,5 +283,9 @@ onMounted(() => {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+}
+
+.button-70:hover {
+  background-image: linear-gradient(#3de5ff, #2386ff);
 }
 </style>

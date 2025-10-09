@@ -35,7 +35,7 @@ export default class CameraControls{
     }
 
     private addGUIControls(gui: GUI){
-        const folder = gui.addFolder('Camera Controls');
+        const folder = gui.addFolder('Camera Controls').close();
 
         // valori iniziali
         const params = {

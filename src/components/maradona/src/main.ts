@@ -12,6 +12,7 @@ export function initScene(container: HTMLElement) {
   let mixerMaradona: THREE.AnimationMixer;
 
   const dirLightGUI = gui.addFolder("Directional Light");
+  const spotLightGUI = gui.addFolder("Spot Light");
   const ambientLightGUI = gui.addFolder("Ambient Light");
 
   const loadingManager = new LoadingManager(() => {
@@ -40,7 +41,7 @@ export function initScene(container: HTMLElement) {
   // loadCampoTextures();
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 1000);
   
   //#region Renderer
   const renderer = new THREE.WebGLRenderer({antialias: true});
@@ -57,8 +58,10 @@ export function initScene(container: HTMLElement) {
   container.appendChild(renderer.domElement);
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  // renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
+
+  gui.add(renderer, 'toneMappingExposure')
 
   function resizeRenderer() {
     const windowWidth = container.clientWidth;
@@ -79,45 +82,42 @@ export function initScene(container: HTMLElement) {
   let currentAction: THREE.AnimationAction;
 
   const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
-    divisa: new THREE.MeshStandardMaterial({
+    divisa: new THREE.MeshBasicMaterial({
       map: divisaBaseColor,
-      normalMap: divisaNormalMap,
-      normalScale: new THREE.Vector2(1, 1),
-      // transparent: true,
       side: THREE.DoubleSide,
       opacity: 0, // parte invisibile
     }),
-    pelle: new THREE.MeshStandardMaterial({
+    pelle: new THREE.MeshBasicMaterial({
       map: pelleBaseColor,
-      normalMap: pelleNormalMap,
-      normalScale: new THREE.Vector2(1, 1),
-      // transparent: true,
       side: THREE.DoubleSide,
       opacity: 0,
     }),
-    capelli: new THREE.MeshStandardMaterial({
+    capelli: new THREE.MeshBasicMaterial({
+      // color: 0x000000,
       map: capelliBaseColor,
-      metalness: 1.0,
-      roughness: 1.0,
-      // transparent: true,
       side: THREE.DoubleSide,
-      opacity: 0,
+      
+      // opacity: 0,
     }),
-    palla: new THREE.MeshStandardMaterial({
+    palla: new THREE.MeshBasicMaterial({
       map: pallaBaseColor,
       normal: pallaNormal,
-      // transparent: true,
       side: THREE.DoubleSide,
       opacity: 0,
     }),
   wireMat: new THREE.MeshBasicMaterial({
       color: 0x0000ff,
       wireframe: true,
-      // transparent: true,
       side: THREE.DoubleSide,
       opacity: 0,
     })
   };
+
+  const capelliGUI = gui.addFolder('Capelli');
+  capelliGUI.addColor(maradonaMaterialLibrary['capelli'], 'color')
+  capelliGUI.add(maradonaMaterialLibrary['capelli'], 'metalness', 0, 1)
+  capelliGUI.add(maradonaMaterialLibrary['capelli'], 'roughness', 0, 1)
+
 
 // #region MARADONA FBX
   fbxLoader.load('models/maradona_single_file.fbx',
@@ -143,6 +143,7 @@ export function initScene(container: HTMLElement) {
             mesh.material = maradonaMaterialLibrary["divisa"];
           }
           if (mat.name === 'capelli') {
+            console.log(mat.name)
             mesh.material = maradonaMaterialLibrary['capelli'];
           }
           if (mat.name === 'pelle' || mat.name === 'pelle_ai' || mat.name === 'occhi_ai'){
@@ -193,8 +194,9 @@ export function initScene(container: HTMLElement) {
   );
   //#endregion
 
-  const grassPlane = addGrassPlane(gui, scene, textureLoader)
+  // const grassPlane = addGrassPlane(gui, scene, textureLoader)
   addStriscePlane(gui, scene, textureLoader)
+  addCampoPlane(gui, scene, textureLoader)
 
   //#region LIGHTS
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
@@ -203,19 +205,16 @@ export function initScene(container: HTMLElement) {
   scene.add(ambientLight);
 
   // Luce originale (sopra/diagonale)
-  createDirectionalLight(38, 36.7, -50);
+  // createDirectionalLight(38, 36.7, -50);
 
-  // // Luce opposta
-  createDirectionalLight(-38, 36.7, 50);
+  // // // Luce opposta
+  // createDirectionalLight(-38, 36.7, 50);
 
-  // Luce laterale destra
-  createDirectionalLight(50, 36.7, 38);
+  // // Luce laterale destra
+  // createDirectionalLight(50, 36.7, 38);
 
-  // Luce laterale sinistra
-  createDirectionalLight(-50, 36.7, -38);
-
-  // gui.add(directionalLight, 'intensity')
-  gui.add(ambientLight, 'intensity')
+  // // Luce laterale sinistra
+  // createDirectionalLight(-50, 36.7, -38);
 
   //#endregion
 
@@ -225,7 +224,8 @@ export function initScene(container: HTMLElement) {
   
   //#region TEXTURES FUNCTIONS
   function loadDivisaTextures(){
-      divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradonaBarcellona_BaseColor.png');
+      // divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradonaBarcellona_BaseColor.png');
+      divisaBaseColor = textureLoader.load('textures/maradona/DivisaMaradona_BaseColor.png');
       divisaBaseColor.colorSpace = THREE.SRGBColorSpace;
 
       divisaNormalMap = textureLoader.load(
@@ -233,7 +233,8 @@ export function initScene(container: HTMLElement) {
       );
 
       pelleBaseColor = textureLoader.load(
-        "textures/maradona/PelleMaradona_BaseColor.png"
+        "textures/maradona/PelleMaradonaNuova.png"
+        // "textures/maradona/PelleMaradona_BaseColor.png"
       );
       pelleBaseColor.colorSpace = THREE.SRGBColorSpace;
       pelleNormalMap = textureLoader.load(
@@ -307,6 +308,25 @@ export function initScene(container: HTMLElement) {
     return light;
   }
 
+    function createSpotLight(x: number, y: number, z: number, intensity: number): THREE.DirectionalLight {
+    const light = new THREE.SpotLight(0xffffff, intensity); // intensità più bassa per bilanciare
+    light.position.set(x, y, z);
+
+    light.castShadow = false;
+    light.penumbra = 1;
+
+    scene.add(light);
+
+    spotLightGUI.add(light, "angle", 0, Math.PI / 2, 0.01);
+    spotLightGUI.add(light, 'penumbra', 0, 1, 0.01);
+    spotLightGUI.add(light, "intensity", 0, 100, 0.01);
+    spotLightGUI.add(light.position, "y", 0, 5, 0.01);
+
+    return light;
+  }
+
+  createSpotLight(0, 1, 0, 25)
+
   window.addEventListener("keydown", (e) => {
     if (e.key === "h") {
       // premi "h" per hide
@@ -354,93 +374,93 @@ export function initScene(container: HTMLElement) {
     const material = new THREE.MeshBasicMaterial({ map: domeTexture });
 
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(0, 0, 0);
-    sphere.scale.set(0.01, 0.01, 0.01);
+    sphere.position.set(0, -0.2, 0);
+    sphere.scale.set(0.0403, 0.0403, 0.0403);
     scene.add(sphere);
 
     const sphereDom = gui.addFolder('Sphere DOM');
     sphereDom.add(sphere.scale, 'x', 0, 1, 0.00001).name('Scale').onChange(() => sphere.scale.set(sphere.scale.x, sphere.scale.x, sphere.scale.x))
-    sphereDom.add(sphere.position, 'y');
+    sphereDom.add(sphere.position, 'y', -5, 5, 0.01);
   }
 
-  function addGrassPlane(gui: GUI, scene: THREE.Scene, textureLoader: THREE.TextureLoader) {
-    const grassAlbedo = textureLoader.load("textures/grass/grass1-albedo.png");
-    grassAlbedo.colorSpace = THREE.SRGBColorSpace;
+  // function addGrassPlane(gui: GUI, scene: THREE.Scene, textureLoader: THREE.TextureLoader) {
+  //   const grassAlbedo = textureLoader.load("textures/grass/grass1-albedo.png");
+  //   grassAlbedo.colorSpace = THREE.SRGBColorSpace;
 
-    const grassNormalMap = textureLoader.load("textures/grass/grass1-normal.png");
-    const grassHeight = textureLoader.load("textures/grass/grass1-height.png");
-    const grassAo = textureLoader.load("textures/grass/grass1-ao.png");
-    const grassRoughness = textureLoader.load("textures/grass/grass1-rough.png");
+  //   const grassNormalMap = textureLoader.load("textures/grass/grass1-normal.png");
+  //   const grassHeight = textureLoader.load("textures/grass/grass1-height.png");
+  //   const grassAo = textureLoader.load("textures/grass/grass1-ao.png");
+  //   const grassRoughness = textureLoader.load("textures/grass/grass1-rough.png");
 
-    // ripetizione texture
-    [grassAlbedo, grassNormalMap, grassHeight, grassAo, grassRoughness].forEach(tex => {
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(15, 15); // default 15x15
-    });
+  //   // ripetizione texture
+  //   [grassAlbedo, grassNormalMap, grassHeight, grassAo, grassRoughness].forEach(tex => {
+  //     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  //     tex.repeat.set(15, 15); // default 15x15
+  //   });
 
-    // geometria con più segmenti per displacement
-    const geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
-    geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2));
+  //   // geometria con più segmenti per displacement
+  //   const geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
+  //   geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2));
 
-    const material = new THREE.MeshStandardMaterial({
-      map: grassAlbedo,
-      normalMap: grassNormalMap,
-      displacementMap: grassHeight,
-      displacementScale: 0.0, // default
-      aoMap: grassAo,
-      aoMapIntensity: 1,
-      roughnessMap: grassRoughness,
-      roughness: 1,
-    });
+  //   const material = new THREE.MeshStandardMaterial({
+  //     map: grassAlbedo,
+  //     normalMap: grassNormalMap,
+  //     displacementMap: grassHeight,
+  //     displacementScale: 0.0, // default
+  //     aoMap: grassAo,
+  //     aoMapIntensity: 1,
+  //     roughnessMap: grassRoughness,
+  //     roughness: 1,
+  //   });
 
-    const plane = new THREE.Mesh(geometry, material);
-    plane.receiveShadow = true;
-    plane.rotation.set(THREE.MathUtils.degToRad(-90), 0, 0);
-    plane.scale.set(10, 10, 10)
+  //   const plane = new THREE.Mesh(geometry, material);
+  //   plane.receiveShadow = true;
+  //   plane.rotation.set(THREE.MathUtils.degToRad(-90), 0, 0);
+  //   plane.scale.set(10, 10, 10)
 
-    scene.add(plane);
+  //   scene.add(plane);
 
-    // parametri GUI
-    const params = {
-      scale: 1,
-      normalIntensity: 1,
-      displacement: 0,
-      repeat: 1,
-    };
+  //   // parametri GUI
+  //   const params = {
+  //     scale: 1,
+  //     normalIntensity: 1,
+  //     displacement: 0,
+  //     repeat: 1,
+  //   };
 
-    const folder = gui.addFolder("Grass Plane");
+  //   const folder = gui.addFolder("Grass Plane");
 
-    // posizione
-    folder.add(plane.position, "x", -10, 10, 0.1);
-    folder.add(plane.position, "y", -10, 10, 0.1);
-    folder.add(plane.position, "z", -10, 10, 0.1);
+  //   // posizione
+  //   folder.add(plane.position, "x", -10, 10, 0.1);
+  //   folder.add(plane.position, "y", -10, 10, 0.1);
+  //   folder.add(plane.position, "z", -10, 10, 0.1);
 
-    // scala uniforme
-    folder.add(params, "scale", 0.1, 10, 0.1).onChange((s: number) => {
-      plane.scale.set(s, s, s);
-    });
+  //   // scala uniforme
+  //   folder.add(params, "scale", 0.1, 10, 0.1).onChange((s: number) => {
+  //     plane.scale.set(s, s, s);
+  //   });
 
-    // normal map intensity
-    folder.add(params, "normalIntensity", 0, 5, 0.1).onChange((v: number) => {
-      (plane.material as THREE.MeshStandardMaterial).normalScale.set(v, v);
-    });
+  //   // normal map intensity
+  //   folder.add(params, "normalIntensity", 0, 5, 0.1).onChange((v: number) => {
+  //     (plane.material as THREE.MeshStandardMaterial).normalScale.set(v, v);
+  //   });
 
-    // height / displacement
-    folder.add(params, "displacement", 0, 0.2, 0.01).onChange((v: number) => {
-      (plane.material as THREE.MeshStandardMaterial).displacementScale = v;
-    });
+  //   // height / displacement
+  //   folder.add(params, "displacement", 0, 0.2, 0.01).onChange((v: number) => {
+  //     (plane.material as THREE.MeshStandardMaterial).displacementScale = v;
+  //   });
 
-    // texture repeat (wrap X=Y)
-    folder.add(params, "repeat", 1, 20, 1).onChange((v: number) => {
-      grassAlbedo.repeat.set(v, v);
-      grassNormalMap.repeat.set(v, v);
-      grassHeight.repeat.set(v, v);
-      grassAo.repeat.set(v, v);
-      grassRoughness.repeat.set(v, v);
-    });
+  //   // texture repeat (wrap X=Y)
+  //   folder.add(params, "repeat", 1, 20, 1).onChange((v: number) => {
+  //     grassAlbedo.repeat.set(v, v);
+  //     grassNormalMap.repeat.set(v, v);
+  //     grassHeight.repeat.set(v, v);
+  //     grassAo.repeat.set(v, v);
+  //     grassRoughness.repeat.set(v, v);
+  //   });
 
-    return plane;
-  }
+  //   return plane;
+  // }
   
   function addStriscePlane(gui: GUI, scene: THREE.Scene, textureLoader: THREE.TextureLoader) {
     fbxLoader.load("models/linee.fbx", (model) => {
@@ -462,4 +482,272 @@ export function initScene(container: HTMLElement) {
       scene.add(model);
     });
   }
+
+  function addCampoPlane(gui: GUI, scene: THREE.Scene, textureLoader: THREE.TextureLoader) {
+    const grassDiffuse = textureLoader.load("textures/grass/texture.png");
+    grassDiffuse.colorSpace = THREE.SRGBColorSpace;
+
+    grassDiffuse.wrapS = THREE.RepeatWrapping;
+    grassDiffuse.wrapT = THREE.RepeatWrapping;
+
+    const grassPlane = gui.addFolder('Grass Plane');
+    
+    const params = {
+      repeatX: 1,
+      repeatY: 1
+    }
+
+    grassPlane.add(params, "repeatX", 1, 20, 1).onChange((v: number) => {
+      grassDiffuse.repeat.set(v, v);
+    });
+    grassPlane.add(params, "repeatY", 1, 20, 1).onChange((v: number) => {
+      grassDiffuse.repeat.set(v, v);
+    });
+    
+    grassDiffuse.repeat.set(1, 1);
+
+    fbxLoader.load("models/campo.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+
+          const mat = mesh.material as THREE.Material;
+          mat.map = grassDiffuse;
+
+          mesh.castShadow = true; // il modello proietta ombra
+          mesh.receiveShadow = true;
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+
+  // addVideoPlane(gui, scene);
+  addCartelloniPlane(gui, scene);
+  addBandierine(scene);
+  addMonitors(scene);
+  addLuciFari(scene)
+  addPorte(scene)
+
+  function addVideoPlane(gui: GUI, scene: THREE.Scene) {
+    const video = document.createElement('video');
+      video.src = 'video/VideoMaradona.mp4'
+      video.loop = true;
+      video.muted = true;        // autoplay solo se muted
+      video.playsInline = true;
+      video.preload = 'auto';
+
+      const videoTexture = new THREE.VideoTexture(video);
+
+    video.addEventListener('canplaythrough', () => {
+        console.log(`Video pronto!`);
+        video.play();
+    });
+
+    // geometria con più segmenti per displacement
+    const geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
+    geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2));
+
+    const material = new THREE.MeshBasicMaterial({
+      map: videoTexture
+    });
+
+    const plane = new THREE.Mesh(geometry, material);
+    plane.rotation.set(
+      THREE.MathUtils.degToRad(-180), 
+      THREE.MathUtils.degToRad(-65), 
+      THREE.MathUtils.degToRad(180)
+    );
+
+    plane.scale.set(
+      0.65,
+      0.33,
+      0
+    )
+
+    plane.position.set(
+      2.1, 
+      0.4, 
+      1.5
+    )
+
+    scene.add(plane);
+
+    // parametri GUI
+    const params = {
+      scaleX: 1,
+      scaleY: 1,
+      rotX: THREE.MathUtils.radToDeg(plane.rotation.x),
+      rotY: THREE.MathUtils.radToDeg(plane.rotation.y),
+      rotZ: THREE.MathUtils.radToDeg(plane.rotation.z),
+    };
+
+    const folder = gui.addFolder("Video Plane");
+
+    // posizione
+    folder.add(plane.position, "x", -10, 10, 0.1);
+    folder.add(plane.position, "y", -10, 10, 0.1);
+    folder.add(plane.position, "z", -10, 10, 0.1);
+
+    // scala uniforme
+    folder.add(params, "scaleX", 0.1, 1, 0.01).onChange((s: number) => {
+      plane.scale.set(s, plane.scale.y, plane.scale.z);
+    });
+
+    folder.add(params, "scaleY", 0.1, 1, 0.01).onChange((s: number) => {
+      plane.scale.set(plane.scale.x, s, plane.scale.z);
+    });
+
+      // rotazioni in gradi
+    folder.add(params, "rotX", -180, 180, 1).onChange((deg: number) => {
+      plane.rotation.x = THREE.MathUtils.degToRad(deg);
+    });
+    folder.add(params, "rotY", -180, 180, 1).onChange((deg: number) => {
+      plane.rotation.y = THREE.MathUtils.degToRad(deg);
+    });
+    folder.add(params, "rotZ", -180, 180, 1).onChange((deg: number) => {
+      plane.rotation.z = THREE.MathUtils.degToRad(deg);
+    });
+
+    return plane;
+  }
+
+  function addCartelloniPlane(gui: GUI, scene: THREE.Scene) {
+    const video = document.createElement('video');
+      video.src = 'video/VideoMaradona.mp4'
+      video.loop = true;
+      video.muted = true;        // autoplay solo se muted
+      video.playsInline = true;
+      video.preload = 'auto';
+
+      const videoTexture = new THREE.VideoTexture(video);
+
+    video.addEventListener('canplaythrough', () => {
+        console.log(`Video pronto!`);
+        video.play();
+    });
+    
+
+    fbxLoader.load("models/cartelloni.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+
+          const mat = mesh.material as THREE.Material;
+          const videoMat = mesh.material = new THREE.MeshBasicMaterial()
+          videoMat.map = videoTexture;
+
+          // mesh.castShadow = true; // il modello proietta ombra
+          // mesh.receiveShadow = true;
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+
+  function addBandierine(scene: THREE.Scene){
+    fbxLoader.load("models/bandierine.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+
+          const mat = mesh.material as THREE.Material;
+
+          // mesh.castShadow = true; // il modello proietta ombra
+          // mesh.receiveShadow = true;
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+
+  function addMonitors(scene: THREE.Scene){
+    const monitorTexture = textureLoader.load("textures/stadio/STADIO01_BaseColor.png");
+    monitorTexture.colorSpace = THREE.SRGBColorSpace;
+
+    fbxLoader.load("models/monitor.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+
+          mesh.material = new THREE.MeshStandardMaterial();
+          const mat = mesh.material as THREE.Material;
+
+          console.log(mat)
+
+          mat.map = monitorTexture
+
+          // mesh.castShadow = true; // il modello proietta ombra
+          // mesh.receiveShadow = true;
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+  
+  function addLuciFari(scene: THREE.Scene){
+    const lightTexture = textureLoader.load("textures/luce.png");
+    lightTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const lightMat = new THREE.MeshBasicMaterial();
+    lightMat.map = lightTexture;
+    lightMat.side = THREE.DoubleSide;
+    lightMat.transparent = true;
+
+    fbxLoader.load("models/lucifari.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+
+          const mat = mesh.material as THREE.Material;
+
+          mesh.material = lightMat;
+
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+
+  function addPorte(scene: THREE.Scene){
+    fbxLoader.load("models/porte.fbx", (model) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+      model.scale.set(0.01, 0.01, 0.01);
+      model.position.set(0, 0, 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+        }
+      });
+
+      scene.add(model);
+    });
+  }
+  
 }

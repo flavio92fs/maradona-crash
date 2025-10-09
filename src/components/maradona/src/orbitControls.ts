@@ -15,15 +15,15 @@ export default class CameraControls{
     constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, gui?: GUI){
         this._orbitControls = new OrbitControls(camera, renderer.domElement);
 
-        this._orbitControls.target.set(0, 0.20, 0);
+        this._orbitControls.target.set(0, 0.17, 0);
         this._orbitControls.enableDamping = true;   // rende il movimento più fluido
         this._orbitControls.dampingFactor = 0.05;   // velocità di smorzamento
 
         this._orbitControls.minPolarAngle = 0.5;              // non andare più in alto di sopra
         this._orbitControls.maxPolarAngle = Math.PI / 2;    // non scendere sotto l’orizzonte
 
-        this._orbitControls.minDistance = 0.8;
-        this._orbitControls.maxDistance = 1.4;
+        this._orbitControls.minDistance = 1.7;
+        this._orbitControls.maxDistance = 2.4;
 
         this._orbitControls.enablePan = false;      // disabilita trascinamento piano XY (solo rotazione e zoom)
 

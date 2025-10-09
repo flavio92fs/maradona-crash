@@ -54,34 +54,48 @@
       id="bet-overlay"
       class="game-overlay absolute block lg:hidden bottom-0 w-full z-10 p-3 pb-0"
     >
+      <BetBoxMobile
+        v-if="showBetBox"
+        @confirm="setButton"
+        @close="closeBox"
+      ></BetBoxMobile>
       <div class="flex justify-center w-100">
-        <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
+        <div
+          class="relative flex items-center btn-container rounded-lg w-full mx-2 p-2"
+        >
           <button
-            class="relative flex flex-col btn button-70 rounded-xl text-xl p-2 w-full text-white"
+            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white"
+            :disabled="showBetBox"
+            :class="showBetBox ? 'button-70-disabled' : 'button-70'"
             @click.stop="console.log('bet')"
           >
-            <div
-              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7"
-              @click.stop="console.log('options')"
+            <button
+              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
+              v-if="selectedBetBox != 1"
+              @click.stop="toggleBetBox(1)"
             >
               <EllipsisHorizontalCircleIcon />
-            </div>
+            </button>
             <p class="font-bold">BET</p>
-            <p class="font-bold">1.00€</p>
+            <p class="font-bold">{{ button1amount }}€</p>
           </button>
         </div>
         <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="relative flex flex-col btn button-70 rounded-xl text-xl p-2 w-full text-white"
+            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white"
+            :disabled="showBetBox"
+            :class="showBetBox ? 'button-70-disabled' : 'button-70'"
+            @click.stop="console.log('bet')"
           >
-            <div
-              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7"
-              @click.stop="console.log('options')"
+            <button
+              class="absolute right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
+              v-if="selectedBetBox != 2"
+              @click.stop="toggleBetBox(2)"
             >
               <EllipsisHorizontalCircleIcon />
-            </div>
+            </button>
             <p class="font-bold">BET</p>
-            <p class="font-bold">1.00€</p>
+            <p class="font-bold">{{ button2amount }}€</p>
           </button>
         </div>
       </div>
@@ -168,14 +182,19 @@ import {
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
+import BetBoxMobile from "./BetBoxMobile.vue";
 
 //Data
 
 const threeGameContainer = ref(null);
 const isFullscreen = computed(() => store.state.isFullscreen);
+let showBetBox = ref(false);
+let selectedBetBox = ref(0);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
+let button1amount = ref((1.0).toFixed(2));
+let button2amount = ref((1.0).toFixed(2));
 
 //Methods
 
@@ -218,6 +237,37 @@ function enterFullscreen() {
 function exitFullscreen() {
   store.dispatch("setFullscreen", false);
   document.exitFullscreen();
+}
+
+function closeBox() {
+  selectedBetBox.value = 0;
+  showBetBox.value = false;
+}
+
+function toggleBetBox(id) {
+  if (showBetBox.value == true) {
+    selectedBetBox.value = 0;
+  } else {
+    selectedBetBox.value = id;
+  }
+
+  showBetBox.value = !showBetBox.value;
+}
+
+function setButton(value) {
+  switch (selectedBetBox.value) {
+    case 1: {
+      button1amount.value = value;
+      break;
+    }
+
+    case 2: {
+      button2amount.value = value;
+      break;
+    }
+  }
+
+  closeBox();
 }
 
 onMounted(() => {
@@ -265,27 +315,5 @@ onMounted(() => {
 
 .fullscreen-button {
   background: rgba(0, 0, 0, 0.7);
-}
-
-.button-70 {
-  background-image: linear-gradient(#0dccea, #0d70ea);
-  border: 0;
-  border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.3) 0 5px 15px;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  font-family: Montserrat, sans-serif;
-  font-size: 0.9em;
-  margin: 5px;
-  padding: 10px 15px;
-  text-align: center;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-
-.button-70:hover {
-  background-image: linear-gradient(#3de5ff, #2386ff);
 }
 </style>

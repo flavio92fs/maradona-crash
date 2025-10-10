@@ -86,7 +86,7 @@ function openModal() {
 }
 
 function goToLanding() {
-  window.location.href = "https://eldorado-gaming.it/games.html";
+  window.location.href = "";
 }
 
 defineExpose({

@@ -1,6 +1,7 @@
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as THREE from "three";
 import GUI from 'lil-gui';
+import { loadSettings, saveSettings } from './saveLoadGUI';
 
 export default class CameraControls{
     private _orbitControls: OrbitControls;
@@ -37,52 +38,66 @@ export default class CameraControls{
     private addGUIControls(gui: GUI){
         const folder = gui.addFolder('Camera Controls').close();
 
+        const STORAGE_KEY = 'Camera Controls';
+
+        const defaultparams = {
+            minZoom: 1.7,
+            maxZoom: 2.4,
+            targetX: 0,
+            targetY: 0.17,
+            targetZ: 0,
+        }
+
         // valori iniziali
-        const params = {
-        minZoom: this._orbitControls.minDistance,
-        maxZoom: this._orbitControls.maxDistance,
-        targetX: this._orbitControls.target.x,
-        targetY: this._orbitControls.target.y,
-        targetZ: this._orbitControls.target.z,
-        };
+        const params = loadSettings(STORAGE_KEY, defaultparams);
+
+        this.orbitControls.minDistance = params.minZoom;
+        this.orbitControls.maxDistance = params.maxZoom;
+        this.orbitControls.target.set(params.targetX, params.targetY, params.targetZ);
 
         folder.add(params, 'minZoom', 0.1, 5, 0.1).onChange((v: number) => {
-        this._orbitControls.minDistance = v;
+            this._orbitControls.minDistance = v;
 
-        // assicura che min non superi max
-        if (this._orbitControls.minDistance > this._orbitControls.maxDistance) {
-            this._orbitControls.maxDistance = this._orbitControls.minDistance;
-            params.maxZoom = this._orbitControls.maxDistance;
-            folder.controllers.find(c => c.property === 'maxZoom')?.updateDisplay();
-        }
+            // assicura che min non superi max
+            if (this._orbitControls.minDistance > this._orbitControls.maxDistance) {
+                this._orbitControls.maxDistance = this._orbitControls.minDistance;
+                params.maxZoom = this._orbitControls.maxDistance;
+                folder.controllers.find(c => c.property === 'maxZoom')?.updateDisplay();
+            }
+
+            saveSettings(STORAGE_KEY, params);
         });
 
         // max zoom
         folder.add(params, 'maxZoom', 0.1, 5, 0.1).onChange((v: number) => {
-        this._orbitControls.maxDistance = v;
+            this._orbitControls.maxDistance = v;
 
-        // assicura che max non sia sotto min
-        if (this._orbitControls.maxDistance < this._orbitControls.minDistance) {
-            this._orbitControls.minDistance = this._orbitControls.maxDistance;
-            params.minZoom = this._orbitControls.minDistance;
-            folder.controllers.find(c => c.property === 'minZoom')?.updateDisplay();
-        }
+            // assicura che max non sia sotto min
+            if (this._orbitControls.maxDistance < this._orbitControls.minDistance) {
+                this._orbitControls.minDistance = this._orbitControls.maxDistance;
+                params.minZoom = this._orbitControls.minDistance;
+                folder.controllers.find(c => c.property === 'minZoom')?.updateDisplay();
+            }
+
+            saveSettings(STORAGE_KEY, params);
+
         });
 
         // target (lookAt)
         folder.add(params, 'targetX', -5, 5, 0.01).onChange((v: number) => {
-        this._orbitControls.target.x = v;
-        this._orbitControls.update();
+            this._orbitControls.target.x = v;
+            this._orbitControls.update();
+            saveSettings(STORAGE_KEY, params);
         });
         folder.add(params, 'targetY', -5, 5, 0.01).onChange((v: number) => {
-        this._orbitControls.target.y = v;
-        this._orbitControls.update();
+            this._orbitControls.target.y = v;
+            this._orbitControls.update();
+            saveSettings(STORAGE_KEY, params);
         });
         folder.add(params, 'targetZ', -5, 5, 0.01).onChange((v: number) => {
-        this._orbitControls.target.z = v;
-        this._orbitControls.update();
+            this._orbitControls.target.z = v;
+            this._orbitControls.update();
+            saveSettings(STORAGE_KEY, params);
         });
     }
-
-
 }

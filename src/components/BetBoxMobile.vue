@@ -53,6 +53,7 @@
 
             <div class="grid grid-cols-2 gap-2">
               <button
+                v-for="coin in coins"
                 class="pill h-8"
                 :class="[
                   isAutoPlay || betInProgress || amountClaimed
@@ -60,52 +61,42 @@
                     : '',
                 ]"
                 :disabled="isAutoPlay || betInProgress || amountClaimed"
-                @click="increaseBetAmount('auto', coins[0])"
+                @click="increaseBetAmount('auto', coin)"
               >
-                {{ coins[0] }}{{ currency.symbol }}
-              </button>
-              <button
-                class="pill h-8"
-                :class="[
-                  isAutoPlay || betInProgress || amountClaimed
-                    ? 'disabled text-secondary'
-                    : '',
-                ]"
-                :disabled="isAutoPlay || betInProgress || amountClaimed"
-                @click="increaseBetAmount('auto', coins[1])"
-              >
-                {{ coins[1] }}{{ currency.symbol }}
-              </button>
-              <button
-                class="pill h-8"
-                :class="[
-                  isAutoPlay || betInProgress || amountClaimed
-                    ? 'disabled text-secondary'
-                    : '',
-                ]"
-                :disabled="isAutoPlay || betInProgress || amountClaimed"
-                @click="increaseBetAmount('auto', coins[2])"
-              >
-                {{ coins[2] }}{{ currency.symbol }}
-              </button>
-              <button
-                class="pill h-8"
-                :class="[
-                  isAutoPlay || betInProgress || amountClaimed
-                    ? 'disabled text-secondary'
-                    : '',
-                ]"
-                :disabled="isAutoPlay || betInProgress || amountClaimed"
-                @click="increaseBetAmount('auto', coins[3])"
-              >
-                {{ coins[3] }}{{ currency.symbol }}
+                {{ coin }}{{ currency.symbol }}
               </button>
             </div>
           </div>
 
           <div class="flex flex-col flex-grow justify-end">
             <div class="flex flex-col mt-5 flex-grow">
-              <div class="mb-3">
+              <div>
+                <button
+                  class="px-5 w-full"
+                  :class="
+                    betAmount == currency.default_bet ||
+                    betInProgress ||
+                    amountClaimed
+                      ? 'button-70-disabled'
+                      : 'button-70-red'
+                  "
+                  @click="
+                    valueSkip = true;
+                    initialState = true;
+                    initialAutoAmount = 0;
+                    betAmount = parseFloat(currency.default_bet).toFixed(2);
+                  "
+                  :disabled="
+                    betAmount == currency.default_bet ||
+                    betInProgress ||
+                    amountClaimed
+                  "
+                >
+                  {{ $t("clear") }}
+                </button>
+              </div>
+
+              <div class="mt-3">
                 <button
                   class="px-5 w-full"
                   :class="
@@ -123,31 +114,6 @@
                   @click="confirmOptions()"
                 >
                   Confirm
-                </button>
-              </div>
-
-              <div>
-                <button
-                  class="px-5 w-full"
-                  :class="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                      ? 'button-70-disabled'
-                      : 'button-70-red'
-                  "
-                  @click="
-                    valueSkip = true;
-                    initialState = true;
-                    betAmount = parseFloat(currency.default_bet).toFixed(2);
-                  "
-                  :disabled="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                  "
-                >
-                  {{ $t("clear") }}
                 </button>
               </div>
             </div>
@@ -242,6 +208,7 @@ export default {
     autoCashAmount: 1.01,
     autoPlayData: {},
     startingBalance: 0,
+    initialAutoAmount: 0,
     win: 0,
 
     //Helpers
@@ -359,7 +326,8 @@ export default {
       if (type == "auto") {
         this.valueSkip = false;
 
-        if (this.initialState) {
+        if (this.initialState && this.initialAutoAmount != amount) {
+          this.initialAutoAmount = amount;
           this.betAmount = amount;
         } else {
           this.betAmount += amount;
@@ -409,7 +377,7 @@ export default {
       }
 
       const roundedAutoCash = this.autoCashAmount.toFixed(2);
-      console.log("Rounded AutoCash: " + roundedAutoCash);
+      // console.log("Rounded AutoCash: " + roundedAutoCash);
 
       this.decreaseBalance(this.betAmount);
       this.betInProgress = true;

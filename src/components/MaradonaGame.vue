@@ -45,10 +45,18 @@
 
     <div
       ref="threeGameContainer"
-      class="flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
+      class="relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
       style="max-width: 100%"
       @click="closeHistory()"
-    ></div>
+    >
+      <div
+        id="game-multiplier"
+        class="absolute bg-overlay text-white text-2xl top-20 p-5 rounded-md z-10"
+        style="font-size: 4rem"
+      >
+        <p class="font-bold">{{ multiplier }}X</p>
+      </div>
+    </div>
 
     <div
       id="bet-overlay"
@@ -56,6 +64,7 @@
     >
       <BetBoxMobile
         v-if="showBetBox"
+        class="mb-4"
         @confirm="setButton"
         @close="closeBox"
       ></BetBoxMobile>
@@ -64,7 +73,7 @@
           class="relative flex items-center btn-container rounded-lg w-full mx-2 p-2"
         >
           <button
-            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white"
+            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white text-start"
             :disabled="showBetBox"
             :class="showBetBox ? 'button-70-disabled' : 'button-70'"
             @click.stop="console.log('bet')"
@@ -72,6 +81,7 @@
             <button
               class="absolute right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
               v-if="selectedBetBox != 1"
+              :disabled="showBetBox"
               @click.stop="toggleBetBox(1)"
             >
               <EllipsisHorizontalCircleIcon />
@@ -82,7 +92,7 @@
         </div>
         <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
           <button
-            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white"
+            class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white text-start"
             :disabled="showBetBox"
             :class="showBetBox ? 'button-70-disabled' : 'button-70'"
             @click.stop="console.log('bet')"
@@ -90,6 +100,7 @@
             <button
               class="absolute right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
               v-if="selectedBetBox != 2"
+              :disabled="showBetBox"
               @click.stop="toggleBetBox(2)"
             >
               <EllipsisHorizontalCircleIcon />
@@ -195,6 +206,7 @@ let selected_category = ref(0);
 let close_timer = ref(() => {});
 let button1amount = ref((1.0).toFixed(2));
 let button2amount = ref((1.0).toFixed(2));
+let multiplier = ref((0.0).toFixed(2));
 
 //Methods
 
@@ -286,6 +298,10 @@ onMounted(() => {
 #container {
   width: 100%;
   height: 100%;
+}
+
+.bg-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .game-overlay {

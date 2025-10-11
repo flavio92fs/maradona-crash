@@ -532,7 +532,7 @@ export function initScene(container: HTMLElement) {
       opacity: 0.5,
       color: "#000000",
       visible: true,
-      positionY: 0, // ✅ nuova proprietà
+      positionY: 0.003, // ✅ nuova proprietà
     };
 
     // carica da localStorage
@@ -567,7 +567,7 @@ export function initScene(container: HTMLElement) {
       });
 
     folder
-      .add(params, "positionY", 0, 1, 0.001)
+      .add(params, "positionY", 0.003, 1, 0.001)
       .name("Position Y")
       .onChange((val: number) => {
         plane.position.y = val;

@@ -271,7 +271,7 @@ function setButton(value) {
 }
 
 onMounted(() => {
-  console.log(threeGameContainer.value);
+  // console.log(threeGameContainer.value);
   if (threeGameContainer.value) {
     initScene(threeGameContainer.value);
   }

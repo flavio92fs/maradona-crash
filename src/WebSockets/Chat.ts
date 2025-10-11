@@ -40,7 +40,6 @@ export default class ChatWebSocket {
 
   onMessage(message: MessageEvent<any>) {
     let json = JSON.parse(message.data);
-    console.log(json);
 
     switch (json.type) {
       case "chat.messages": {

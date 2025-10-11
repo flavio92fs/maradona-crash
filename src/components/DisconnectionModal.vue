@@ -79,6 +79,7 @@ import {
 } from "@headlessui/vue";
 
 const open = ref(false);
+const landingUrl = "https://slotandgames.ae/";
 
 function openModal() {
   console.log("Opening Modal");
@@ -86,7 +87,7 @@ function openModal() {
 }
 
 function goToLanding() {
-  window.location.href = "https://eldorado-gaming.it/games.html";
+  window.location.href = landingUrl;
 }
 
 defineExpose({

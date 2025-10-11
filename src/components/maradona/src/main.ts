@@ -144,7 +144,6 @@ export function initScene(container: HTMLElement) {
     }),
   };
 
-  //#region LIGHTS
   function addAmbientLight(){
     const ambientLightGUI = lightsFolderGUI.addFolder("Ambient Light").close();
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
@@ -173,24 +172,7 @@ export function initScene(container: HTMLElement) {
     scene.add(ambientLight);
   }
 
-
-  // Luce originale (sopra/diagonale)
-  // createDirectionalLight(38, 36.7, -50);
-
-  // // // Luce opposta
-  // createDirectionalLight(-38, 36.7, 50);
-
-  // // Luce laterale destra
-  // createDirectionalLight(50, 36.7, 38);
-
-  // // Luce laterale sinistra
-  // createDirectionalLight(-50, 36.7, -38);
-
-  //#endregion
-
-
   camera.position.set(0, 0.51, -1.2);
-  // camera.lookAt(0, 0.12, 0)
 
   addCameraGUI();
   const cameraControls = new CameraControls(camera, renderer, gui);
@@ -209,7 +191,6 @@ export function initScene(container: HTMLElement) {
 
     renderer.render(scene, camera);
   }
-
 
   function addCameraGUI(){
     const cameraGUI = gui.addFolder('Camera').close();
@@ -427,8 +408,12 @@ export function initScene(container: HTMLElement) {
     const geometry = new THREE.SphereGeometry(300, 60, 40);
     geometry.scale(-1, 1, 1); // Inverti la sfera (così si vede dall’interno)
 
-    const domeTexture = textureLoader.load("DOM.png");
-    domeTexture.colorSpace = THREE.SRGBColorSpace
+    const domeTexture = textureLoader.load("DOM.png", (texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      scene.environment = texture;   // ✅ riflessi e illuminazione globale
+    });
 
     const material = new THREE.MeshBasicMaterial({ map: domeTexture });
 
@@ -563,7 +548,7 @@ export function initScene(container: HTMLElement) {
     const planeGeo = new THREE.PlaneGeometry(1, 1);
     const plane = new THREE.Mesh(planeGeo, shadowMat);
     plane.rotation.x = -Math.PI / 2;
-    plane.position.y = params.positionY;
+    plane.position.y = 0.003;
     plane.receiveShadow = true;
     plane.visible = params.visible;
     plane.scale.set(params.size, params.size, 1);
@@ -571,7 +556,7 @@ export function initScene(container: HTMLElement) {
     scene.add(plane);
 
     // --- GUI ---
-    const folder = gui.addFolder("Shadow Plane");
+    const folder = gui.addFolder("Shadow Plane").close();
 
     folder
       .add(params, "size", 1, 100, 1)

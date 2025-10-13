@@ -647,6 +647,9 @@ export function initScene(container: HTMLElement) {
     lightTexture.colorSpace = THREE.SRGBColorSpace;
     lightTexture.flipY = false;
 
+    const lightMaterial = new THREE.MeshBasicMaterial({map: lightTexture, transparent: true});
+
+
 
     gltfLoader.load("models/GLB/animatedLights.glb", (gltf) => {
       const model = gltf.scene;
@@ -656,8 +659,7 @@ export function initScene(container: HTMLElement) {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
 
-          mesh.material.map = lightTexture;
-          mesh.material.transparent = true;
+          mesh.material = lightMaterial;
         }
       });
 
@@ -677,7 +679,15 @@ export function initScene(container: HTMLElement) {
   }
 
   function addStadio(gltfLoader: GLTFLoader, textureLoader: THREE.TextureLoader, scene: THREE.Scene, gui: GUI){
-  gltfLoader.load('models/GLB/stadio.glb', (gltf) => {
+    const stadioMaterialGUI = gui.addFolder('Stadio Material')
+    
+    const stadioTexture = textureLoader.load('textures/stadio/stadio.png')
+    const stadioMaterial = new THREE.MeshStandardMaterial({map: stadioTexture, name: 'stadio_material'});
+
+    addMaterialGUI(stadioMaterialGUI, stadioMaterial)
+
+  
+    gltfLoader.load('models/GLB/stadio.glb', (gltf) => {
     const video = document.createElement('video');
     video.src = 'video/VideoMonitor.mp4';
     video.loop = true;
@@ -698,8 +708,6 @@ export function initScene(container: HTMLElement) {
       video.play();
     });
 
-
-    const stadioTexture = textureLoader.load('textures/stadio/stadio.png')
     stadioTexture.flipY = false;
 
     const model = gltf.scene;
@@ -709,7 +717,7 @@ export function initScene(container: HTMLElement) {
           child.material.map = videoTexture;
         }
         if(child.material.name === 'stadio'){
-          child.material.map = stadioTexture;
+          child.material = stadioMaterial;
         }
       }
     })
@@ -758,7 +766,6 @@ export function initScene(container: HTMLElement) {
       videoTexture.offset.y = v;
     });
 
-    folder.add(params, "loadVideo").name("Carica Video");
 
     model.position.set(0, 0.002, 0)
     model.rotation.set(0, THREE.MathUtils.degToRad(90), 0);

@@ -894,10 +894,10 @@ export function initScene(container: HTMLElement) {
         actions[clip.name] = action;
       });
 
-      addSubAction(actions["start"], "start", 297, 384, 30);
-      addSubAction(actions["palleggio_loop1"], "palleggio1", 385, 684, 30);
-      addSubAction(actions["palleggio_loop2"], "palleggio2", 685, 986, 30);
-      addSubAction(actions["riscaldamento"], "riscaldamento", 1, 296, 30);
+          const startAction = addSubAction(actions['start'], 'start', 297, 384, 30).setLoop(THREE.LoopOnce, 0);
+          addSubAction(actions['palleggio_loop1'], 'palleggio1', 385, 684, 30);
+          addSubAction(actions['palleggio_loop2'], 'palleggio2', 685, 986, 30);
+          addSubAction(actions['riscaldamento'], 'riscaldamento', 1, 296, 30);
 
       currentAction = subActions["riscaldamento"];
       currentAction.play();
@@ -909,13 +909,75 @@ export function initScene(container: HTMLElement) {
         Digit4: "start",
       };
 
-      window.addEventListener("keydown", (e) => {
-        const subName = keyToSubAction[e.code];
-        if (subName && subActions[subName]) {
-          fadeToAction(subActions[subName], 0.5); // fade 0.5s
+          window.addEventListener("keydown", (e) => {
+            const subName = keyToSubAction[e.code];
+            if (subName && subActions[subName]) {
+              fadeToAction(subActions[subName], 0.5); // fade 0.5s
+            }
+          });
+
+          const animControls = {
+            riscaldamento: () => fadeToAction(subActions["riscaldamento"], 0.5),
+
+            palleggio1: () => {
+              const startAction = subActions["start"];
+
+              startAction.setLoop(THREE.LoopOnce, 0);
+              startAction.clampWhenFinished = true;
+              startAction.reset();
+
+              fadeToAction(startAction, 0);
+
+              // definisci la callback separata
+              const onFinished = (e: any) => {
+                if (e.action === startAction) {
+                  console.log("✅ 'start' terminata, avvio palleggio1!");
+                  fadeToAction(subActions["palleggio1"], 0.5);
+
+                  // 🔹 rimuovi subito il listener (importante)
+                  mixerMaradona.removeEventListener("finished", onFinished);
+                }
+              };
+
+              // aggiungi il listener
+              mixerMaradona.addEventListener("finished", onFinished);
+            },
+
+            palleggio2: () => {
+              const startAction = subActions["start"];
+
+              startAction.setLoop(THREE.LoopOnce, 0);
+              startAction.clampWhenFinished = true;
+              startAction.reset();
+
+              fadeToAction(startAction, 0.5);
+
+              // definisci la callback separata
+              const onFinished = (e: any) => {
+                if (e.action === startAction) {
+                  console.log("✅ 'start' terminata, avvio palleggio1!");
+                  fadeToAction(subActions["palleggio2"], 0);
+
+                  // 🔹 rimuovi subito il listener (importante)
+                  mixerMaradona.removeEventListener("finished", onFinished);
+                }
+              };
+
+              // aggiungi il listener
+              mixerMaradona.addEventListener("finished", onFinished);
+            },
+          };
+
+          const animationsGUI = gui.addFolder('Animations');
+
+          animationsGUI.add(animControls, "riscaldamento").name("🏃 Riscaldamento");
+          animationsGUI.add(animControls, "palleggio1").name("⚽ Palleggio 1");
+          animationsGUI.add(animControls, "palleggio2").name("⚽ Palleggio 2");
+          // animationsGUI.add(animControls, "start").name("✨ Start");
+
+          animationsGUI.close();
         }
-      });
-    });
+      );
   }
 
   function addMaterialGUI(

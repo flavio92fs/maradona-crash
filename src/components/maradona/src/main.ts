@@ -22,7 +22,6 @@ export function initScene(container: HTMLElement) {
   const lightsFolderGUI = gui.addFolder("Lights").close();
   const maradonaMaterialsGUI = gui.addFolder("Maradona Materials").close();
   const sphereDomGUI = gui.addFolder("Sphere DOM").close();
-  const grassPlaneGUI = gui.addFolder("Prato Material").close();
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
@@ -139,6 +138,30 @@ export function initScene(container: HTMLElement) {
       // opacity: 0,
     }),
     palla: new THREE.MeshStandardMaterial({
+      map: pallaBaseColor,
+      opacity: 0,
+      name: "palla",
+    }),
+  };
+
+  const maradonaMaterialBasicLibrary: Record<string, THREE.MeshStandardMaterial> = {
+    divisa: new THREE.MeshBasicMaterial({
+      map: divisaBaseColor,
+      side: THREE.DoubleSide,
+      name: "divisa",
+    }),
+    pelle: new THREE.MeshBasicMaterial({
+      map: pelleBaseColor,
+      // side: THREE.DoubleSide,
+      opacity: 0,
+      name: "pelle",
+    }),
+    capelli: new THREE.MeshBasicMaterial({
+      map: capelliBaseColor,
+      name: "capelli",
+      // opacity: 0,
+    }),
+    palla: new THREE.MeshBasicMaterial({
       map: pallaBaseColor,
       opacity: 0,
       name: "palla",
@@ -297,13 +320,13 @@ export function initScene(container: HTMLElement) {
   addCartelloni(gui, scene);
   addAnimatedLights(scene);
   addStadio(gltfLoader, textureLoader, scene, gui);
-  addMaradona(fbxLoader, textureLoader, scene, gui);
+  addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
 
-  addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["divisa"]);
-  addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["pelle"]);
-  addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["capelli"]);
-  addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["palla"]);
+  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["divisa"]);
+  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["pelle"]);
+  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["capelli"]);
+  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["palla"]);
 
   function createDirectionalLight(
     gui: GUI,
@@ -456,6 +479,7 @@ export function initScene(container: HTMLElement) {
     });
 
     const material = new THREE.MeshBasicMaterial({ map: domeTexture });
+    material.name = 'sphereDomMaterial';
 
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(0, -0.2, 0);
@@ -483,7 +507,7 @@ export function initScene(container: HTMLElement) {
       sphere.position.set(0, val, 0);
     });
 
-    addMaterialGUI(sphereDomGUI, material);
+    addMaterialGUI(sphereDomGUI, material, 'Sphere Dom Material');
   }
 
   function loadDivisaTextures() {
@@ -515,34 +539,14 @@ export function initScene(container: HTMLElement) {
   ) {
     const pratoTexture = textureLoader.load("textures/grass/texture.png");
     pratoTexture.colorSpace = THREE.SRGBColorSpace;
-    pratoTexture.flipY = true;
 
     pratoTexture.wrapS = THREE.RepeatWrapping;
     pratoTexture.wrapT = THREE.RepeatWrapping;
 
-    const STORAGE_KEY = "Prato Material";
+    const pratoMaterial = new THREE.MeshStandardMaterial();
+    pratoMaterial.map = pratoTexture;
 
-    const defaultParams = {
-      repeatX: 1,
-      repeatY: 1,
-      metalness: 0,
-      roughness: 1,
-      color: 0xffffff,
-    };
-
-    const params = loadSettings(STORAGE_KEY, defaultParams);
-
-    grassPlaneGUI.add(params, "repeatX", 1, 20, 1).onChange((val: number) => {
-      pratoTexture.repeat.set(val, val);
-      saveSettings(STORAGE_KEY, params);
-    });
-
-    grassPlaneGUI.add(params, "repeatY", 1, 20, 1).onChange((val: number) => {
-      pratoTexture.repeat.set(val, val);
-      saveSettings(STORAGE_KEY, params);
-    });
-
-    pratoTexture.repeat.set(1, 1);
+    addMaterialGUI(gui, pratoMaterial, 'Prato Material')
 
     gltfLoader.load("models/GLB/prato.glb", (gltf) => {
       const model = gltf.scene;
@@ -551,20 +555,7 @@ export function initScene(container: HTMLElement) {
       model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           if (child.material.name === "prato") {
-            child.material.map = pratoTexture;
-            grassPlaneGUI
-              .add(params, "metalness", 0, 1, 0.1)
-              .onChange((val: number) => {
-                child.material.metalness = val;
-                saveSettings(STORAGE_KEY, params);
-              });
-
-            grassPlaneGUI
-              .add(params, "roughness", 0, 1, 0.1)
-              .onChange((val: number) => {
-                child.material.roughness = val;
-                saveSettings(STORAGE_KEY, params);
-              });
+            child.material = pratoMaterial;
           }
         }
       });
@@ -653,12 +644,17 @@ export function initScene(container: HTMLElement) {
 
   function addCartelloni(gui: GUI, scene: THREE.Scene) {
     const STORAGE_KEY = "CARTELLONI";
+    const cartelloniMaterial = new THREE.MeshStandardMaterial();
+    cartelloniMaterial.name = 'Cartelloni Material';
+
+    addMaterialGUI(gui, cartelloniMaterial);
+
 
     const defaultParams = {
       color: 0x004a82,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    // const params = loadSettings(STORAGE_KEY, defaultParams);
 
     gltfLoader.load("models/GLB/cartelloni.glb", (gltf) => {
       const model = gltf.scene;
@@ -666,27 +662,27 @@ export function initScene(container: HTMLElement) {
       model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
-          const mat = mesh.material as THREE.MeshStandardMaterial;
+          mesh.material = cartelloniMaterial;
 
-          mat.color.set(params.color);
-          mat.needsUpdate = true;
+          // mat.color.set(params.color);
+          // mat.needsUpdate = true;
         }
       });
 
-      const folder = gui.addFolder("Cartelloni Material").close();
-      folder
-        .addColor(params, "color")
-        .name("Colore")
-        .onChange((val: string) => {
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              const mesh = child as THREE.Mesh;
-              const mat = mesh.material as THREE.MeshStandardMaterial;
-              mat.color.set(val);
-            }
-          });
-          saveSettings(STORAGE_KEY, params);
-        });
+
+      // folder
+      //   .addColor(params, "color")
+      //   .name("Colore")
+      //   .onChange((val: string) => {
+      //     model.traverse((child) => {
+      //       if ((child as THREE.Mesh).isMesh) {
+      //         const mesh = child as THREE.Mesh;
+      //         const mat = mesh.material as THREE.MeshStandardMaterial;
+      //         mat.color.set(val);
+      //       }
+      //     });
+      //     saveSettings(STORAGE_KEY, params);
+      //   });
 
       scene.add(model);
     });
@@ -729,21 +725,14 @@ export function initScene(container: HTMLElement) {
     });
   }
 
-  function addStadio(
-    gltfLoader: GLTFLoader,
-    textureLoader: THREE.TextureLoader,
-    scene: THREE.Scene,
-    gui: GUI
-  ) {
-    const stadioMaterialGUI = gui.addFolder("Stadio Material");
-
+  function addStadio(gltfLoader: GLTFLoader, textureLoader: THREE.TextureLoader, scene: THREE.Scene, gui: GUI) {
     const stadioTexture = textureLoader.load("textures/stadio/stadio.png");
     const stadioMaterial = new THREE.MeshStandardMaterial({
       map: stadioTexture,
       name: "stadio_material",
     });
 
-    addMaterialGUI(stadioMaterialGUI, stadioMaterial);
+    addMaterialGUI(gui, stadioMaterial, 'Stadio Material');
 
     gltfLoader.load("models/GLB/stadio.glb", (gltf) => {
       const video = document.createElement("video");
@@ -842,12 +831,15 @@ export function initScene(container: HTMLElement) {
     });
   }
 
-  function addMaradona(
-    fbxLoader: FBXLoader,
-    textureLoader: THREE.TextureLoader,
-    scene: THREE.Scene,
-    gui: GUI
-  ) {
+  function addMaradona(fbxLoader: FBXLoader, scene: THREE.Scene, gui: GUI) {
+    type MaradonaParts = "divisa" | "capelli" | "pelle" | "palla";
+    let meshesLibrary: Record<MaradonaParts, THREE.Mesh[]> = {
+      divisa: [],
+      capelli: [],
+      pelle: [],
+      palla: [],
+    };
+
     fbxLoader.load("models/maradona_single_file.fbx", (model) => {
       model.scale.set(0.01, 0.01, 0.01);
 
@@ -867,9 +859,11 @@ export function initScene(container: HTMLElement) {
             mat.name === "pantaloncini_ai" ||
             mat.name === "gambe_ai"
           ) {
+            meshesLibrary['divisa'].push(mesh);
             mesh.material = maradonaMaterialLibrary["divisa"];
           }
           if (mat.name === "capelli") {
+            meshesLibrary['capelli'].push(mesh);
             mesh.material = maradonaMaterialLibrary["capelli"];
           }
           if (
@@ -877,15 +871,23 @@ export function initScene(container: HTMLElement) {
             mat.name === "pelle_ai" ||
             mat.name === "occhi_ai"
           ) {
+            meshesLibrary['pelle'].push(mesh)
             mesh.material = maradonaMaterialLibrary["pelle"];
           }
           if (mat.name === "palla") {
+            meshesLibrary['palla'].push(mesh)
             mesh.material = maradonaMaterialLibrary["palla"];
           }
         }
       });
 
       scene.add(model);
+
+      
+      addMaterialMeshGUI(maradonaMaterialsGUI, meshesLibrary['divisa'], maradonaMaterialLibrary['divisa']);
+      addMaterialMeshGUI(maradonaMaterialsGUI, meshesLibrary['capelli'], maradonaMaterialLibrary['capelli']);
+      addMaterialMeshGUI(maradonaMaterialsGUI, meshesLibrary['pelle'], maradonaMaterialLibrary['pelle']);
+      addMaterialMeshGUI(maradonaMaterialsGUI, meshesLibrary['palla'], maradonaMaterialLibrary['palla']);
 
       mixerMaradona = new THREE.AnimationMixer(model);
 
@@ -894,10 +896,10 @@ export function initScene(container: HTMLElement) {
         actions[clip.name] = action;
       });
 
-          const startAction = addSubAction(actions['start'], 'start', 297, 384, 30).setLoop(THREE.LoopOnce, 0);
-          addSubAction(actions['palleggio_loop1'], 'palleggio1', 385, 684, 30);
-          addSubAction(actions['palleggio_loop2'], 'palleggio2', 685, 986, 30);
-          addSubAction(actions['riscaldamento'], 'riscaldamento', 1, 296, 30);
+      const startAction = addSubAction(actions['start'], 'start', 297, 384, 30).setLoop(THREE.LoopOnce, 0);
+      addSubAction(actions['palleggio_loop1'], 'palleggio1', 385, 684, 30);
+      addSubAction(actions['palleggio_loop2'], 'palleggio2', 685, 986, 30);
+      addSubAction(actions['riscaldamento'], 'riscaldamento', 1, 296, 30);
 
       currentAction = subActions["riscaldamento"];
       currentAction.play();
@@ -909,81 +911,77 @@ export function initScene(container: HTMLElement) {
         Digit4: "start",
       };
 
-          window.addEventListener("keydown", (e) => {
-            const subName = keyToSubAction[e.code];
-            if (subName && subActions[subName]) {
-              fadeToAction(subActions[subName], 0.5); // fade 0.5s
-            }
-          });
+        window.addEventListener("keydown", (e) => {
+          const subName = keyToSubAction[e.code];
+          if (subName && subActions[subName]) {
+            fadeToAction(subActions[subName], 0.5); // fade 0.5s
+          }
+        });
 
-          const animControls = {
-            riscaldamento: () => fadeToAction(subActions["riscaldamento"], 0.5),
+        const animControls = {
+          riscaldamento: () => fadeToAction(subActions["riscaldamento"], 0.5),
 
-            palleggio1: () => {
-              const startAction = subActions["start"];
+          palleggio1: () => {
+            const startAction = subActions["start"];
 
-              startAction.setLoop(THREE.LoopOnce, 0);
-              startAction.clampWhenFinished = true;
-              startAction.reset();
+            startAction.setLoop(THREE.LoopOnce, 0);
+            startAction.clampWhenFinished = true;
+            startAction.reset();
 
-              fadeToAction(startAction, 0);
+            fadeToAction(startAction, 0);
 
-              // definisci la callback separata
-              const onFinished = (e: any) => {
-                if (e.action === startAction) {
-                  console.log("✅ 'start' terminata, avvio palleggio1!");
-                  fadeToAction(subActions["palleggio1"], 0.5);
+            // definisci la callback separata
+            const onFinished = (e: any) => {
+              if (e.action === startAction) {
+                console.log("✅ 'start' terminata, avvio palleggio1!");
+                fadeToAction(subActions["palleggio1"], 0.5);
 
-                  // 🔹 rimuovi subito il listener (importante)
-                  mixerMaradona.removeEventListener("finished", onFinished);
-                }
-              };
+                // 🔹 rimuovi subito il listener (importante)
+                mixerMaradona.removeEventListener("finished", onFinished);
+              }
+            };
 
-              // aggiungi il listener
-              mixerMaradona.addEventListener("finished", onFinished);
-            },
+            // aggiungi il listener
+            mixerMaradona.addEventListener("finished", onFinished);
+          },
 
-            palleggio2: () => {
-              const startAction = subActions["start"];
+          palleggio2: () => {
+            const startAction = subActions["start"];
 
-              startAction.setLoop(THREE.LoopOnce, 0);
-              startAction.clampWhenFinished = true;
-              startAction.reset();
+            startAction.setLoop(THREE.LoopOnce, 0);
+            startAction.clampWhenFinished = true;
+            startAction.reset();
 
-              fadeToAction(startAction, 0.5);
+            fadeToAction(startAction, 0.5);
 
-              // definisci la callback separata
-              const onFinished = (e: any) => {
-                if (e.action === startAction) {
-                  console.log("✅ 'start' terminata, avvio palleggio1!");
-                  fadeToAction(subActions["palleggio2"], 0);
+            // definisci la callback separata
+            const onFinished = (e: any) => {
+              if (e.action === startAction) {
+                console.log("✅ 'start' terminata, avvio palleggio1!");
+                fadeToAction(subActions["palleggio2"], 0);
 
-                  // 🔹 rimuovi subito il listener (importante)
-                  mixerMaradona.removeEventListener("finished", onFinished);
-                }
-              };
+                // 🔹 rimuovi subito il listener (importante)
+                mixerMaradona.removeEventListener("finished", onFinished);
+              }
+            };
 
-              // aggiungi il listener
-              mixerMaradona.addEventListener("finished", onFinished);
-            },
-          };
+            // aggiungi il listener
+            mixerMaradona.addEventListener("finished", onFinished);
+          },
+        };
 
-          const animationsGUI = gui.addFolder('Animations');
+        const animationsGUI = gui.addFolder('Animations');
 
-          animationsGUI.add(animControls, "riscaldamento").name("🏃 Riscaldamento");
-          animationsGUI.add(animControls, "palleggio1").name("⚽ Palleggio 1");
-          animationsGUI.add(animControls, "palleggio2").name("⚽ Palleggio 2");
-          // animationsGUI.add(animControls, "start").name("✨ Start");
+        animationsGUI.add(animControls, "riscaldamento").name("🏃 Riscaldamento");
+        animationsGUI.add(animControls, "palleggio1").name("⚽ Palleggio 1");
+        animationsGUI.add(animControls, "palleggio2").name("⚽ Palleggio 2");
 
-          animationsGUI.close();
-        }
-      );
+        animationsGUI.close();
+      }
+    );
   }
 
-  function addMaterialGUI(
-    gui: GUI,
-    material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial
-  ) {
+  function addMaterialGUI(gui: GUI, material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, guiName?: string) {
     const STORAGE_KEY = `material_${material.name}`;
 
     // valori di default
@@ -1041,7 +1039,8 @@ export function initScene(container: HTMLElement) {
     };
 
     // GUI
-    const materialGUI = gui.addFolder(material.name);
+    const materialGUI = guiName ? gui.addFolder(guiName) : gui.addFolder(material.name);
+    materialGUI.close();
 
     materialGUI.add(controls, "loadTexture").name("Carica Texture");
 
@@ -1068,6 +1067,121 @@ export function initScene(container: HTMLElement) {
         saveSettings(STORAGE_KEY, params);
       });
     }
+  }
+
+  function addMaterialMeshGUI(
+  gui: GUI,
+  meshes: THREE.Mesh[], // ✅ accetta array di mesh
+  material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial
+) {
+  const STORAGE_KEY = `material_${material.name}`;
+
+  // valori di default
+  const defaultParams = {
+    color: "#ffffff",
+    emissive: "#000000",
+    metalness: 0,
+    roughness: 1,
+    texturePath: "",
+    materialType: material instanceof THREE.MeshStandardMaterial ? "standard" : "basic",
+  };
+
+  // carico eventuali valori salvati
+  const params = loadSettings(STORAGE_KEY, defaultParams);
+
+  // funzione per applicare il materiale aggiornato a tutte le mesh
+  function applyMaterialToMeshes(newMaterial: THREE.Material) {
+    meshes.forEach((m) => (m.material = newMaterial));
+  }
+
+  // funzione per creare un materiale nuovo in base al tipo
+  function createMaterial(type: "standard" | "basic") {
+    const newMat =
+      type === "standard"
+        ? new THREE.MeshStandardMaterial({
+            color: params.color,
+            emissive: params.emissive,
+            metalness: params.metalness,
+            roughness: params.roughness,
+            map: material.map || null,
+          })
+        : new THREE.MeshBasicMaterial({
+            color: params.color,
+            map: material.map || null,
+          });
+
+    newMat.name = material.name;
+    applyMaterialToMeshes(newMat);
+
+    material = newMat; // aggiorno riferimento
+    saveSettings(STORAGE_KEY, params);
+  }
+
+  // GUI setup
+  const folder = gui.addFolder(material.name);
+
+  // ✅ Selettore tipo materiale (mostrato solo se entrambe supportate)
+  folder
+    .add(params, "materialType", ["standard", "basic"])
+    .name("Tipo Materiale")
+    .onChange((val: "standard" | "basic") => {
+      createMaterial(val);
+    });
+
+  // ✅ Carica texture
+  folder.add({ loadTexture: () => loadTexture(material) }, "loadTexture").name("Carica Texture");
+
+  // ✅ Colore
+  folder.addColor(params, "color").onChange((val: string) => {
+    material.color.set(val);
+    saveSettings(STORAGE_KEY, params);
+  });
+
+  // ✅ Emissive solo se è uno StandardMaterial
+  if (material instanceof THREE.MeshStandardMaterial) {
+    folder.addColor(params, "emissive").onChange((val: string) => {
+      material.emissive.set(val);
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params, "metalness", 0, 1, 0.01).onChange((v) => {
+      material.metalness = v;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params, "roughness", 0, 1, 0.01).onChange((v) => {
+      material.roughness = v;
+      saveSettings(STORAGE_KEY, params);
+    });
+  }
+
+  // funzione per caricare texture manualmente
+  function loadTexture(mat: THREE.Material) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".png,.jpg,.jpeg";
+
+    input.addEventListener("change", (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
+      const loader = new THREE.TextureLoader();
+      loader.load(url, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(1, 1);
+
+        (mat as THREE.MeshStandardMaterial).map = tex;
+        mat.needsUpdate = true;
+
+        applyMaterialToMeshes(mat);
+        saveSettings(STORAGE_KEY, { ...params, texturePath: file.name });
+      });
+    });
+
+    input.click();
+  }
   }
 
   function addFPSCounter(gui: GUI) {

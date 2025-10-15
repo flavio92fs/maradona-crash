@@ -696,6 +696,7 @@ export function initScene(container: HTMLElement) {
     const lightMaterial = new THREE.MeshBasicMaterial({
       map: lightTexture,
       transparent: true,
+      depthWrite: false,
     });
 
     gltfLoader.load("models/GLB/animatedLights.glb", (gltf) => {

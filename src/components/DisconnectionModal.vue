@@ -79,7 +79,7 @@ import {
 } from "@headlessui/vue";
 
 const open = ref(false);
-const landingUrl = "https://slotandgames.ae/";
+const landingUrl = "https://google.com/";
 
 function openModal() {
   console.log("Opening Modal");

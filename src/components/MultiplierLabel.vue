@@ -1,5 +1,8 @@
 <template>
-  <div :style="'background-color: ' + color + ' ; color: white'">
+  <div
+    class="select-none"
+    :style="'background-color: ' + color + ' ; color: white'"
+  >
     {{ value.toFixed(2) }}x
   </div>
 </template>

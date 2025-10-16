@@ -495,12 +495,16 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .pill {
   @apply bg-primary border border-secondary rounded-full text-center font-medium;
 }
 
 .pill.disabled {
   @apply text-secondary;
+}
+
+button {
+  user-select: none;
 }
 </style>

@@ -75,3 +75,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+button {
+  user-select: none;
+}
+</style>

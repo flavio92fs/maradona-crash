@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col h-full">
-    <Navigation :data="gameData" @setAudio="setAudio" @setMusic="setMusic" />
+    <Navigation
+      class="hidden lg:flex z-[9999]"
+      :data="gameData"
+      @setAudio="setAudio"
+      @setMusic="setMusic"
+    />
     <div class="flex flex-col flex-grow pb-0">
       <div class="hidden lg:flex flex-row">
         <MultiplierHistory class="flex mt-5 mb-5" />

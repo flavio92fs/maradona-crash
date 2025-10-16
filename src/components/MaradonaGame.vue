@@ -51,10 +51,19 @@
     >
       <div
         id="game-multiplier"
-        class="absolute bg-overlay text-white text-2xl top-20 p-5 rounded-md z-10"
-        style="font-size: 4rem"
+        class="absolute select-none text-white text-2xl p-5 rounded-md z-10"
+        style="
+          font-size: 4rem;
+          text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);
+          top: 65%;
+        "
       >
-        <p class="font-bold">{{ multiplier }}X</p>
+        <div class="font-bold">
+          <span class="maradona-font" style="font-size: 2rem">x </span
+          ><span class="maradona-font">0</span>
+          <span class="maradona-font text-sm">,</span>
+          <span class="maradona-font" style="font-size: 2.3rem">00</span>
+        </div>
       </div>
     </div>
 
@@ -331,5 +340,9 @@ onMounted(() => {
 
 .fullscreen-button {
   background: rgba(0, 0, 0, 0.7);
+}
+
+.maradona-font {
+  font-family: "Sablon";
 }
 </style>

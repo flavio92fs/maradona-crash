@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <Navigation
-      class="hidden lg:block z-[9999]"
+      class="hidden lg:flex z-[9999]"
       :data="gameData"
       @setAudio="setAudio"
       @setMusic="setMusic"

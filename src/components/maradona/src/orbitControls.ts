@@ -1,7 +1,7 @@
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as THREE from "three";
 import GUI from 'lil-gui';
-import { loadSettings, saveSettings } from './saveLoadGUI';
+import { loadSettings, resetSettings, saveSettings } from './saveLoadGUI';
 
 export default class CameraControls{
     private _orbitControls: OrbitControls;
@@ -40,7 +40,7 @@ export default class CameraControls{
 
         const STORAGE_KEY = 'Camera Controls';
 
-        const defaultparams = {
+        const defaultParams = {
             minZoom: 1.7,
             maxZoom: 2.4,
             targetX: 0,
@@ -49,7 +49,7 @@ export default class CameraControls{
         }
 
         // valori iniziali
-        const params = loadSettings(STORAGE_KEY, defaultparams);
+        const params = loadSettings(STORAGE_KEY, defaultParams);
 
         this.orbitControls.minDistance = params.minZoom;
         this.orbitControls.maxDistance = params.maxZoom;
@@ -99,5 +99,29 @@ export default class CameraControls{
             this._orbitControls.update();
             saveSettings(STORAGE_KEY, params);
         });
+
+        const resetInput = {
+            reset: () => {
+            resetSettings(STORAGE_KEY, defaultParams);
+            saveSettings(STORAGE_KEY, defaultParams);
+    
+            params.minZoom = defaultParams.minZoom;
+            params.maxZoom = defaultParams.maxZoom;
+            
+            params.targetX = defaultParams.targetX;
+            params.targetY = defaultParams.targetY;
+            params.targetZ = defaultParams.targetZ;
+            
+            this.orbitControls.minDistance = params.minZoom;
+            this.orbitControls.maxDistance = params.maxZoom;
+            this.orbitControls.target.set(params.targetX, params.targetY, params.targetZ);
+
+            this._orbitControls.update()
+
+            folder.controllers.forEach(controller => controller.updateDisplay());
+            }
+        }
+
+        folder.add(resetInput, 'reset');
     }
 }

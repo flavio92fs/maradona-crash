@@ -4,7 +4,7 @@ import LoadingManager from "./loadingManager";
 import CameraControls from "./orbitControls";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { saveSettings } from "./saveLoadGUI";
+import { resetSettings, saveSettings } from "./saveLoadGUI";
 import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
 
@@ -100,6 +100,25 @@ export function initScene(container: HTMLElement) {
       renderer.shadowsEnabled = val;
       saveSettings(STORAGE_KEY, params);
     });
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.toneMapping = defaultParams.toneMapping;
+        params.exposure = defaultParams.exposure;
+        params.shadowsEnabled = defaultParams.shadowsEnabled;
+
+        renderer.toneMapping = params.toneMapping;
+        renderer.toneMappingExposure = params.exposure;
+        renderer.shadowsEnabled = params.shadowsEnabled;
+
+        rendererGUI.controllers.forEach(controller => controller.updateDisplay());
+      }
+    }
+
+    rendererGUI.add(resetInput, 'reset');
   }
 
   function resizeRenderer() {
@@ -144,42 +163,18 @@ export function initScene(container: HTMLElement) {
     }),
   };
 
-  const maradonaMaterialBasicLibrary: Record<string, THREE.MeshStandardMaterial> = {
-    divisa: new THREE.MeshBasicMaterial({
-      map: divisaBaseColor,
-      side: THREE.DoubleSide,
-      name: "divisa",
-    }),
-    pelle: new THREE.MeshBasicMaterial({
-      map: pelleBaseColor,
-      // side: THREE.DoubleSide,
-      opacity: 0,
-      name: "pelle",
-    }),
-    capelli: new THREE.MeshBasicMaterial({
-      map: capelliBaseColor,
-      name: "capelli",
-      // opacity: 0,
-    }),
-    palla: new THREE.MeshBasicMaterial({
-      map: pallaBaseColor,
-      opacity: 0,
-      name: "palla",
-    }),
-  };
-
   function addAmbientLight() {
     const ambientLightGUI = lightsFolderGUI.addFolder("Ambient Light").close();
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
 
     const STORAGE_KEY = "Ambient Light";
 
-    const defaultparams = {
+    const defaultParams = {
       color: 0xffffff,
       intensity: 1.4,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultparams);
+    const params = loadSettings(STORAGE_KEY, defaultParams);
 
     ambientLight.intensity = params.intensity;
     ambientLight.color.set(params.color);
@@ -192,6 +187,23 @@ export function initScene(container: HTMLElement) {
       ambientLight.color.set(val);
       saveSettings(STORAGE_KEY, params);
     });
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.color = defaultParams.color;
+        params.intensity = defaultParams.intensity;
+
+        ambientLight.intensity = params.intensity;
+        ambientLight.color.set(params.color);
+
+        ambientLightGUI.controllers.forEach(controller => controller.updateDisplay());
+      }
+    }
+
+    ambientLightGUI.add(resetInput, 'reset');
 
     scene.add(ambientLight);
   }
@@ -211,6 +223,7 @@ export function initScene(container: HTMLElement) {
     const delta = clock.getDelta();
     mixerMaradona.update(delta);
     mixerLuci.update(delta);
+
     cameraControls.orbitControls.update();
 
     renderer.render(scene, camera);
@@ -240,16 +253,32 @@ export function initScene(container: HTMLElement) {
       fov: 30,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = loadSettings(STORAGE_KEY, defaultParams);
 
     camera.fov = params.fov;
     camera.updateProjectionMatrix();
 
-    cameraGUI.add(params, "fov", 0, 120, 0.1).onChange((val) => {
+    const fovControl = cameraGUI.add(params, "fov", 0, 120, 0.1).onChange((val) => {
       camera.fov = val;
       camera.updateProjectionMatrix();
       saveSettings(STORAGE_KEY, params);
     });
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.fov = defaultParams.fov;
+        camera.fov = params.fov;
+        fovControl.updateDisplay();
+
+        camera.updateProjectionMatrix();
+        
+      }
+    }
+
+    cameraGUI.add(resetInput, 'reset');
   }
 
   function updateCamera() {
@@ -323,11 +352,6 @@ export function initScene(container: HTMLElement) {
   addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
 
-  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["divisa"]);
-  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["pelle"]);
-  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["capelli"]);
-  // addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["palla"]);
-
   function createDirectionalLight(
     gui: GUI,
     guiName: string,
@@ -381,7 +405,7 @@ export function initScene(container: HTMLElement) {
 
     const STORAGE_KEY = guiName;
 
-    const defaultparams = {
+    const defaultParams = {
       positionX: 0,
       positionY: 1,
       positionZ: 0,
@@ -396,7 +420,7 @@ export function initScene(container: HTMLElement) {
       showHelper: false,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultparams);
+    const params = loadSettings(STORAGE_KEY, defaultParams);
 
     light.position.set(params.positionX, params.positionY, params.positionZ);
     light.target.position.y = params.targetPositionY;
@@ -464,6 +488,41 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.positionX = defaultParams.positionX;
+        params.positionY = defaultParams.positionY;
+        params.positionZ = defaultParams.positionZ;
+        
+        params.targetPositionY = defaultParams.targetPositionY;
+        params.cone = defaultParams.cone;
+        params.borderHardness = defaultParams.borderHardness;
+        params.intensity = defaultParams.intensity;
+        params.castShadow = defaultParams.castShadow;
+        params.color = defaultParams.color;
+
+        params.showHelper = defaultParams.showHelper;
+
+        light.position.set(params.positionX, params.positionY, params.positionZ);
+        light.target.position.y = params.targetPositionY;
+        light.angle = params.cone;
+        light.penumbra = params.borderHardness;
+        light.intensity = params.intensity;
+        light.castShadow = params.castShadow;
+        light.color.set(params.color);
+        helper.visible = params.showHelper;
+
+        updateLightTarget();
+
+        folder.controllers.forEach(controller => controller.updateDisplay());
+      }
+    }
+
+    folder.add(resetInput, 'reset');
+
     return light;
   }
 
@@ -483,13 +542,13 @@ export function initScene(container: HTMLElement) {
 
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(0, -0.2, 0);
-    sphere.scale.set(0.0403, 0.0403, 0.0403);
+    sphere.scale.set(0.044, 0.044, 0.044);
     scene.add(sphere);
 
     const STORAGE_KEY = "DOM SPHERE";
 
     const defaultParams = {
-      scale: 0.0403,
+      scale: 0.044,
       positionY: -0.2,
     };
 
@@ -506,6 +565,23 @@ export function initScene(container: HTMLElement) {
     sphereDomGUI.add(params, "positionY", -5, 5, 0.01).onChange((val) => {
       sphere.position.set(0, val, 0);
     });
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.positionY = defaultParams.positionY;
+        params.scale = defaultParams.scale;
+
+        sphere.scale.set(params.scale, params.scale, params.scale);
+        sphere.position.set(0, params.positionY, 0);
+
+        sphereDomGUI.controllers.forEach(controller => controller.updateDisplay());
+      }
+    }
+
+    sphereDomGUI.add(resetInput, 'reset');
 
     addMaterialGUI(sphereDomGUI, material, 'Sphere Dom Material');
   }
@@ -643,18 +719,24 @@ export function initScene(container: HTMLElement) {
   }
 
   function addCartelloni(gui: GUI, scene: THREE.Scene) {
+    const texture = textureLoader.load("textures/stadio/BannerTestCartelloni02.png");
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.repeat.x = -1;
+    texture.offset.y = 0.2
+    
     const STORAGE_KEY = "CARTELLONI";
-    const cartelloniMaterial = new THREE.MeshStandardMaterial();
+    const cartelloniMaterial = new THREE.MeshStandardMaterial({map: texture});
+    
     cartelloniMaterial.name = 'Cartelloni Material';
 
     addMaterialGUI(gui, cartelloniMaterial);
-
 
     const defaultParams = {
       color: 0x004a82,
     };
 
-    // const params = loadSettings(STORAGE_KEY, defaultParams);
+    const params = loadSettings(STORAGE_KEY, defaultParams);
 
     gltfLoader.load("models/GLB/cartelloni.glb", (gltf) => {
       const model = gltf.scene;
@@ -727,7 +809,7 @@ export function initScene(container: HTMLElement) {
   }
 
   function addStadio(gltfLoader: GLTFLoader, textureLoader: THREE.TextureLoader, scene: THREE.Scene, gui: GUI) {
-    const stadioTexture = textureLoader.load("textures/stadio/stadio.png");
+    const stadioTexture = textureLoader.load("textures/stadio/textureProps.png");
     const stadioMaterial = new THREE.MeshStandardMaterial({
       map: stadioTexture,
       name: "stadio_material",
@@ -735,7 +817,7 @@ export function initScene(container: HTMLElement) {
 
     addMaterialGUI(gui, stadioMaterial, 'Stadio Material');
 
-    gltfLoader.load("models/GLB/stadio.glb", (gltf) => {
+    gltfLoader.load("models/GLB/stadio1.glb", (gltf) => {
       const video = document.createElement("video");
       video.src = "video/VideoMonitor.mp4";
       video.loop = true;
@@ -747,9 +829,9 @@ export function initScene(container: HTMLElement) {
       const videoTexture = new THREE.VideoTexture(video);
       videoTexture.flipY = false;
       videoTexture.center.set(0.5, 0.5); // importante per ruotare dal centro
-      videoTexture.rotation = THREE.MathUtils.degToRad(-90);
-      videoTexture.offset.x = -0.02;
-      videoTexture.offset.y = -0.02;
+      videoTexture.rotation = THREE.MathUtils.degToRad(-180);
+      videoTexture.offset.x = 0;
+      videoTexture.offset.y = -0.3;
 
       video.addEventListener("canplaythrough", () => {
         console.log(`Video pronto!`);
@@ -982,93 +1064,137 @@ export function initScene(container: HTMLElement) {
     );
   }
 
-  function addMaterialGUI(gui: GUI, material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, guiName?: string) {
-    const STORAGE_KEY = `material_${material.name}`;
+  function addMaterialGUI(
+  gui: GUI,
+  material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
+  guiName?: string
+) {
+  const STORAGE_KEY = `material_${material.name}`;
 
-    // valori di default
-    const defaultParams = {
-      color: "#ffffff",
-      emissive: "#000000", // solo per MeshStandardMaterial
-      metalness: 0,
-      roughness: 1,
-      texturePath: "", // salvo il path/URL della texture se voglio ricordarla
-    };
+  // valori di default
+  const defaultParams = {
+    color: "#ffffff",
+    emissive: "#000000",
+    metalness: 0,
+    roughness: 1,
+    texturePath: "",
+    offsetX: 0,
+    offsetY: 0,
+  };
 
-    // carico eventuali valori salvati
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+  // carico eventuali valori salvati
+  const params = loadSettings(STORAGE_KEY, defaultParams);
 
-    // applico subito i valori al materiale
-    material.color.set(params.color);
-    if ((material as THREE.MeshStandardMaterial).emissive !== undefined) {
-      (material as THREE.MeshStandardMaterial).emissive.set(params.emissive);
-    }
-    if ((material as THREE.MeshStandardMaterial).metalness !== undefined) {
-      (material as THREE.MeshStandardMaterial).emissive.set(params.metalness);
-    }
-    if ((material as THREE.MeshStandardMaterial).roughness !== undefined) {
-      (material as THREE.MeshStandardMaterial).emissive.set(params.roughness);
-    }
+  // applico subito i valori al materiale
+  material.color.set(params.color);
+  if ((material as THREE.MeshStandardMaterial).emissive !== undefined) {
+    (material as THREE.MeshStandardMaterial).emissive.set(params.emissive);
+  }
+  if ((material as THREE.MeshStandardMaterial).metalness !== undefined) {
+    (material as THREE.MeshStandardMaterial).metalness = params.metalness;
+  }
+  if ((material as THREE.MeshStandardMaterial).roughness !== undefined) {
+    (material as THREE.MeshStandardMaterial).roughness = params.roughness;
+  }
 
-    // funzione per caricare texture manualmente
-    const controls = {
-      loadTexture: () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".png,.jpg,.jpeg";
+  // funzione per caricare texture manualmente
+  const controls = {
+    loadTexture: () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".png,.jpg,.jpeg";
 
-        input.addEventListener("change", (e: any) => {
-          const file = e.target.files[0];
-          if (!file) return;
+      input.addEventListener("change", (e: any) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-          const url = URL.createObjectURL(file);
+        const url = URL.createObjectURL(file);
 
-          const loader = new THREE.TextureLoader();
-          loader.load(url, (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(1, 1);
+        const loader = new THREE.TextureLoader();
+        loader.load(url, (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(1, 1);
 
-            material.map = tex;
-            material.needsUpdate = true;
+          tex.offset.set(params.offsetX, params.offsetY);
 
-            console.log("Texture caricata:", file.name);
-          });
+          material.map = tex;
+          material.needsUpdate = true;
+
+          params.texturePath = file.name;
+          saveSettings(STORAGE_KEY, params);
+
+          console.log("Texture caricata:", file.name);
         });
+      });
 
-        input.click();
-      },
-    };
+      input.click();
+    },
+  };
 
-    // GUI
-    const materialGUI = guiName ? gui.addFolder(guiName) : gui.addFolder(material.name);
-    materialGUI.close();
+  // GUI
+  const materialGUI = guiName ? gui.addFolder(guiName) : gui.addFolder(material.name);
+  materialGUI.close();
 
-    materialGUI.add(controls, "loadTexture").name("Carica Texture");
+  materialGUI.add(controls, "loadTexture").name("Carica Texture");
 
-    materialGUI.addColor(params, "color").onChange((val: string) => {
-      material.color.set(val);
-      saveSettings(STORAGE_KEY, params);
-    });
+  // colore base
+  materialGUI.addColor(params, "color").onChange((val: string) => {
+    material.color.set(val);
+    saveSettings(STORAGE_KEY, params);
+  });
 
-    materialGUI.add(params, "metalness", 0, 1, 0.01).onChange((val: number) => {
-      (material as THREE.MeshStandardMaterial).metalness = val;
-      material.needsUpdate = true;
-      saveSettings(STORAGE_KEY, params);
-    });
-
-    materialGUI.add(params, "roughness", 0, 1, 0.01).onChange((val: number) => {
-      (material as THREE.MeshStandardMaterial).roughness = val;
-      material.needsUpdate = true;
-      saveSettings(STORAGE_KEY, params);
-    });
-
-    if ((material as THREE.MeshStandardMaterial).emissive !== undefined) {
-      materialGUI.addColor(params, "emissive").onChange((val: string) => {
-        (material as THREE.MeshStandardMaterial).emissive.set(val);
+  // metalness / roughness solo per StandardMaterial
+  if (material instanceof THREE.MeshStandardMaterial) {
+    materialGUI
+      .add(params, "metalness", 0, 1, 0.01)
+      .onChange((val: number) => {
+        material.metalness = val;
+        material.needsUpdate = true;
         saveSettings(STORAGE_KEY, params);
       });
-    }
+
+    materialGUI
+      .add(params, "roughness", 0, 1, 0.01)
+      .onChange((val: number) => {
+        material.roughness = val;
+        material.needsUpdate = true;
+        saveSettings(STORAGE_KEY, params);
+      });
+
+    materialGUI
+      .addColor(params, "emissive")
+      .name("Emissive")
+      .onChange((val: string) => {
+        material.emissive.set(val);
+        saveSettings(STORAGE_KEY, params);
+      });
   }
+
+  // ✅ Offset texture X/Y
+  const offsetFolder = materialGUI.addFolder("Texture Offset");
+  offsetFolder
+    .add(params, "offsetX", -1, 1, 0.01)
+    .name("Offset X")
+    .onChange((v: number) => {
+      if (material.map) {
+        material.map.offset.x = v;
+        material.map.needsUpdate = true;
+      }
+      saveSettings(STORAGE_KEY, params);
+    });
+
+  offsetFolder
+    .add(params, "offsetY", -1, 1, 0.01)
+    .name("Offset Y")
+    .onChange((v: number) => {
+      if (material.map) {
+        material.map.offset.y = v;
+        material.map.needsUpdate = true;
+      }
+      saveSettings(STORAGE_KEY, params);
+    });
+}
 
   function addMaterialMeshGUI(
   gui: GUI,
@@ -1212,18 +1338,44 @@ export function initScene(container: HTMLElement) {
   }
 
   function addUiGUI(gui: GUI) {
-    const folder = gui.addFolder("UI").close();
-    const UIParams = {
-      showMultiplier: true,
-    };
+    const STORAGE_KEY = 'UI';
 
-    folder.add(UIParams, "showMultiplier").onChange((v) => {
-      if (v) {
-        document.getElementById("game-multiplier")!.style.visibility =
-          "visible";
+    const folder = gui.addFolder("UI").close();
+
+    const defaultParams = {
+      showMultiplier: true
+    }
+
+    const params = loadSettings(STORAGE_KEY, defaultParams);
+
+    function showMultiplier(show: boolean){
+      if (show) {
+          document.getElementById("game-multiplier")!.style.visibility = "visible";
       } else {
-        document.getElementById("game-multiplier")!.style.visibility = "hidden";
+          document.getElementById("game-multiplier")!.style.visibility = "hidden";
       }
+    }
+
+    showMultiplier(params.showMultiplier);
+
+
+    folder.add(params, "showMultiplier").onChange((val) => {
+      showMultiplier(params.showMultiplier);
+      saveSettings(STORAGE_KEY, params);
     });
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        params.showMultiplier = defaultParams.showMultiplier;
+        showMultiplier(params.showMultiplier);
+        
+        folder.controllers.forEach(controller => controller.updateDisplay());
+      }
+    }
+
+    folder.add(resetInput, 'reset');
   }
 }

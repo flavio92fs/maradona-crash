@@ -7,7 +7,7 @@ import { RouterView } from "vue-router";
     <Transition>
       <div
         v-if="loading && !disconnected"
-        class="absolute h-full w-full bg-black z-50 text-white"
+        class="absolute h-full w-full bg-black z-[9999] text-white"
       >
         <div class="relative h-full w-full">
           <div class="absolute top-1/2 left-1/2">

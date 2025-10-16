@@ -17,6 +17,7 @@ export function initScene(container: HTMLElement) {
 
   let mixerMaradona: THREE.AnimationMixer;
   let mixerLuci: THREE.AnimationMixer;
+  let mixerFireworks: THREE.AnimationMixer;
 
   const rendererGUI = gui.addFolder("Renderer").close();
   const lightsFolderGUI = gui.addFolder("Lights").close();
@@ -225,8 +226,9 @@ export function initScene(container: HTMLElement) {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
-    mixerMaradona.update(delta);
-    mixerLuci.update(delta);
+    mixerMaradona?.update(delta);
+    mixerFireworks?.update(delta);
+    mixerLuci?.update(delta);
 
     cameraControls.orbitControls.update();
 
@@ -353,6 +355,7 @@ export function initScene(container: HTMLElement) {
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
   addAnimatedLights(scene);
+  // addAnimatedFireworks(scene)
   addStadio(gltfLoader, textureLoader, scene, gui);
   addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
@@ -820,6 +823,58 @@ export function initScene(container: HTMLElement) {
     });
   }
 
+  function addAnimatedFireworks(scene: THREE.Scene) {
+    const frameCount = 4;
+    const textures = [
+      textureLoader.load("textures/fontana/0.png"),
+      textureLoader.load("textures/fontana/1.png"),
+      textureLoader.load("textures/fontana/2.png"),
+      textureLoader.load("textures/fontana/3.png"),
+    ]
+
+    const fireworksMaterial = new THREE.MeshBasicMaterial({
+      // map: lightTexture,
+      transparent: true,
+      depthWrite: false,
+    });
+
+    gltfLoader.load("models/GLB/fuochi.glb", (gltf) => {
+      const model = gltf.scene;
+      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          mesh.material = fireworksMaterial;
+        }
+      });
+
+      mixerFireworks = new THREE.AnimationMixer(model);
+
+      // Qui è la differenza → usa gltf.animations, non model.animations
+      if (gltf.animations && gltf.animations.length > 0) {
+        gltf.animations.forEach((clip) => {
+          const action = mixerFireworks.clipAction(clip);
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.play();
+        });
+      }
+
+
+
+      // function update(deltaTime) {
+      //   elapsed += deltaTime;
+      //   if (elapsed > 1 / fps) {
+      //     elapsed = 0;
+      //     currentFrame = (currentFrame + 1) % frameCount;
+      //     material.map = textures[currentFrame];
+      //     material.needsUpdate = true;
+      // }
+
+      scene.add(model);
+    });
+  }
+
   function addStadio(
     gltfLoader: GLTFLoader,
     textureLoader: THREE.TextureLoader,
@@ -836,7 +891,7 @@ export function initScene(container: HTMLElement) {
 
     addMaterialGUI(gui, stadioMaterial, "Stadio Material");
 
-    gltfLoader.load("models/GLB/stadio1.glb", (gltf) => {
+    gltfLoader.load("models/GLB/stadio2.glb", (gltf) => {
       const video = document.createElement("video");
       video.src = "video/VideoMonitor.mp4";
       video.loop = true;
@@ -1398,7 +1453,7 @@ export function initScene(container: HTMLElement) {
     const params = loadSettings(STORAGE_KEY, defaultParams);
 
     gameMultiplier!.style.left = params.PositionX.toString() + "%";
-    gameMultiplier!.style.top = params.PositionX.toString() + "%";
+    gameMultiplier!.style.top = params.PositionY.toString() + "%";
 
     function showMultiplier(show: boolean) {
       if (show) {
@@ -1436,7 +1491,7 @@ export function initScene(container: HTMLElement) {
 
         showMultiplier(params.showMultiplier);
         gameMultiplier!.style.left = params.PositionX.toString() + "%";
-        gameMultiplier!.style.top = params.PositionX.toString() + "%";
+        gameMultiplier!.style.top = params.PositionY.toString() + "%";
 
         folder.controllers.forEach((controller) => controller.updateDisplay());
       },

@@ -70,6 +70,8 @@
         </div>
       </div>
 
+      <div class="absolute w-full h-full vignette"></div>
+
       <div
         id="bet-overlay"
         class="game-overlay absolute block lg:hidden bottom-0 w-full z-[100] p-3 pb-0"
@@ -352,5 +354,16 @@ onMounted(() => {
 
 .maradona-font {
   font-family: "Sablon";
+}
+
+.vignette {
+  z-index: 9;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(255, 255, 255, 0) 2%,
+    rgba(255, 255, 255, 0) 98%,
+    rgba(0, 0, 0, 1) 100%
+  );
 }
 </style>

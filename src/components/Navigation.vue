@@ -40,7 +40,7 @@
           </button>
 
           <ul
-            class="absolute cursor-default z-[1000] float-left hidden min-w-max list-none overflow-hidden rounded-lg border border-secondary bg-clip-padding text-left text-base shadow-lg bg-primary [&[data-te-dropdown-show]]:block"
+            class="absolute cursor-default z-[99999] hidden min-w-max list-none overflow-hidden rounded-lg border border-secondary bg-clip-padding text-left text-base shadow-lg bg-primary [&[data-te-dropdown-show]]:block"
             aria-labelledby="dropdownMenuButton1"
             data-te-dropdown-menu-ref
           >

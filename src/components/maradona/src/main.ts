@@ -187,10 +187,12 @@ const textureAnimator = {
       name: "capelli",
       // opacity: 0,
     }),
-    palla: new THREE.MeshStandardMaterial({
+    palla: new THREE.MeshMatcapMaterial({
       map: pallaBaseColor,
       opacity: 0,
       name: "palla",
+      lightMapIntensity: 0,
+      emissiveIntensity: 0
     }),
   };
 
@@ -651,8 +653,6 @@ const textureAnimator = {
 
     pallaBaseColor = textureLoader.load("textures/palla/palla_BaseColor.png");
     pallaBaseColor.colorSpace = THREE.SRGBColorSpace;
-    pallaBaseColor.minFilter = THREE.LinearMipmapLinearFilter; // qualità alta su distanza
-    pallaBaseColor.magFilter = THREE.LinearFilter; // qualità alta da vicino
   }
 
   function addGrassPlane(
@@ -1066,24 +1066,24 @@ const textureAnimator = {
 
       scene.add(model);
 
-      addMaterialMeshGUI(
+      addMaterialGUI(
         maradonaMaterialsGUI,
-        meshesLibrary["divisa"],
+        // meshesLibrary["divisa"],
         maradonaMaterialLibrary["divisa"]
       );
-      addMaterialMeshGUI(
+      addMaterialGUI(
         maradonaMaterialsGUI,
-        meshesLibrary["capelli"],
+        // meshesLibrary["capelli"],
         maradonaMaterialLibrary["capelli"]
       );
-      addMaterialMeshGUI(
+      addMaterialGUI(
         maradonaMaterialsGUI,
-        meshesLibrary["pelle"],
+        // meshesLibrary["pelle"],
         maradonaMaterialLibrary["pelle"]
       );
-      addMaterialMeshGUI(
+      addMaterialGUI(
         maradonaMaterialsGUI,
-        meshesLibrary["palla"],
+        // meshesLibrary["palla"],
         maradonaMaterialLibrary["palla"]
       );
 
@@ -1316,123 +1316,123 @@ const textureAnimator = {
       });
   }
 
-  function addMaterialMeshGUI(
-    gui: GUI,
-    meshes: THREE.Mesh[], // ✅ accetta array di mesh
-    material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial
-  ) {
-    const STORAGE_KEY = `material_${material.name}`;
+  // function addMaterialMeshGUI(
+  //   gui: GUI,
+  //   meshes: THREE.Mesh[], // ✅ accetta array di mesh
+  //   material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial
+  // ) {
+  //   const STORAGE_KEY = `material_${material.name}`;
 
-    // valori di default
-    const defaultParams = {
-      color: "#ffffff",
-      emissive: "#000000",
-      metalness: 0,
-      roughness: 1,
-      texturePath: "",
-      materialType:
-        material instanceof THREE.MeshStandardMaterial ? "standard" : "basic",
-    };
+  //   // valori di default
+  //   const defaultParams = {
+  //     color: "#ffffff",
+  //     emissive: "#000000",
+  //     metalness: 0,
+  //     roughness: 1,
+  //     texturePath: "",
+  //     materialType:
+  //       material instanceof THREE.MeshStandardMaterial ? "standard" : "basic",
+  //   };
 
-    // carico eventuali valori salvati
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+  //   // carico eventuali valori salvati
+  //   const params = loadSettings(STORAGE_KEY, defaultParams);
 
-    // funzione per applicare il materiale aggiornato a tutte le mesh
-    function applyMaterialToMeshes(newMaterial: THREE.Material) {
-      meshes.forEach((m) => (m.material = newMaterial));
-    }
+  //   // funzione per applicare il materiale aggiornato a tutte le mesh
+  //   function applyMaterialToMeshes(newMaterial: THREE.Material) {
+  //     meshes.forEach((m) => (m.material = newMaterial));
+  //   }
 
-    // funzione per creare un materiale nuovo in base al tipo
-    function createMaterial(type: "standard" | "basic") {
-      const newMat =
-        type === "standard"
-          ? new THREE.MeshStandardMaterial({
-              color: params.color,
-              emissive: params.emissive,
-              metalness: params.metalness,
-              roughness: params.roughness,
-              map: material.map || null,
-            })
-          : new THREE.MeshBasicMaterial({
-              color: params.color,
-              map: material.map || null,
-            });
+  //   // funzione per creare un materiale nuovo in base al tipo
+  //   function createMaterial(type: "standard" | "basic") {
+  //     const newMat =
+  //       type === "standard"
+  //         ? new THREE.MeshStandardMaterial({
+  //             color: params.color,
+  //             emissive: params.emissive,
+  //             metalness: params.metalness,
+  //             roughness: params.roughness,
+  //             map: material.map || null,
+  //           })
+  //         : new THREE.MeshBasicMaterial({
+  //             color: params.color,
+  //             map: material.map || null,
+  //           });
 
-      newMat.name = material.name;
-      applyMaterialToMeshes(newMat);
+  //     newMat.name = material.name;
+  //     applyMaterialToMeshes(newMat);
 
-      material = newMat; // aggiorno riferimento
-      saveSettings(STORAGE_KEY, params);
-    }
+  //     material = newMat; // aggiorno riferimento
+  //     saveSettings(STORAGE_KEY, params);
+  //   }
 
-    // GUI setup
-    const folder = gui.addFolder(material.name);
+  //   // GUI setup
+  //   const folder = gui.addFolder(material.name);
 
-    // ✅ Selettore tipo materiale (mostrato solo se entrambe supportate)
-    folder
-      .add(params, "materialType", ["standard", "basic"])
-      .name("Tipo Materiale")
-      .onChange((val: "standard" | "basic") => {
-        createMaterial(val);
-      });
+  //   // ✅ Selettore tipo materiale (mostrato solo se entrambe supportate)
+  //   folder
+  //     .add(params, "materialType", ["standard", "basic"])
+  //     .name("Tipo Materiale")
+  //     .onChange((val: "standard" | "basic") => {
+  //       createMaterial(val);
+  //     });
 
-    // ✅ Carica texture
-    folder
-      .add({ loadTexture: () => loadTexture(material) }, "loadTexture")
-      .name("Carica Texture");
+  //   // ✅ Carica texture
+  //   folder
+  //     .add({ loadTexture: () => loadTexture(material) }, "loadTexture")
+  //     .name("Carica Texture");
 
-    // ✅ Colore
-    folder.addColor(params, "color").onChange((val: string) => {
-      material.color.set(val);
-      saveSettings(STORAGE_KEY, params);
-    });
+  //   // ✅ Colore
+  //   folder.addColor(params, "color").onChange((val: string) => {
+  //     material.color.set(val);
+  //     saveSettings(STORAGE_KEY, params);
+  //   });
 
-    // ✅ Emissive solo se è uno StandardMaterial
-    if (material instanceof THREE.MeshStandardMaterial) {
-      folder.addColor(params, "emissive").onChange((val: string) => {
-        material.emissive.set(val);
-        saveSettings(STORAGE_KEY, params);
-      });
+  //   // ✅ Emissive solo se è uno StandardMaterial
+  //   if (material instanceof THREE.MeshStandardMaterial) {
+  //     folder.addColor(params, "emissive").onChange((val: string) => {
+  //       material.emissive.set(val);
+  //       saveSettings(STORAGE_KEY, params);
+  //     });
 
-      folder.add(params, "metalness", 0, 1, 0.01).onChange((v) => {
-        material.metalness = v;
-        saveSettings(STORAGE_KEY, params);
-      });
+  //     folder.add(params, "metalness", 0, 1, 0.01).onChange((v) => {
+  //       material.metalness = v;
+  //       saveSettings(STORAGE_KEY, params);
+  //     });
 
-      folder.add(params, "roughness", 0, 1, 0.01).onChange((v) => {
-        material.roughness = v;
-        saveSettings(STORAGE_KEY, params);
-      });
-    }
+  //     folder.add(params, "roughness", 0, 1, 0.01).onChange((v) => {
+  //       material.roughness = v;
+  //       saveSettings(STORAGE_KEY, params);
+  //     });
+  //   }
 
-    // funzione per caricare texture manualmente
-    function loadTexture(mat: THREE.Material) {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".png,.jpg,.jpeg";
+  //   // funzione per caricare texture manualmente
+  //   function loadTexture(mat: THREE.Material) {
+  //     const input = document.createElement("input");
+  //     input.type = "file";
+  //     input.accept = ".png,.jpg,.jpeg";
 
-      input.addEventListener("change", (e: any) => {
-        const file = e.target.files[0];
-        if (!file) return;
+  //     input.addEventListener("change", (e: any) => {
+  //       const file = e.target.files[0];
+  //       if (!file) return;
 
-        const url = URL.createObjectURL(file);
-        const loader = new THREE.TextureLoader();
-        loader.load(url, (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-          tex.repeat.set(1, 1);
+  //       const url = URL.createObjectURL(file);
+  //       const loader = new THREE.TextureLoader();
+  //       loader.load(url, (tex) => {
+  //         tex.colorSpace = THREE.SRGBColorSpace;
+  //         tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  //         tex.repeat.set(1, 1);
 
-          (mat as THREE.MeshStandardMaterial).map = tex;
-          mat.needsUpdate = true;
+  //         (mat as THREE.MeshStandardMaterial).map = tex;
+  //         mat.needsUpdate = true;
 
-          applyMaterialToMeshes(mat);
-          saveSettings(STORAGE_KEY, { ...params, texturePath: file.name });
-        });
-      });
+  //         applyMaterialToMeshes(mat);
+  //         saveSettings(STORAGE_KEY, { ...params, texturePath: file.name });
+  //       });
+  //     });
 
-      input.click();
-    }
-  }
+  //     input.click();
+  //   }
+  // }
 
   function addFPSCounter(gui: GUI) {
     const fpsParams = { fps: 0 };

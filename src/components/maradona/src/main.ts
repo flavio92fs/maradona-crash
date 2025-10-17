@@ -18,11 +18,14 @@ export function initScene(container: HTMLElement) {
   let mixerMaradona: THREE.AnimationMixer;
   let mixerLuci: THREE.AnimationMixer;
   let mixerFireworks: THREE.AnimationMixer;
+  let isFireworkAnimationPlaying = false;
 
   const rendererGUI = gui.addFolder("Renderer").close();
   const lightsFolderGUI = gui.addFolder("Lights").close();
   const maradonaMaterialsGUI = gui.addFolder("Maradona Materials").close();
   const sphereDomGUI = gui.addFolder("Sphere DOM").close();
+  const animationsGUI = gui.addFolder("Animations");
+
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
@@ -44,6 +47,31 @@ export function initScene(container: HTMLElement) {
   let pallaBaseColor: THREE.Texture;
 
   //#endregion
+
+const textureAnimator = {
+  elapsed: 0,
+  currentFrame: 0,
+  fps: 30,
+};
+
+  const fireWorkAnimatedTextures = [
+      textureLoader.load("textures/fontana/0.png"),
+      textureLoader.load("textures/fontana/1.png"),
+      textureLoader.load("textures/fontana/2.png"),
+      textureLoader.load("textures/fontana/3.png"),
+  ]
+
+  fireWorkAnimatedTextures.forEach((texture) => {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.y = -1;
+  } )
+
+  const fireworksMaterial: THREE.MeshStandardMaterial = new THREE.MeshBasicMaterial({
+    map: fireWorkAnimatedTextures[0],
+    transparent: true,
+    depthWrite: false,
+  });
 
   loadDivisaTextures();
 
@@ -222,16 +250,21 @@ export function initScene(container: HTMLElement) {
   const fpsLimit = 30;
   const fpsInterval = 1000 / fpsLimit;
 
+
+  //#region ANIMATE
   function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
     mixerMaradona?.update(delta);
-    mixerFireworks?.update(delta);
     mixerLuci?.update(delta);
 
-    cameraControls.orbitControls.update();
+    if(isFireworkAnimationPlaying){
+      mixerFireworks?.update(delta);
+      updateTextureAnimationMaterial(delta, fireworksMaterial, fireWorkAnimatedTextures)
+    }
 
+    cameraControls.orbitControls.update();
     renderer.render(scene, camera);
   }
 
@@ -355,7 +388,7 @@ export function initScene(container: HTMLElement) {
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
   addAnimatedLights(scene);
-  // addAnimatedFireworks(scene)
+  addAnimatedFireworks(scene)
   addStadio(gltfLoader, textureLoader, scene, gui);
   addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
@@ -767,20 +800,6 @@ export function initScene(container: HTMLElement) {
         }
       });
 
-      // folder
-      //   .addColor(params, "color")
-      //   .name("Colore")
-      //   .onChange((val: string) => {
-      //     model.traverse((child) => {
-      //       if ((child as THREE.Mesh).isMesh) {
-      //         const mesh = child as THREE.Mesh;
-      //         const mat = mesh.material as THREE.MeshStandardMaterial;
-      //         mat.color.set(val);
-      //       }
-      //     });
-      //     saveSettings(STORAGE_KEY, params);
-      //   });
-
       scene.add(model);
     });
   }
@@ -824,20 +843,6 @@ export function initScene(container: HTMLElement) {
   }
 
   function addAnimatedFireworks(scene: THREE.Scene) {
-    const frameCount = 4;
-    const textures = [
-      textureLoader.load("textures/fontana/0.png"),
-      textureLoader.load("textures/fontana/1.png"),
-      textureLoader.load("textures/fontana/2.png"),
-      textureLoader.load("textures/fontana/3.png"),
-    ]
-
-    const fireworksMaterial = new THREE.MeshBasicMaterial({
-      // map: lightTexture,
-      transparent: true,
-      depthWrite: false,
-    });
-
     gltfLoader.load("models/GLB/fuochi.glb", (gltf) => {
       const model = gltf.scene;
       model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
@@ -852,27 +857,48 @@ export function initScene(container: HTMLElement) {
       mixerFireworks = new THREE.AnimationMixer(model);
 
       // Qui è la differenza → usa gltf.animations, non model.animations
-      if (gltf.animations && gltf.animations.length > 0) {
-        gltf.animations.forEach((clip) => {
-          const action = mixerFireworks.clipAction(clip);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
-        });
+      const clip = gltf.animations[0]
+      const action = mixerFireworks.clipAction(clip);
+      action.play();
+      action.paused = true;
+      action.time = 0;
+      action.setLoop(THREE.LoopOnce, 0);
+      mixerFireworks.setTime(0);
+
+      const animationPlay = {
+        playFireworks: () => {
+          action.enabled = true;     // riattiva l’azione
+          action.reset();            // rimette time = 0 internamente
+          action.paused = false;      // ferma al frame 0
+          mixerFireworks.update(0);  // forza aggiornamento pose
+          isFireworkAnimationPlaying = true;
+        }
       }
 
+      mixerFireworks.addEventListener("finished", () => {
+        action.enabled = true;     // riattiva l’azione
+        action.reset();            // rimette time = 0 internamente
+        action.paused = true;      // ferma al frame 0
+        mixerFireworks.update(0);  // forza aggiornamento pose
+        isFireworkAnimationPlaying = false;
+      });
 
-
-      // function update(deltaTime) {
-      //   elapsed += deltaTime;
-      //   if (elapsed > 1 / fps) {
-      //     elapsed = 0;
-      //     currentFrame = (currentFrame + 1) % frameCount;
-      //     material.map = textures[currentFrame];
-      //     material.needsUpdate = true;
-      // }
+      animationsGUI.add(animationPlay, 'playFireworks').name('🎆 Play Fireworks');
 
       scene.add(model);
     });
+  }
+
+  function updateTextureAnimationMaterial(deltaTime: number, material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, textures: THREE.Texture[]){  
+
+      textureAnimator.elapsed += deltaTime;
+
+      if (textureAnimator.elapsed > 1 / textureAnimator.fps) {
+        textureAnimator.elapsed = 0;
+        textureAnimator.currentFrame = (textureAnimator.currentFrame + 1) % textures.length;
+        material.map = textures[textureAnimator.currentFrame];
+        material.needsUpdate = true;
+      }
   }
 
   function addStadio(
@@ -1147,8 +1173,6 @@ export function initScene(container: HTMLElement) {
           mixerMaradona.addEventListener("finished", onFinished);
         },
       };
-
-      const animationsGUI = gui.addFolder("Animations");
 
       animationsGUI.add(animControls, "riscaldamento").name("🏃 Riscaldamento");
       animationsGUI.add(animControls, "palleggio1").name("⚽ Palleggio 1");
@@ -1445,7 +1469,7 @@ export function initScene(container: HTMLElement) {
 
     const defaultParams = {
       showMultiplier: true,
-      PositionY: 0,
+      PositionY: 12,
       PositionX: 0,
       Scale: 0,
     };

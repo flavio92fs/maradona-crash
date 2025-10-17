@@ -55,7 +55,7 @@
 
       <div
         id="game-multiplier"
-        class="absolute select-none text-white text-2xl p-5 rounded-md z-[200]"
+        class="absolute w-full select-none text-white text-2xl p-5 rounded-md z-[200] text-center"
         style="
           font-size: 5rem;
           text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);
@@ -70,7 +70,9 @@
         </div>
       </div>
 
-      <div class="absolute w-full h-full vignette"></div>
+      <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
+        <img class="h-full" :src="'public/vignette.png'" style="pointer-events: none;"></img>
+      </div>
 
       <div
         id="bet-overlay"

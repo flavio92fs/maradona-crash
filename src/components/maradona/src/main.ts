@@ -26,7 +26,6 @@ export function initScene(container: HTMLElement) {
   const sphereDomGUI = gui.addFolder("Sphere DOM").close();
   const animationsGUI = gui.addFolder("Animations");
 
-
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
     window.addEventListener("click", () => {
@@ -48,30 +47,31 @@ export function initScene(container: HTMLElement) {
 
   //#endregion
 
-const textureAnimator = {
-  elapsed: 0,
-  currentFrame: 0,
-  fps: 30,
-};
+  const textureAnimator = {
+    elapsed: 0,
+    currentFrame: 0,
+    fps: 30,
+  };
 
   const fireWorkAnimatedTextures = [
-      textureLoader.load("textures/fontana/0.png"),
-      textureLoader.load("textures/fontana/1.png"),
-      textureLoader.load("textures/fontana/2.png"),
-      textureLoader.load("textures/fontana/3.png"),
-  ]
+    textureLoader.load("textures/fontana/0.png"),
+    textureLoader.load("textures/fontana/1.png"),
+    textureLoader.load("textures/fontana/2.png"),
+    textureLoader.load("textures/fontana/3.png"),
+  ];
 
   fireWorkAnimatedTextures.forEach((texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.y = -1;
-  } )
-
-  const fireworksMaterial: THREE.MeshStandardMaterial = new THREE.MeshBasicMaterial({
-    map: fireWorkAnimatedTextures[0],
-    transparent: true,
-    depthWrite: false,
   });
+
+  const fireworksMaterial: THREE.MeshStandardMaterial =
+    new THREE.MeshBasicMaterial({
+      map: fireWorkAnimatedTextures[0],
+      transparent: true,
+      depthWrite: false,
+    });
 
   loadDivisaTextures();
 
@@ -192,7 +192,7 @@ const textureAnimator = {
       opacity: 0,
       name: "palla",
       lightMapIntensity: 0,
-      emissiveIntensity: 0
+      emissiveIntensity: 0,
     }),
   };
 
@@ -252,7 +252,6 @@ const textureAnimator = {
   const fpsLimit = 30;
   const fpsInterval = 1000 / fpsLimit;
 
-
   //#region ANIMATE
   function animate() {
     requestAnimationFrame(animate);
@@ -261,9 +260,13 @@ const textureAnimator = {
     mixerMaradona?.update(delta);
     mixerLuci?.update(delta);
 
-    if(isFireworkAnimationPlaying){
+    if (isFireworkAnimationPlaying) {
       mixerFireworks?.update(delta);
-      updateTextureAnimationMaterial(delta, fireworksMaterial, fireWorkAnimatedTextures)
+      updateTextureAnimationMaterial(
+        delta,
+        fireworksMaterial,
+        fireWorkAnimatedTextures
+      );
     }
 
     cameraControls.orbitControls.update();
@@ -390,7 +393,7 @@ const textureAnimator = {
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
   addAnimatedLights(scene);
-  addAnimatedFireworks(scene)
+  addAnimatedFireworks(scene);
   addStadio(gltfLoader, textureLoader, scene, gui);
   addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
@@ -857,7 +860,7 @@ const textureAnimator = {
       mixerFireworks = new THREE.AnimationMixer(model);
 
       // Qui è la differenza → usa gltf.animations, non model.animations
-      const clip = gltf.animations[0]
+      const clip = gltf.animations[0];
       const action = mixerFireworks.clipAction(clip);
       action.play();
       action.paused = true;
@@ -867,38 +870,44 @@ const textureAnimator = {
 
       const animationPlay = {
         playFireworks: () => {
-          action.enabled = true;     // riattiva l’azione
-          action.reset();            // rimette time = 0 internamente
-          action.paused = false;      // ferma al frame 0
-          mixerFireworks.update(0);  // forza aggiornamento pose
+          action.enabled = true; // riattiva l’azione
+          action.reset(); // rimette time = 0 internamente
+          action.paused = false; // ferma al frame 0
+          mixerFireworks.update(0); // forza aggiornamento pose
           isFireworkAnimationPlaying = true;
-        }
-      }
+        },
+      };
 
       mixerFireworks.addEventListener("finished", () => {
-        action.enabled = true;     // riattiva l’azione
-        action.reset();            // rimette time = 0 internamente
-        action.paused = true;      // ferma al frame 0
-        mixerFireworks.update(0);  // forza aggiornamento pose
+        action.enabled = true; // riattiva l’azione
+        action.reset(); // rimette time = 0 internamente
+        action.paused = true; // ferma al frame 0
+        mixerFireworks.update(0); // forza aggiornamento pose
         isFireworkAnimationPlaying = false;
       });
 
-      animationsGUI.add(animationPlay, 'playFireworks').name('🎆 Play Fireworks');
+      animationsGUI
+        .add(animationPlay, "playFireworks")
+        .name("🎆 Play Fireworks");
 
       scene.add(model);
     });
   }
 
-  function updateTextureAnimationMaterial(deltaTime: number, material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, textures: THREE.Texture[]){  
+  function updateTextureAnimationMaterial(
+    deltaTime: number,
+    material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
+    textures: THREE.Texture[]
+  ) {
+    textureAnimator.elapsed += deltaTime;
 
-      textureAnimator.elapsed += deltaTime;
-
-      if (textureAnimator.elapsed > 1 / textureAnimator.fps) {
-        textureAnimator.elapsed = 0;
-        textureAnimator.currentFrame = (textureAnimator.currentFrame + 1) % textures.length;
-        material.map = textures[textureAnimator.currentFrame];
-        material.needsUpdate = true;
-      }
+    if (textureAnimator.elapsed > 1 / textureAnimator.fps) {
+      textureAnimator.elapsed = 0;
+      textureAnimator.currentFrame =
+        (textureAnimator.currentFrame + 1) % textures.length;
+      material.map = textures[textureAnimator.currentFrame];
+      material.needsUpdate = true;
+    }
   }
 
   function addStadio(
@@ -1470,13 +1479,13 @@ const textureAnimator = {
     const defaultParams = {
       showMultiplier: true,
       PositionY: 12,
-      PositionX: 0,
+      // PositionX: 0,
       Scale: 0,
     };
 
     const params = loadSettings(STORAGE_KEY, defaultParams);
 
-    gameMultiplier!.style.left = params.PositionX.toString() + "%";
+    // gameMultiplier!.style.left = params.PositionX.toString() + "%";
     gameMultiplier!.style.top = params.PositionY.toString() + "%";
 
     function showMultiplier(show: boolean) {
@@ -1499,10 +1508,10 @@ const textureAnimator = {
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params, "PositionX", 0, 100, 0.01).onChange((val) => {
-      gameMultiplier!.style.left = `${val}%`;
-      saveSettings(STORAGE_KEY, params);
-    });
+    // folder.add(params, "PositionX", 0, 100, 0.01).onChange((val) => {
+    //   gameMultiplier!.style.left = `${val}%`;
+    //   saveSettings(STORAGE_KEY, params);
+    // });
 
     const resetInput = {
       reset: () => {
@@ -1510,11 +1519,11 @@ const textureAnimator = {
         saveSettings(STORAGE_KEY, defaultParams);
 
         params.showMultiplier = defaultParams.showMultiplier;
-        params.PositionX = defaultParams.PositionX;
+        // params.PositionX = defaultParams.PositionX;
         params.PositionY = defaultParams.PositionY;
 
         showMultiplier(params.showMultiplier);
-        gameMultiplier!.style.left = params.PositionX.toString() + "%";
+        // gameMultiplier!.style.left = params.PositionX.toString() + "%";
         gameMultiplier!.style.top = params.PositionY.toString() + "%";
 
         folder.controllers.forEach((controller) => controller.updateDisplay());

@@ -18,11 +18,11 @@
       @click="closeHistory()"
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation class="rounded-none z-[11] lg:hidden" />
+        <Navigation class="rounded-none z-[12] lg:hidden" />
 
         <div
           id="multipliers-overlay"
-          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[10] py-2"
+          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
           @click.stop="closeHistory()"
         >
           <div class="flex flex-row overflow-auto">
@@ -55,7 +55,7 @@
 
       <div
         id="game-multiplier"
-        class="absolute select-none text-white text-2xl p-5 rounded-md z-[200]"
+        class="absolute w-full select-none text-white text-2xl p-5 rounded-md z-[200] text-center"
         style="
           font-size: 5rem;
           text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);
@@ -70,7 +70,9 @@
         </div>
       </div>
 
-      <div class="absolute w-full h-full vignette"></div>
+      <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
+        <img class="h-full" :src="'public/vignette.png'" style="pointer-events: none;"></img>
+      </div>
 
       <div
         id="bet-overlay"
@@ -366,6 +368,5 @@ onMounted(() => {
     rgba(0, 0, 0, 1) 100%
   );
   pointer-events: none;
-
 }
 </style>

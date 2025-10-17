@@ -365,5 +365,7 @@ onMounted(() => {
     rgba(255, 255, 255, 0) 98%,
     rgba(0, 0, 0, 1) 100%
   );
+  pointer-events: none;
+
 }
 </style>

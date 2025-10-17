@@ -18,11 +18,11 @@
       @click="closeHistory()"
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation class="rounded-none z-[11] lg:hidden" />
+        <Navigation class="rounded-none z-[12] lg:hidden" />
 
         <div
           id="multipliers-overlay"
-          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[10] py-2"
+          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
           @click.stop="closeHistory()"
         >
           <div class="flex flex-row overflow-auto">
@@ -365,5 +365,6 @@ onMounted(() => {
     rgba(255, 255, 255, 0) 98%,
     rgba(0, 0, 0, 1) 100%
   );
+  pointer-events: none;
 }
 </style>

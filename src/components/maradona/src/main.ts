@@ -187,7 +187,7 @@ export function initScene(container: HTMLElement) {
       name: "capelli",
       // opacity: 0,
     }),
-    palla: new THREE.MeshMatcapMaterial({
+    palla: new THREE.MeshBasicMaterial({
       map: pallaBaseColor,
       opacity: 0,
       name: "palla",

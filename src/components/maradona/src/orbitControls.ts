@@ -69,7 +69,7 @@ export default class CameraControls{
         });
 
         // max zoom
-        folder.add(params, 'maxZoom', 0.1, 5, 0.1).onChange((v: number) => {
+        folder.add(params, 'maxZoom', 0.1, 10, 0.1).onChange((v: number) => {
             this._orbitControls.maxDistance = v;
 
             // assicura che max non sia sotto min

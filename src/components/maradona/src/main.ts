@@ -1478,7 +1478,7 @@ export function initScene(container: HTMLElement) {
 
     const defaultParams = {
       showMultiplier: true,
-      PositionY: 12,
+      PositionY: 54,
       // PositionX: 0,
       Scale: 0,
     };
@@ -1508,22 +1508,15 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
-    // folder.add(params, "PositionX", 0, 100, 0.01).onChange((val) => {
-    //   gameMultiplier!.style.left = `${val}%`;
-    //   saveSettings(STORAGE_KEY, params);
-    // });
-
     const resetInput = {
       reset: () => {
         resetSettings(STORAGE_KEY, defaultParams);
         saveSettings(STORAGE_KEY, defaultParams);
 
         params.showMultiplier = defaultParams.showMultiplier;
-        // params.PositionX = defaultParams.PositionX;
         params.PositionY = defaultParams.PositionY;
 
         showMultiplier(params.showMultiplier);
-        // gameMultiplier!.style.left = params.PositionX.toString() + "%";
         gameMultiplier!.style.top = params.PositionY.toString() + "%";
 
         folder.controllers.forEach((controller) => controller.updateDisplay());

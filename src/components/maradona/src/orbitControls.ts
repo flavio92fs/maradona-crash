@@ -49,7 +49,7 @@ export default class CameraControls{
         }
 
         // valori iniziali
-        const params = loadSettings(STORAGE_KEY, defaultParams);
+        let params = { ...defaultParams };
 
         this.orbitControls.minDistance = params.minZoom;
         this.orbitControls.maxDistance = params.maxZoom;
@@ -102,16 +102,9 @@ export default class CameraControls{
 
         const resetInput = {
             reset: () => {
-            resetSettings(STORAGE_KEY, defaultParams);
+            resetSettings(STORAGE_KEY, defaultParams, params, folder);
             saveSettings(STORAGE_KEY, defaultParams);
     
-            params.minZoom = defaultParams.minZoom;
-            params.maxZoom = defaultParams.maxZoom;
-            
-            params.targetX = defaultParams.targetX;
-            params.targetY = defaultParams.targetY;
-            params.targetZ = defaultParams.targetZ;
-            
             this.orbitControls.minDistance = params.minZoom;
             this.orbitControls.maxDistance = params.maxZoom;
             this.orbitControls.target.set(params.targetX, params.targetY, params.targetZ);

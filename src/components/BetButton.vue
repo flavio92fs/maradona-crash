@@ -27,7 +27,7 @@ const props = defineProps({
   id: Number,
   active: Boolean,
   betValue: String,
-  menuOpen: Boolean,
+  menuOpen: Number,
 });
 
 const emit = defineEmits(["sub-click"]);

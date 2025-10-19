@@ -56,7 +56,7 @@
       <GameMultiplier />
 
       <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
-        <img class="h-full" :src="'public/vignette.png'" style="pointer-events: none;"></img>
+        <img class="h-full" :src="'/vignette.png'" style="pointer-events: none;"></img>
       </div>
 
       <div

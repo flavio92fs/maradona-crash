@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <GameMultiplier />
+      <GameMultiplier class="absolute w-full select-none"/>
 
       <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
         <img class="h-full" :src="'/vignette.png'" style="pointer-events: none;"></img>
@@ -149,8 +149,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, useTemplateRef } from "vue";
-import { computed } from "@vue/reactivity";
+import { ref, onMounted } from "vue";
 import store from "@/store";
 import {
   ArrowsPointingOutIcon,

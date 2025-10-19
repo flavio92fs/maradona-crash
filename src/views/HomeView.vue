@@ -6,15 +6,17 @@
       @setAudio="setAudio"
       @setMusic="setMusic"
     />
+
+    <div class="hidden lg:flex flex-row">
+      <MultiplierHistory class="mt-5 mb-5" />
+    </div>
+
     <div class="flex flex-col flex-grow pb-0">
-      <div class="hidden lg:flex flex-row">
-        <MultiplierHistory class="flex mt-5 mb-5" />
-      </div>
       <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
         <div
           class="hidden lg:flex 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
         >
-          <BetHistory class="flex h-full" @getLeaderboard="getLeaderBoard" />
+          <BetHistory @getLeaderboard="getLeaderBoard" />
         </div>
 
         <div

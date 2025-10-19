@@ -1,7 +1,7 @@
 <template>
   <div
     id="game-multiplier"
-    class="absolute w-full select-none text-white text-2xl p-5 rounded-md z-[100] text-center pointer-events-none"
+    class="text-white text-2xl p-5 rounded-md z-[100] text-center pointer-events-none"
     style="
       font-size: 5rem;
       text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);

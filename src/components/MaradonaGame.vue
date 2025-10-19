@@ -53,22 +53,7 @@
         </div>
       </div>
 
-      <div
-        id="game-multiplier"
-        class="absolute w-full select-none text-white text-2xl p-5 rounded-md z-[200] text-center"
-        style="
-          font-size: 5rem;
-          text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);
-          top: 65%;
-        "
-      >
-        <div class="font-bold">
-          <span class="maradona-font" style="font-size: 2.5rem">x </span
-          ><span class="maradona-font">0</span>
-          <span class="maradona-font text-sm">,</span>
-          <span class="maradona-font" style="font-size: 2.8rem">00</span>
-        </div>
-      </div>
+      <GameMultiplier />
 
       <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
         <img class="h-full" :src="'public/vignette.png'" style="pointer-events: none;"></img>
@@ -76,7 +61,7 @@
 
       <div
         id="bet-overlay"
-        class="game-overlay absolute block lg:hidden bottom-0 w-full z-[100] p-3 pb-0"
+        class="game-overlay absolute block lg:hidden bottom-0 w-full z-[200] p-3 pb-0"
       >
         <BetBoxMobile
           v-if="showBetBox"
@@ -84,49 +69,11 @@
           @confirm="setButton"
           @close="closeBox"
         ></BetBoxMobile>
+
         <div class="flex justify-center w-100">
-          <div
-            class="relative flex items-center btn-container rounded-lg w-full mx-2 p-2"
-          >
-            <button
-              class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white text-start"
-              :disabled="showBetBox"
-              :class="showBetBox ? 'button-70-disabled' : 'button-70'"
-              @click.stop="console.log('bet')"
-            >
-              <button
-                class="absolute select-none right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
-                v-if="selectedBetBox != 1"
-                :disabled="showBetBox"
-                @click.stop="toggleBetBox(1)"
-              >
-                <EllipsisHorizontalCircleIcon />
-              </button>
-              <p class="font-bold">BET</p>
-              <p class="font-bold">{{ button1amount }}€</p>
-            </button>
-          </div>
-          <div
-            class="flex items-center btn-container rounded-lg w-full mx-2 p-2"
-          >
-            <button
-              class="relative flex flex-col btn rounded-xl text-xl p-2 w-full text-white text-start"
-              :disabled="showBetBox"
-              :class="showBetBox ? 'button-70-disabled' : 'button-70'"
-              @click.stop="console.log('bet')"
-            >
-              <button
-                class="absolute select-none right-0 top-0 me-1 mt-1 h-7 w-7 z-10"
-                v-if="selectedBetBox != 2"
-                :disabled="showBetBox"
-                @click.stop="toggleBetBox(2)"
-              >
-                <EllipsisHorizontalCircleIcon />
-              </button>
-              <p class="font-bold">BET</p>
-              <p class="font-bold">{{ button2amount }}€</p>
-            </button>
-          </div>
+          <BetButton :id="1" :bet-value="button1amount" :active="!showBetBox" :menu-open="selectedBetBox" @sub-click="toggleBetBox(1)"/>
+         
+          <BetButton :id="2" :bet-value="button2amount" :active="!showBetBox" :menu-open="selectedBetBox" @sub-click="toggleBetBox(2)"/>
         </div>
 
         <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
@@ -180,8 +127,8 @@
               @mousedown="stopCloseTimer()"
               @mouseup="startCloseTimer()"
               @mouseleave="startCloseTimer()"
-              @scroll="stopCloseTimer()"
-              @scrollend="startCloseTimer()"
+              @scroll.stop="stopCloseTimer()"
+              @scrollend.stop="startCloseTimer()"
             >
               <p v-for="i in 100">Bet {{ i }}</p>
             </div>
@@ -208,25 +155,28 @@ import store from "@/store";
 import {
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
-  EllipsisHorizontalCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
+import BetButton from "./BetButton.vue";
 import BetBoxMobile from "./BetBoxMobile.vue";
 import Navigation from "./Navigation.vue";
+import GameMultiplier from "./GameMultiplier.vue";
 
 //Data
 
+let button1amount = ref((1.0).toFixed(2));
+let button2amount = ref((1.0).toFixed(2));
+let multiplier = ref((0.0).toFixed(2));
+
+//Helpers
+
 const threeGameContainer = ref(null);
-const isFullscreen = computed(() => store.state.isFullscreen);
 let showBetBox = ref(false);
 let selectedBetBox = ref(0);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
-let button1amount = ref((1.0).toFixed(2));
-let button2amount = ref((1.0).toFixed(2));
-let multiplier = ref((0.0).toFixed(2));
 
 //Methods
 
@@ -352,10 +302,6 @@ onMounted(() => {
 
 .fullscreen-button {
   background: rgba(0, 0, 0, 0.7);
-}
-
-.maradona-font {
-  font-family: "Sablon";
 }
 
 .vignette {

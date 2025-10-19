@@ -34,9 +34,7 @@
                 @drawCash="drawCash(0)"
               />
             </div>
-            <!-- <div class="hidden 2xl:block order-3 xl:order-1 mx-5 3xl:mt-0">
-              <Podium />
-            </div> -->
+
             <div class="order-2 3xl:order-2 mx-5 mt-5 md:mt-0">
               <BetBox
                 :id="1"
@@ -65,7 +63,6 @@ import MultiplierHistory from "../components/MultiplierHistory.vue";
 import BetHistory from "../components/BetHistory.vue";
 import BetBox from "../components/BetBox.vue";
 import Chat from "../components/Chat.vue";
-import Podium from "../components/Podium.vue";
 import BetAudio from "../components/game/assets/Sounds/bet.mp3";
 import WinAudio from "../components/game/assets/Sounds/win.mp3";
 import { game } from "../components/game/config.js";
@@ -82,7 +79,6 @@ export default {
     BetHistory,
     BetBox,
     Chat,
-    Podium,
   },
   data: () => ({
     initialize: false,

@@ -31,6 +31,10 @@ export function initScene(container: HTMLElement) {
     window.addEventListener("click", () => {
       audioManager.playBackgroundMusic();
     });
+
+    window.addEventListener("resize", resizeRenderer);
+
+    resizeRenderer();
     // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
   });
 
@@ -155,9 +159,6 @@ export function initScene(container: HTMLElement) {
 
     renderer.setSize(windowWidth, windowHeight);
   }
-
-  window.addEventListener("resize", resizeRenderer);
-  resizeRenderer();
   //#endregion
 
   let actions: { [key: string]: THREE.AnimationAction } = {};

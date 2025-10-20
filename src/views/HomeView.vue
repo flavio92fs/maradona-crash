@@ -7,7 +7,7 @@
       @setMusic="setMusic"
     />
 
-    <div class="hidden lg:flex flex-row">
+    <div class="hidden lg:flex flex-row" style="height: 92px">
       <MultiplierHistory class="mt-5 mb-5" />
     </div>
 
@@ -16,7 +16,7 @@
         <div
           class="hidden lg:flex 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
         >
-          <BetHistory @getLeaderboard="getLeaderBoard" />
+          <BetHistory style="width: 400px" @getLeaderboard="getLeaderBoard" />
         </div>
 
         <div

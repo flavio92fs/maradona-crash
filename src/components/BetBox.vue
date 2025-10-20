@@ -222,7 +222,11 @@
       </div>
     </div>
 
-    <AutoplayModal @startAutoplay="startAutoplay" ref="autoPlayModal" />
+    <AutoplayModal
+      @startAutoplay="startAutoplay"
+      ref="autoPlayModal"
+      class="z-[9999]"
+    />
   </div>
 </template>
 

@@ -7,6 +7,9 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { resetSettings, saveSettings } from "./saveLoadGUI";
 import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
+import emitter from "@/eventEmitter";
+
+import { onMounted, ref } from "vue";
 
 export function initScene(container: HTMLElement) {
   const gui: GUI = new GUI().close();
@@ -32,11 +35,13 @@ export function initScene(container: HTMLElement) {
       audioManager.playBackgroundMusic();
     });
 
-    window.addEventListener("resize", resizeRenderer);
+    // window.addEventListener("resize", resizeRenderer);
 
-    resizeRenderer();
+    // resizeRenderer();
     // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
   });
+
+  // emitter.on('LOADED', () => resizeRenderer());
 
   const audioManager = new AudioManager(loadingManager.loadingManager, gui);
   const gltfLoader = loadingManager.gltfLoader;
@@ -151,6 +156,8 @@ export function initScene(container: HTMLElement) {
   }
 
   function resizeRenderer() {
+    console.log(container)
+
     const windowWidth = container.clientWidth;
     const windowHeight = container.clientHeight;
 
@@ -159,6 +166,18 @@ export function initScene(container: HTMLElement) {
 
     renderer.setSize(windowWidth, windowHeight);
   }
+
+  const resizeObserver = new ResizeObserver(() => {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  });
+
+  resizeObserver.observe(container);
+
   //#endregion
 
   let actions: { [key: string]: THREE.AnimationAction } = {};

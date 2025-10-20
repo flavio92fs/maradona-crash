@@ -60,7 +60,6 @@
                   }}</span>
                 </div>
               </div>
-              <div>Mano Precedente</div>
             </div>
 
             <div class="table w-full">

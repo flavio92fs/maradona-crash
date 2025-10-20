@@ -25,10 +25,10 @@
           class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
           @click.stop="closeHistory()"
         >
-          <div class="flex flex-row overflow-auto">
+          <div class="flex flex-row flex-wrap justify-center overflow-hidden" style="height:26px; row-gap: 20px;">
             <MultiplierLabel
               class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-              v-for="i in 5"
+              v-for="i in 10"
               :key="i"
               :value="10.0"
             />

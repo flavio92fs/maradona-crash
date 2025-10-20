@@ -1,5 +1,8 @@
 <template>
-  <div class="flex p-3 rounded-md border-2 border-primary overflow-x-auto">
+  <div
+    class="flex flex-wrap justify-center p-3 rounded-md border-2 border-primary overflow-x-auto"
+    style="row-gap: 20px"
+  >
     <MultiplierLabel
       class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
       v-for="(multiplier, index) in multipliersHistory"

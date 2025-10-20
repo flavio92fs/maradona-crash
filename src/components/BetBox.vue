@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="bg-primary text-white p-5 rounded-xl">
+    <div class="bg-primary text-white p-0 rounded-xl">
       <div
         class="bg-primary-dark rounded-xl items-center border border-secondary"
       >

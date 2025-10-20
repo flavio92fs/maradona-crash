@@ -176,23 +176,21 @@ export default {
 </script>
 
 <style>
+.height-display {
+  height: calc(100vh - 1rem - 240px);
+}
+
 #game-container {
-  min-height: 500px;
+  min-height: 300px;
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
   position: relative;
 }
 
-@media screen and (width < 768px) {
+@media screen and (width < 1280px) {
   #game-container {
-    min-height: 300px;
-  }
-}
-
-@media screen and (width < 640px) {
-  #game-container {
-    min-height: 200px;
+    min-height: 500px;
   }
 }
 

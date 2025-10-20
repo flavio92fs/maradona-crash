@@ -41,10 +41,10 @@ export default class CameraControls{
         const STORAGE_KEY = 'Camera Controls';
 
         const defaultParams = {
-            minZoom: 1.7,
+            minZoom: 1.5,
             maxZoom: 2.4,
             targetX: 0,
-            targetY: 0.17,
+            targetY: 0.22,
             targetZ: 0,
         }
 

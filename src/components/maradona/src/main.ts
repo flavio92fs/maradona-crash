@@ -218,7 +218,7 @@ export function initScene(container: HTMLElement) {
 
     const defaultParams = {
       color: 0xffffff,
-      intensity: 1.4,
+      intensity: 0.6,
     };
 
     let params = { ...defaultParams };
@@ -380,7 +380,7 @@ export function initScene(container: HTMLElement) {
   //#endregion
 
   addAmbientLight();
-  createSpotLight(lightsFolderGUI, "Spotlight Centrale", 0, 1, 0, 4);
+  createSpotLight(lightsFolderGUI, "Spotlight Centrale", 0, 1, 0, 5);
 
   addDOM();
 
@@ -446,9 +446,9 @@ export function initScene(container: HTMLElement) {
     const STORAGE_KEY = guiName;
 
     const defaultParams = {
-      positionX: 0,
-      positionY: 1,
-      positionZ: 0,
+      positionX: 0.04999,
+      positionY: 0.8,
+      positionZ: -0.6,
 
       targetPositionY: 0,
       cone: 1,
@@ -456,6 +456,8 @@ export function initScene(container: HTMLElement) {
       intensity: intensity,
       castShadow: true,
       color: 0xffffff,
+      bias: 0,
+      normalBias: 0.01,
 
       showHelper: false,
     };
@@ -470,6 +472,8 @@ export function initScene(container: HTMLElement) {
     light.intensity = params.intensity;
     light.castShadow = params.castShadow;
     light.color.set(params.color);
+    light.shadow.bias = params.bias;
+    light.shadow.normalBias = params.normalBias;
 
     helper.visible = params.showHelper;
 
@@ -523,6 +527,17 @@ export function initScene(container: HTMLElement) {
       light.color.set(val);
       saveSettings(STORAGE_KEY, params);
     });
+
+    folder.add(params,'bias', -1, 1, 0.0001).onChange((val) => {
+      light.shadow.bias  = val
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params,'normalBias', -1, 1, 0.0001).onChange((val) => {
+      light.shadow.normalBias = val
+      saveSettings(STORAGE_KEY, params);
+    });
+
 
     folder.add(params, "showHelper").onChange((val) => {
       helper.visible = val;
@@ -1455,7 +1470,7 @@ export function initScene(container: HTMLElement) {
 
     const defaultParams = {
       showMultiplier: true,
-      positionY: 70,
+      positionY: 74,
       scale: 0,
     };
 

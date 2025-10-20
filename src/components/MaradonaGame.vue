@@ -127,6 +127,7 @@
               @mousedown="stopCloseTimer()"
               @mouseup="startCloseTimer()"
               @mouseleave="startCloseTimer()"
+              @click="(e) => {e.stopPropagation()}"
               @scroll.stop="stopCloseTimer()"
               @scrollend.stop="startCloseTimer()"
             >

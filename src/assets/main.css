@@ -59,7 +59,6 @@ a,
   font-size: 0.9em;
   margin: 5px;
   padding: 10px 15px;
-  text-align: center;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -78,7 +77,6 @@ a,
   font-size: 0.9em;
   margin: 5px;
   padding: 10px 15px;
-  text-align: center;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -90,6 +88,10 @@ a,
 
 .button-70-red:hover {
   background-image: linear-gradient(#ff4747, #ff2b2b);
+}
+
+.maradona-font {
+  font-family: "Sablon";
 }
 
 @media (hover: hover) {

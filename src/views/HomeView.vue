@@ -6,15 +6,17 @@
       @setAudio="setAudio"
       @setMusic="setMusic"
     />
+
+    <div class="hidden lg:flex flex-row">
+      <MultiplierHistory class="mt-5 mb-5" />
+    </div>
+
     <div class="flex flex-col flex-grow pb-0">
-      <div class="hidden lg:flex flex-row">
-        <MultiplierHistory class="flex mt-5 mb-5" />
-      </div>
       <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
         <div
           class="hidden lg:flex 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
         >
-          <BetHistory class="flex h-full" @getLeaderboard="getLeaderBoard" />
+          <BetHistory @getLeaderboard="getLeaderBoard" />
         </div>
 
         <div
@@ -34,9 +36,7 @@
                 @drawCash="drawCash(0)"
               />
             </div>
-            <!-- <div class="hidden 2xl:block order-3 xl:order-1 mx-5 3xl:mt-0">
-              <Podium />
-            </div> -->
+
             <div class="order-2 3xl:order-2 mx-5 mt-5 md:mt-0">
               <BetBox
                 :id="1"
@@ -65,7 +65,6 @@ import MultiplierHistory from "../components/MultiplierHistory.vue";
 import BetHistory from "../components/BetHistory.vue";
 import BetBox from "../components/BetBox.vue";
 import Chat from "../components/Chat.vue";
-import Podium from "../components/Podium.vue";
 import BetAudio from "../components/game/assets/Sounds/bet.mp3";
 import WinAudio from "../components/game/assets/Sounds/win.mp3";
 import { game } from "../components/game/config.js";
@@ -82,7 +81,6 @@ export default {
     BetHistory,
     BetBox,
     Chat,
-    Podium,
   },
   data: () => ({
     initialize: false,

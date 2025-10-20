@@ -31,7 +31,8 @@ export default class AudioManager {
       volume: 0.1,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    console.log(params)
 
     this._backgroundSound.setVolume(params.volume);
 

@@ -9,7 +9,7 @@ import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
 
 export function initScene(container: HTMLElement) {
-  const gui = new GUI().close();
+  const gui: GUI = new GUI().close();
   addFPSCounter(gui);
   addUiGUI(gui);
 
@@ -31,6 +31,10 @@ export function initScene(container: HTMLElement) {
     window.addEventListener("click", () => {
       audioManager.playBackgroundMusic();
     });
+
+    window.addEventListener("resize", resizeRenderer);
+
+    resizeRenderer();
     // playIntroAnimation(camera, orbitControls, new THREE.Vector3(0.14, 0.06, 0.11), new THREE.Vector3(0, 0.06, 0));
   });
 
@@ -101,7 +105,9 @@ export function initScene(container: HTMLElement) {
       shadowsEnabled: true,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     renderer.toneMapping = params.toneMapping;
     renderer.toneMappingExposure = params.exposure;
@@ -132,20 +138,12 @@ export function initScene(container: HTMLElement) {
 
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
+        resetSettings(STORAGE_KEY, defaultParams, params, rendererGUI);
         saveSettings(STORAGE_KEY, defaultParams);
-
-        params.toneMapping = defaultParams.toneMapping;
-        params.exposure = defaultParams.exposure;
-        params.shadowsEnabled = defaultParams.shadowsEnabled;
 
         renderer.toneMapping = params.toneMapping;
         renderer.toneMappingExposure = params.exposure;
         renderer.shadowsEnabled = params.shadowsEnabled;
-
-        rendererGUI.controllers.forEach((controller) =>
-          controller.updateDisplay()
-        );
       },
     };
 
@@ -161,9 +159,6 @@ export function initScene(container: HTMLElement) {
 
     renderer.setSize(windowWidth, windowHeight);
   }
-
-  window.addEventListener("resize", resizeRenderer);
-  resizeRenderer();
   //#endregion
 
   let actions: { [key: string]: THREE.AnimationAction } = {};
@@ -207,7 +202,8 @@ export function initScene(container: HTMLElement) {
       intensity: 1.4,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     ambientLight.intensity = params.intensity;
     ambientLight.color.set(params.color);
@@ -223,18 +219,11 @@ export function initScene(container: HTMLElement) {
 
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
+        resetSettings(STORAGE_KEY, defaultParams, params, ambientLightGUI);
         saveSettings(STORAGE_KEY, defaultParams);
-
-        params.color = defaultParams.color;
-        params.intensity = defaultParams.intensity;
 
         ambientLight.intensity = params.intensity;
         ambientLight.color.set(params.color);
-
-        ambientLightGUI.controllers.forEach((controller) =>
-          controller.updateDisplay()
-        );
       },
     };
 
@@ -248,10 +237,6 @@ export function initScene(container: HTMLElement) {
   addCameraGUI();
   const cameraControls = new CameraControls(camera, renderer, gui);
 
-  let lastFrameTime = 0;
-  const fpsLimit = 30;
-  const fpsInterval = 1000 / fpsLimit;
-
   //#region ANIMATE
   function animate() {
     requestAnimationFrame(animate);
@@ -262,11 +247,7 @@ export function initScene(container: HTMLElement) {
 
     if (isFireworkAnimationPlaying) {
       mixerFireworks?.update(delta);
-      updateTextureAnimationMaterial(
-        delta,
-        fireworksMaterial,
-        fireWorkAnimatedTextures
-      );
+      updateTextureAnimationMaterial(delta, fireworksMaterial, fireWorkAnimatedTextures);
     }
 
     cameraControls.orbitControls.update();
@@ -297,7 +278,8 @@ export function initScene(container: HTMLElement) {
       fov: 30,
     };
 
-    let params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     camera.fov = params.fov;
     camera.updateProjectionMatrix();
@@ -312,12 +294,10 @@ export function initScene(container: HTMLElement) {
 
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
+        resetSettings(STORAGE_KEY, defaultParams, params, cameraGUI);
         saveSettings(STORAGE_KEY, defaultParams);
 
-        params.fov = defaultParams.fov;
         camera.fov = params.fov;
-        fovControl.updateDisplay();
 
         camera.updateProjectionMatrix();
       },
@@ -332,7 +312,6 @@ export function initScene(container: HTMLElement) {
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "h") {
-      // premi "h" per hide
       if (gui.domElement.style.display === "none") {
         gui.domElement.style.display = "";
       } else {
@@ -383,10 +362,6 @@ export function initScene(container: HTMLElement) {
 
   addAmbientLight();
   createSpotLight(lightsFolderGUI, "Spotlight Centrale", 0, 1, 0, 4);
-  // createSpotLight(lightsFolderGUI, "Spotlight 1", 0, 1, 0, 0);
-  // createSpotLight(lightsFolderGUI, "Spotlight 2", 0, 1, 0, 0);
-  // createSpotLight(lightsFolderGUI, "Spotlight 3", 0, 1, 0, 0);
-  // createSpotLight(lightsFolderGUI, "Spotlight 4", 0, 1, 0, 0);
 
   addDOM();
 
@@ -466,7 +441,8 @@ export function initScene(container: HTMLElement) {
       showHelper: false,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     light.position.set(params.positionX, params.positionY, params.positionZ);
     light.target.position.y = params.targetPositionY;
@@ -536,21 +512,8 @@ export function initScene(container: HTMLElement) {
 
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
+        resetSettings(STORAGE_KEY, defaultParams, params, folder);
         saveSettings(STORAGE_KEY, defaultParams);
-
-        params.positionX = defaultParams.positionX;
-        params.positionY = defaultParams.positionY;
-        params.positionZ = defaultParams.positionZ;
-
-        params.targetPositionY = defaultParams.targetPositionY;
-        params.cone = defaultParams.cone;
-        params.borderHardness = defaultParams.borderHardness;
-        params.intensity = defaultParams.intensity;
-        params.castShadow = defaultParams.castShadow;
-        params.color = defaultParams.color;
-
-        params.showHelper = defaultParams.showHelper;
 
         light.position.set(
           params.positionX,
@@ -566,8 +529,6 @@ export function initScene(container: HTMLElement) {
         helper.visible = params.showHelper;
 
         updateLightTarget();
-
-        folder.controllers.forEach((controller) => controller.updateDisplay());
       },
     };
 
@@ -602,7 +563,8 @@ export function initScene(container: HTMLElement) {
       positionY: -0.2,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     sphere.scale.set(params.scale, params.scale, params.scale);
     sphere.position.set(0, params.positionY, 0);
@@ -618,18 +580,11 @@ export function initScene(container: HTMLElement) {
 
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
+        resetSettings(STORAGE_KEY, defaultParams, params, sphereDomGUI);
         saveSettings(STORAGE_KEY, defaultParams);
-
-        params.positionY = defaultParams.positionY;
-        params.scale = defaultParams.scale;
 
         sphere.scale.set(params.scale, params.scale, params.scale);
         sphere.position.set(0, params.positionY, 0);
-
-        sphereDomGUI.controllers.forEach((controller) =>
-          controller.updateDisplay()
-        );
       },
     };
 
@@ -703,7 +658,8 @@ export function initScene(container: HTMLElement) {
     };
 
     // carica da localStorage
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     // crea materiale d’ombra
     const shadowMat = new THREE.ShadowMaterial({
@@ -788,7 +744,8 @@ export function initScene(container: HTMLElement) {
       color: 0x004a82,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     gltfLoader.load("models/GLB/cartelloni.glb", (gltf) => {
       const model = gltf.scene;
@@ -1210,7 +1167,8 @@ export function initScene(container: HTMLElement) {
     };
 
     // carico eventuali valori salvati
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     // applico subito i valori al materiale
     material.color.set(params.color);
@@ -1478,15 +1436,14 @@ export function initScene(container: HTMLElement) {
 
     const defaultParams = {
       showMultiplier: true,
-      PositionY: 12,
-      // PositionX: 0,
-      Scale: 0,
+      positionY: 70,
+      scale: 0,
     };
 
-    const params = loadSettings(STORAGE_KEY, defaultParams);
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
-    // gameMultiplier!.style.left = params.PositionX.toString() + "%";
-    gameMultiplier!.style.top = params.PositionY.toString() + "%";
+    gameMultiplier!.style.top = params.positionY.toString() + "%";
 
     function showMultiplier(show: boolean) {
       if (show) {
@@ -1503,30 +1460,17 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params, "PositionY", 0, 100, 0.01).onChange((val) => {
+    folder.add(params, "positionY", 0, 100, 0.01).onChange((val) => {
       gameMultiplier!.style.top = `${val}%`;
       saveSettings(STORAGE_KEY, params);
     });
 
-    // folder.add(params, "PositionX", 0, 100, 0.01).onChange((val) => {
-    //   gameMultiplier!.style.left = `${val}%`;
-    //   saveSettings(STORAGE_KEY, params);
-    // });
-
     const resetInput = {
       reset: () => {
-        resetSettings(STORAGE_KEY, defaultParams);
-        saveSettings(STORAGE_KEY, defaultParams);
-
-        params.showMultiplier = defaultParams.showMultiplier;
-        // params.PositionX = defaultParams.PositionX;
-        params.PositionY = defaultParams.PositionY;
+        resetSettings(STORAGE_KEY, defaultParams, params, folder);
 
         showMultiplier(params.showMultiplier);
-        // gameMultiplier!.style.left = params.PositionX.toString() + "%";
-        gameMultiplier!.style.top = params.PositionY.toString() + "%";
-
-        folder.controllers.forEach((controller) => controller.updateDisplay());
+        gameMultiplier!.style.top = params.positionY.toString() + "%";
       },
     };
 

@@ -14,7 +14,7 @@
     <div class="flex flex-col flex-grow pb-0">
       <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
         <div
-          class="hidden lg:flex 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
+          class="hidden lg:flex justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
         >
           <BetHistory style="width: 400px" @getLeaderboard="getLeaderBoard" />
         </div>

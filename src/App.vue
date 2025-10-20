@@ -23,7 +23,7 @@ import { RouterView } from "vue-router";
     </Transition>
 
     <Transition>
-      <div v-if="disconnected" class="absolute h-full w-full bg-black z-50">
+      <div v-if="disconnected" class="absolute h-full w-full bg-black z-[9999]">
         <DisconnectionModal />
       </div>
     </Transition>

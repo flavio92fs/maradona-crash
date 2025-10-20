@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-wrap justify-center p-3 rounded-md border-2 border-primary overflow-x-auto"
+    class="flex flex-wrap justify-center p-3 rounded-md border-2 border-primary overflow-hidden"
     style="row-gap: 20px"
   >
     <MultiplierLabel

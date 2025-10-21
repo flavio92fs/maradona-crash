@@ -25,7 +25,10 @@
           class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
           @click.stop="closeHistory()"
         >
-          <div class="flex flex-row flex-wrap justify-center overflow-hidden" style="height:26px; row-gap: 20px;">
+          <div
+            class="flex flex-row flex-wrap justify-center overflow-hidden"
+            style="height: 26px; row-gap: 20px"
+          >
             <MultiplierLabel
               class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
               v-for="i in 10"
@@ -53,15 +56,19 @@
         </div>
       </div>
 
-      <GameMultiplier class="absolute w-full select-none"/>
+      <GameMultiplier class="absolute w-full select-none" />
 
-      <div class="absolute w-full h-full z-[9]" style="pointer-events: none;">
-        <img class="h-full" :src="'public/vignette.png'" style="pointer-events: none;"></img>
+      <div class="absolute w-full h-full z-[9]" style="pointer-events: none">
+        <img
+          class="h-full"
+          :src="'public/vignette.png'"
+          style="pointer-events: none"
+        />
       </div>
 
       <div
         id="bet-overlay"
-        class="game-overlay absolute block lg:hidden bottom-0 w-full z-[200] p-3 pb-0"
+        class="game-overlay absolute block lg:hidden bottom-0 w-full z-[150] p-3 pb-0"
       >
         <BetBoxMobile
           v-if="showBetBox"
@@ -71,9 +78,21 @@
         ></BetBoxMobile>
 
         <div class="flex justify-center w-100">
-          <BetButton :id="1" :bet-value="button1amount" :active="!showBetBox" :menu-open="selectedBetBox" @sub-click="toggleBetBox(1)"/>
-         
-          <BetButton :id="2" :bet-value="button2amount" :active="!showBetBox" :menu-open="selectedBetBox" @sub-click="toggleBetBox(2)"/>
+          <BetButton
+            :id="1"
+            :bet-value="button1amount"
+            :active="!showBetBox"
+            :menu-open="selectedBetBox"
+            @sub-click="toggleBetBox(1)"
+          />
+
+          <BetButton
+            :id="2"
+            :bet-value="button2amount"
+            :active="!showBetBox"
+            :menu-open="selectedBetBox"
+            @sub-click="toggleBetBox(2)"
+          />
         </div>
 
         <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
@@ -127,7 +146,11 @@
               @mousedown="stopCloseTimer()"
               @mouseup="startCloseTimer()"
               @mouseleave="startCloseTimer()"
-              @click="(e) => {e.stopPropagation()}"
+              @click="
+                (e) => {
+                  e.stopPropagation();
+                }
+              "
               @scroll.stop="stopCloseTimer()"
               @scrollend.stop="startCloseTimer()"
             >
@@ -177,6 +200,7 @@ let selectedBetBox = ref(0);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
+let disconnected = ref(false);
 
 //Methods
 

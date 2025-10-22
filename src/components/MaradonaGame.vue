@@ -4,17 +4,11 @@
     class="flex flex-col h-full w-full"
     ref="threeContainer"
     id="three-container"
-    style="
-      display: flex;
-      justify-content: center;
-      background-color: black;
-      align-items: center;
-    "
   >
     <div
       ref="threeGameContainer"
       class="relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
-      style="max-width: 100%"
+      :style="isMobile ? wrapperStyle : 'max-width: 100%'"
       @click.stop="
         closeHistory();
         closeBox();
@@ -180,7 +174,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import store from "@/store";
 import {
   ArrowsPointingOutIcon,
@@ -209,8 +203,42 @@ let selected_category = ref(0);
 let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
+let isMobile = ref(true);
 
 //Methods
+
+const baseWidth = 820;
+const baseHeight = 1180;
+const scale = ref(1);
+
+const updateScale = () => {
+  if (window.innerWidth >= 1024) {
+    isMobile.value = false;
+  } else {
+    isMobile.value = true;
+  }
+
+  const newScale = Math.min(
+    window.innerWidth / baseWidth,
+    window.innerHeight / baseHeight
+  );
+  scale.value = newScale;
+};
+
+onMounted(() => {
+  updateScale();
+  window.addEventListener("resize", updateScale);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateScale);
+});
+
+const wrapperStyle = computed(() => ({
+  width: `${baseWidth}px`,
+  height: `${baseHeight}px`,
+  transform: `scale(${scale.value})`,
+}));
 
 function openHistory(category) {
   if (showBetBox.value) {
@@ -355,5 +383,20 @@ onMounted(() => {
     rgba(0, 0, 0, 1) 100%
   );
   pointer-events: none;
+}
+
+#three-container {
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background-color: black;
+  align-items: center;
+}
+
+@media screen and (width >= 1024px) {
+  #three-container {
+    height: 100%;
+    max-width: 100%;
+  }
 }
 </style>

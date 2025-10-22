@@ -222,6 +222,11 @@ const updateScale = () => {
     window.innerWidth / baseWidth,
     window.innerHeight / baseHeight
   );
+
+  if (newScale >= 1) {
+    newScale = 1;
+  }
+
   scale.value = newScale;
 };
 

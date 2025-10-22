@@ -7,9 +7,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { resetSettings, saveSettings } from "./saveLoadGUI";
 import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
-import emitter from "@/eventEmitter";
-
-import { onMounted, ref } from "vue";
+import { gsap } from "gsap";
 
 export function initScene(container: HTMLElement) {
   const gui: GUI = new GUI().close();
@@ -766,12 +764,29 @@ export function initScene(container: HTMLElement) {
 
   function addCartelloni(gui: GUI, scene: THREE.Scene) {
     const texture = textureLoader.load(
-      "textures/stadio/BannerTestCartelloni02.png"
+      "textures/stadio/BannerTestCartelloniAnimated2.png"
     );
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;
-    texture.offset.y = 0.2;
+    texture.offset.y = 0.62;
+
+    gsap.timeline({ repeat: -1, repeatDelay: 10 })
+    .to(texture.offset, {
+      y: 0.42,
+      duration: 1,
+      ease: "none"
+    })
+    .to(texture.offset, {
+      y: 0.42,
+      duration: 1,
+      ease: "none"
+    })
+    .to(texture.offset, {
+      y: 0.62,
+      duration: 1,
+      ease: "none"
+    })
 
     const STORAGE_KEY = "CARTELLONI";
     const cartelloniMaterial = new THREE.MeshStandardMaterial({ map: texture });

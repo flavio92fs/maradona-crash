@@ -5,9 +5,9 @@
   >
     <MultiplierLabel
       class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-      v-for="(multiplier, index) in multipliersHistory"
-      :key="index"
-      :value="multiplier"
+      v-for="i in 100"
+      :key="i"
+      :value="10.0"
     />
   </div>
 </template>

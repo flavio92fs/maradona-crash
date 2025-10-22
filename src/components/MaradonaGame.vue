@@ -15,7 +15,10 @@
       ref="threeGameContainer"
       class="relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
       style="max-width: 100%"
-      @click="closeHistory()"
+      @click.stop="
+        closeHistory();
+        closeBox();
+      "
     >
       <div class="container-top absolute top-0 w-full">
         <Navigation class="rounded-none z-[12] lg:hidden" />
@@ -23,7 +26,10 @@
         <div
           id="multipliers-overlay"
           class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
-          @click.stop="closeHistory()"
+          @click.stop="
+            closeHistory();
+            closeBox();
+          "
         >
           <div
             class="flex flex-row flex-wrap justify-center overflow-hidden"
@@ -58,12 +64,8 @@
 
       <GameMultiplier class="absolute w-full select-none" />
 
-      <div class="absolute w-full h-full z-[9]" style="pointer-events: none">
-        <img
-          class="h-full"
-          :src="'public/vignette.png'"
-          style="pointer-events: none"
-        />
+      <div class="absolute w-full h-full z-[9] pointer-events-none">
+        <img class="h-full pointer-events-none" :src="'public/vignette.png'" />
       </div>
 
       <div
@@ -75,6 +77,9 @@
           class="mb-4"
           @confirm="setButton"
           @close="closeBox"
+          @click.stop="(e) => e.stopPropagation()"
+          @mousedown="stopCloseTimer()"
+          @mouseup="startCloseTimer(closeBox, bet_box_close_time)"
         ></BetBoxMobile>
 
         <div class="flex justify-center w-100">
@@ -144,15 +149,17 @@
               :class="isOpen ? 'flex flex-col' : 'hidden'"
               class="text-white w-full overflow-auto"
               @mousedown="stopCloseTimer()"
-              @mouseup="startCloseTimer()"
-              @mouseleave="startCloseTimer()"
+              @mouseup="startCloseTimer(closeHistory, history_close_time)"
+              @mouseleave="startCloseTimer(closeHistory, history_close_time)"
               @click="
                 (e) => {
                   e.stopPropagation();
                 }
               "
               @scroll.stop="stopCloseTimer()"
-              @scrollend.stop="startCloseTimer()"
+              @scrollend.stop="
+                startCloseTimer(closeHistory, history_close_time)
+              "
             >
               <p v-for="i in 100">Bet {{ i }}</p>
             </div>
@@ -200,16 +207,21 @@ let selectedBetBox = ref(0);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
-let disconnected = ref(false);
+let history_close_time = 10000;
+let bet_box_close_time = 5000;
 
 //Methods
 
 function openHistory(category) {
+  if (showBetBox.value) {
+    closeBox();
+  }
+
   if (close_timer) {
     clearTimeout(close_timer.value);
   }
 
-  startCloseTimer();
+  startCloseTimer(closeHistory, history_close_time);
 
   isOpen.value = true;
   selected_category.value = category;
@@ -228,11 +240,9 @@ function stopCloseTimer() {
   }
 }
 
-function startCloseTimer() {
+function startCloseTimer(callback, time) {
   // console.log("Resuming Timer");
-  close_timer.value = setTimeout(() => {
-    closeHistory();
-  }, 10000);
+  close_timer.value = setTimeout(callback, time);
 }
 
 function enterFullscreen() {
@@ -246,11 +256,18 @@ function exitFullscreen() {
 }
 
 function closeBox() {
-  selectedBetBox.value = 0;
-  showBetBox.value = false;
+  if (showBetBox.value == true) {
+    selectedBetBox.value = 0;
+    showBetBox.value = false;
+  }
 }
 
 function toggleBetBox(id) {
+  stopCloseTimer();
+  closeHistory();
+
+  startCloseTimer(closeBox, bet_box_close_time);
+
   if (showBetBox.value == true) {
     selectedBetBox.value = 0;
   } else {

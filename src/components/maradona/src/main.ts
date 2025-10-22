@@ -13,6 +13,7 @@ import { onMounted, ref } from "vue";
 
 export function initScene(container: HTMLElement) {
   const gui: GUI = new GUI().close();
+
   addFPSCounter(gui);
   addUiGUI(gui);
 
@@ -20,6 +21,7 @@ export function initScene(container: HTMLElement) {
 
   let mixerMaradona: THREE.AnimationMixer;
   let mixerLuci: THREE.AnimationMixer;
+  let mixerLuci2: THREE.AnimationMixer;
   let mixerFireworks: THREE.AnimationMixer;
   let isFireworkAnimationPlaying = false;
 
@@ -28,6 +30,7 @@ export function initScene(container: HTMLElement) {
   const maradonaMaterialsGUI = gui.addFolder("Maradona Materials").close();
   const sphereDomGUI = gui.addFolder("Sphere DOM").close();
   const animationsGUI = gui.addFolder("Animations");
+  const animatedLightsGUI = gui.addFolder('Luci Animate').close();
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
@@ -49,7 +52,6 @@ export function initScene(container: HTMLElement) {
   const textureLoader = loadingManager.textureLoader;
 
   //#region Maradona Textures
-  let divisaBaseColor: THREE.Texture;
   let pelleBaseColor: THREE.Texture;
   let capelliBaseColor: THREE.Texture;
   let pallaBaseColor: THREE.Texture;
@@ -62,18 +64,20 @@ export function initScene(container: HTMLElement) {
     fps: 30,
   };
 
-  const fireWorkAnimatedTextures = [
-    textureLoader.load("textures/fontana/0.png"),
-    textureLoader.load("textures/fontana/1.png"),
-    textureLoader.load("textures/fontana/2.png"),
-    textureLoader.load("textures/fontana/3.png"),
-  ];
+  function addFireworkTextures(): THREE.Texture[] {
+    const arr: THREE.Texture[] = [];
+    for (let i = 1; i <= 20; i++) {
+      const texture = textureLoader.load(`textures/fontana/${i}.png`);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.y = -1;
 
-  fireWorkAnimatedTextures.forEach((texture) => {
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.y = -1;
-  });
+      arr.push(texture);
+    }
+    return arr;
+  };
+
+  const fireWorkAnimatedTextures = addFireworkTextures();
 
   const fireworksMaterial: THREE.MeshStandardMaterial =
     new THREE.MeshBasicMaterial({
@@ -82,7 +86,7 @@ export function initScene(container: HTMLElement) {
       depthWrite: false,
     });
 
-  loadDivisaTextures();
+  loadMaradonaTextures();
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 1000);
@@ -184,9 +188,18 @@ export function initScene(container: HTMLElement) {
   let subActions: { [key: string]: THREE.AnimationAction } = {};
   let currentAction: THREE.AnimationAction;
 
+  const maradonaSuitsTexture: Record<string, THREE.Texture> = {
+    argentina: textureLoader.load('textures/maradona/Maradona_divisa_argentina.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+    barcellona: textureLoader.load('textures/maradona/Maradona_divisa_barcellona.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+    boca: textureLoader.load('textures/maradona/Maradona_divisa_boca.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+    napoliUfficiale: textureLoader.load('textures/maradona/Maradona_divisa_napoli_ufficiale.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+    napoli: textureLoader.load('textures/maradona/Maradona_divisa_napoli.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+    sevilla: textureLoader.load('textures/maradona/Maradona_divisa_sevilla.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
+  }
+
   const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
     divisa: new THREE.MeshStandardMaterial({
-      map: divisaBaseColor,
+      map: maradonaSuitsTexture['napoliUfficiale'],
       side: THREE.DoubleSide,
       name: "divisa",
     }),
@@ -263,6 +276,7 @@ export function initScene(container: HTMLElement) {
     const delta = clock.getDelta();
     mixerMaradona?.update(delta);
     mixerLuci?.update(delta);
+    mixerLuci2?.update(delta);
 
     if (isFireworkAnimationPlaying) {
       mixerFireworks?.update(delta);
@@ -386,7 +400,8 @@ export function initScene(container: HTMLElement) {
 
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
-  addAnimatedLights(scene);
+  addAnimatedLights(scene, 'animatedLights').then((mixer) => mixerLuci = mixer);
+  addAnimatedLights(scene, 'animatedLights2').then((mixer) => mixerLuci2 = mixer);
   addAnimatedFireworks(scene);
   addStadio(gltfLoader, textureLoader, scene, gui);
   addMaradona(fbxLoader, scene, gui);
@@ -627,20 +642,11 @@ export function initScene(container: HTMLElement) {
     addMaterialGUI(sphereDomGUI, material, "Sphere Dom Material");
   }
 
-  function loadDivisaTextures() {
-    divisaBaseColor = textureLoader.load(
-      "textures/maradona/DivisaMaradona_BaseColor.png"
-    );
-    divisaBaseColor.colorSpace = THREE.SRGBColorSpace;
-
-    pelleBaseColor = textureLoader.load(
-      "textures/maradona/PelleMaradonaNuova.png"
-    );
+  function loadMaradonaTextures() {
+    pelleBaseColor = textureLoader.load("textures/maradona/Maradona_pelle.png");
     pelleBaseColor.colorSpace = THREE.SRGBColorSpace;
 
-    capelliBaseColor = textureLoader.load(
-      "textures/maradona/Capelli_Diffuse.png"
-    );
+    capelliBaseColor = textureLoader.load("textures/maradona/Capelli_Diffuse.png");
     capelliBaseColor.colorSpace = THREE.SRGBColorSpace;
 
     pallaBaseColor = textureLoader.load("textures/palla/palla_BaseColor.png");
@@ -798,41 +804,43 @@ export function initScene(container: HTMLElement) {
     });
   }
 
-  function addAnimatedLights(scene: THREE.Scene) {
-    const lightTexture = textureLoader.load("textures/luce.png");
-    lightTexture.colorSpace = THREE.SRGBColorSpace;
-    lightTexture.flipY = false;
+  function addAnimatedLights(scene: THREE.Scene, glbName: string) : Promise<THREE.AnimationMixer> {
+    return new Promise((resolve) => {
+      const lightTexture = textureLoader.load("textures/luce.png");
+      lightTexture.colorSpace = THREE.SRGBColorSpace;
+      lightTexture.flipY = false;
 
-    const lightMaterial = new THREE.MeshBasicMaterial({
-      map: lightTexture,
-      transparent: true,
-      depthWrite: false,
-    });
-
-    gltfLoader.load("models/GLB/animatedLights.glb", (gltf) => {
-      const model = gltf.scene;
-      model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
-
-      model.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          const mesh = child as THREE.Mesh;
-
-          mesh.material = lightMaterial;
-        }
+      const lightMaterial = new THREE.MeshBasicMaterial({
+        map: lightTexture,
+        transparent: true,
+        depthWrite: false,
       });
 
-      mixerLuci = new THREE.AnimationMixer(model);
+      gltfLoader.load(`models/GLB/${glbName}.glb`, (gltf) => {
+        const model = gltf.scene;
+        model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
 
-      // Qui è la differenza → usa gltf.animations, non model.animations
-      if (gltf.animations && gltf.animations.length > 0) {
-        gltf.animations.forEach((clip) => {
-          const action = mixerLuci.clipAction(clip);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            (child as THREE.Mesh).material = lightMaterial;
+          }
         });
-      }
 
-      scene.add(model);
+        animatedLightsGUI.add(model, 'visible');
+
+        const mixer = new THREE.AnimationMixer(model);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          gltf.animations.forEach((clip) => {
+            const action = mixer.clipAction(clip);
+            action.setLoop(THREE.LoopRepeat, Infinity);
+            action.play();
+          });
+        }
+
+        scene.add(model);
+        resolve(mixer);
+      });
     });
   }
 
@@ -1066,24 +1074,20 @@ export function initScene(container: HTMLElement) {
 
       scene.add(model);
 
-      addMaterialGUI(
+      addSuitsGUI(
         maradonaMaterialsGUI,
-        // meshesLibrary["divisa"],
         maradonaMaterialLibrary["divisa"]
       );
       addMaterialGUI(
         maradonaMaterialsGUI,
-        // meshesLibrary["capelli"],
         maradonaMaterialLibrary["capelli"]
       );
       addMaterialGUI(
         maradonaMaterialsGUI,
-        // meshesLibrary["pelle"],
         maradonaMaterialLibrary["pelle"]
       );
       addMaterialGUI(
         maradonaMaterialsGUI,
-        // meshesLibrary["palla"],
         maradonaMaterialLibrary["palla"]
       );
 
@@ -1107,20 +1111,6 @@ export function initScene(container: HTMLElement) {
 
       currentAction = subActions["riscaldamento"];
       currentAction.play();
-
-      const keyToSubAction: Record<string, string> = {
-        Digit1: "riscaldamento",
-        Digit2: "palleggio1",
-        Digit3: "palleggio2",
-        Digit4: "start",
-      };
-
-      window.addEventListener("keydown", (e) => {
-        const subName = keyToSubAction[e.code];
-        if (subName && subActions[subName]) {
-          fadeToAction(subActions[subName], 0.5); // fade 0.5s
-        }
-      });
 
       const animControls = {
         riscaldamento: () => fadeToAction(subActions["riscaldamento"], 0.5),
@@ -1182,6 +1172,167 @@ export function initScene(container: HTMLElement) {
     });
   }
 
+  function addSuitsGUI(
+    gui: GUI,
+    material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
+    guiName?: string
+  ) {
+    const STORAGE_KEY = `material_${material.name}`;
+
+    const selectedSuit = {
+      selected: 'Napoli Ufficiale'
+    }
+
+    const suitOptions = ["Argentina", "Barcellona", "Boca", "Napoli Ufficiale", "Napoli", "Sevilla" ];
+
+    // valori di default
+    const defaultParams = {
+      color: "#ffffff",
+      emissive: "#000000",
+      metalness: 0,
+      roughness: 1,
+      texturePath: "",
+      offsetX: 0,
+      offsetY: 0,
+      suit: 'Napoli Ufficiale'
+    };
+
+    // carico eventuali valori salvati
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
+
+    // applico subito i valori al materiale
+    material.color.set(params.color);
+    if ((material as THREE.MeshStandardMaterial).emissive !== undefined) {
+      (material as THREE.MeshStandardMaterial).emissive.set(params.emissive);
+    }
+    if ((material as THREE.MeshStandardMaterial).metalness !== undefined) {
+      (material as THREE.MeshStandardMaterial).metalness = params.metalness;
+    }
+    if ((material as THREE.MeshStandardMaterial).roughness !== undefined) {
+      (material as THREE.MeshStandardMaterial).roughness = params.roughness;
+    }
+
+    // funzione per caricare texture manualmente
+    const controls = {
+      loadTexture: () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".png,.jpg,.jpeg";
+
+        input.addEventListener("change", (e: any) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const url = URL.createObjectURL(file);
+
+          textureLoader.load(url, (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(1, 1);
+
+            tex.offset.set(params.offsetX, params.offsetY);
+
+            material.map = tex;
+            material.needsUpdate = true;
+
+            params.texturePath = file.name;
+            saveSettings(STORAGE_KEY, params);
+
+            console.log("Texture caricata:", file.name);
+          });
+        });
+
+        input.click();
+      },
+    };
+
+    // GUI
+    const materialGUI = guiName ? gui.addFolder(guiName) : gui.addFolder(material.name);
+    materialGUI.close();
+
+    materialGUI.add(controls, "loadTexture").name("Carica Texture");
+    materialGUI.add(selectedSuit, "selected", suitOptions).name("Seleziona Divisa").onChange((val) => {
+      switch(val){
+        case "Argentina":
+          material.map = maradonaSuitsTexture['argentina'];
+          break;
+        case "Barcellona":
+          material.map = maradonaSuitsTexture['barcellona'];
+          break;
+        case "Boca":
+          material.map = maradonaSuitsTexture['boca'];
+          break;
+        case "Napoli Ufficiale":
+          material.map = maradonaSuitsTexture['napoliUfficiale'];
+          break;
+        case "Napoli":
+          material.map = maradonaSuitsTexture['napoli'];
+          break;
+        case "Sevilla":
+          material.map = maradonaSuitsTexture['sevilla'];
+          break;
+      }
+    })
+
+    // colore base
+    materialGUI.addColor(params, "color").onChange((val: string) => {
+      material.color.set(val);
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    // metalness / roughness solo per StandardMaterial
+    if (material instanceof THREE.MeshStandardMaterial) {
+      materialGUI
+        .add(params, "metalness", 0, 1, 0.01)
+        .onChange((val: number) => {
+          material.metalness = val;
+          material.needsUpdate = true;
+          saveSettings(STORAGE_KEY, params);
+        });
+
+      materialGUI
+        .add(params, "roughness", 0, 1, 0.01)
+        .onChange((val: number) => {
+          material.roughness = val;
+          material.needsUpdate = true;
+          saveSettings(STORAGE_KEY, params);
+        });
+
+      materialGUI
+        .addColor(params, "emissive")
+        .name("Emissive")
+        .onChange((val: string) => {
+          material.emissive.set(val);
+          saveSettings(STORAGE_KEY, params);
+        });
+    }
+
+    // ✅ Offset texture X/Y
+    const offsetFolder = materialGUI.addFolder("Texture Offset");
+    offsetFolder
+      .add(params, "offsetX", -1, 1, 0.01)
+      .name("Offset X")
+      .onChange((v: number) => {
+        if (material.map) {
+          material.map.offset.x = v;
+          material.map.needsUpdate = true;
+        }
+        saveSettings(STORAGE_KEY, params);
+      });
+
+    offsetFolder
+      .add(params, "offsetY", -1, 1, 0.01)
+      .name("Offset Y")
+      .onChange((v: number) => {
+        if (material.map) {
+          material.map.offset.y = v;
+          material.map.needsUpdate = true;
+        }
+        saveSettings(STORAGE_KEY, params);
+      });
+  }
+
   function addMaterialGUI(
     gui: GUI,
     material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
@@ -1229,8 +1380,7 @@ export function initScene(container: HTMLElement) {
 
           const url = URL.createObjectURL(file);
 
-          const loader = new THREE.TextureLoader();
-          loader.load(url, (tex) => {
+          textureLoader.load(url, (tex) => {
             tex.colorSpace = THREE.SRGBColorSpace;
             tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
             tex.repeat.set(1, 1);

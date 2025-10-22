@@ -32,10 +32,10 @@ export default class AudioManager {
     };
 
     let params = { ...defaultParams };
-    console.log(params)
+    loadSettings(STORAGE_KEY, defaultParams, params);
 
     this._backgroundSound.setVolume(params.volume);
-
+    
     const folder = gui.addFolder("Sound").close();
     folder
       .add(params, "volume", 0, 1, 0.1)

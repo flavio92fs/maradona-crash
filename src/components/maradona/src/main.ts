@@ -779,7 +779,7 @@ export function initScene(container: HTMLElement) {
     })
     .to(texture.offset, {
       y: 0.42,
-      duration: 1,
+      duration: 10,
       ease: "none"
     })
     .to(texture.offset, {

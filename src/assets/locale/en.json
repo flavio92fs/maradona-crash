@@ -28,5 +28,6 @@
   "clear": "Clear",
   "music": "Music",
   "sound_effects": "Sound Effects",
-  "retrieving_data": "Retrieving Data"
+  "retrieving_data": "Retrieving Data",
+  "rotate_device": "Please, rotate your device to keep playing"
 }

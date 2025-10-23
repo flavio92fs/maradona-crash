@@ -16,3 +16,21 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.multiplier-x {
+  font-size: 2.5rem;
+}
+
+.multiplier-integer {
+  font-size: 1rem;
+}
+
+.multiplier-comma {
+  @apply text-sm;
+}
+
+.multiplier-decimal {
+  font-size: 2.8rem;
+}
+</style>

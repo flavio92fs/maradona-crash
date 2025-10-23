@@ -188,16 +188,21 @@ export default {
   position: relative;
 }
 
+canvas {
+  position: static;
+  margin: 0 auto;
+}
+
 @media screen and (width < 1280px) {
   #game-container {
     min-height: 500px;
   }
 }
 
-canvas {
-  position: absolute;
-  margin: 0 auto;
-  max-height: 100%;
+@media screen and (width < 1024px) {
+  canvas {
+    position: absolute;
+  }
 }
 
 #game-container > canvas {

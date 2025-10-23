@@ -6,6 +6,25 @@ import { RouterView } from "vue-router";
   <div id="main" class="h-full" ref="el">
     <Transition>
       <div
+        v-if="turnDevice"
+        class="absolute h-full w-full bg-black z-[10000] text-white"
+      >
+        <div class="relative h-full w-full">
+          <div class="absolute top-1/2 left-1/2">
+            <div
+              class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
+            >
+              <h2 class="text-xl font-bold">
+                {{ $t("rotate_device") }}
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition>
+      <div
         v-if="loading && !disconnected"
         class="absolute h-full w-full bg-black z-[9999] text-white"
       >
@@ -59,6 +78,7 @@ export default {
     loading: true,
     loading_progress: 0,
     disconnected: false,
+    turnDevice: false,
   }),
 
   computed: {
@@ -77,9 +97,16 @@ export default {
         this.$refs.el.requestFullscreen();
       }
     },
+
+    handleOrientation() {
+      this.turnDevice = window.orientation === 90 || window.orientation === -90;
+    },
   },
 
   created() {
+    window.addEventListener("deviceorientation", this.handleOrientation, true);
+    window.addEventListener("orientationchange", this.handleOrientation, true);
+
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;
       this.loading_progress = Math.round(value.percent);
@@ -110,6 +137,19 @@ export default {
       await import("tw-elements"!);
     };
     importTE();
+  },
+
+  unmounted() {
+    window.removeEventListener(
+      "deviceorientation",
+      this.handleOrientation,
+      true
+    );
+    window.removeEventListener(
+      "orientationchange",
+      this.handleOrientation,
+      true
+    );
   },
 };
 </script>

@@ -62,116 +62,116 @@
         </div>
       </div>
 
-      <GameMultiplier class="absolute w-full select-none" />
-
       <div class="absolute w-full h-full z-[9] pointer-events-none">
         <img class="h-full pointer-events-none" :src="'public/vignette.png'" />
       </div>
 
-      <div
-        id="bet-overlay"
-        class="game-overlay absolute block lg:hidden bottom-0 w-full z-[150] p-3 pb-0"
-      >
-        <BetBoxMobile
-          v-if="showBetBox"
-          class="mb-4"
-          @confirm="setButton"
-          @close="closeBox"
-          @click.stop="(e) => e.stopPropagation()"
-          @mousedown="stopCloseTimer()"
-          @mouseup="startCloseTimer(closeBox, bet_box_close_time)"
-        ></BetBoxMobile>
+      <GameMultiplier class="absolute w-full" />
 
-        <div class="flex justify-center w-100">
-          <BetButton
-            :id="1"
-            :bet-value="button1amount"
-            :active="!showBetBox"
-            :menu-open="selectedBetBox"
-            @sub-click="toggleBetBox(1)"
-          />
+      <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
+        <GameMultiplier />
+        <div id="bet-overlay" class="game-overlay pt-3">
+          <BetBoxMobile
+            v-if="showBetBox"
+            class="mb-4"
+            @confirm="setButton"
+            @close="closeBox"
+            @click.stop="(e) => e.stopPropagation()"
+            @mousedown="stopCloseTimer()"
+            @mouseup="startCloseTimer(closeBox, bet_box_close_time)"
+          ></BetBoxMobile>
 
-          <BetButton
-            :id="2"
-            :bet-value="button2amount"
-            :active="!showBetBox"
-            :menu-open="selectedBetBox"
-            @sub-click="toggleBetBox(2)"
-          />
-        </div>
+          <div class="flex justify-center w-100">
+            <BetButton
+              :id="1"
+              :bet-value="button1amount"
+              :active="!showBetBox"
+              :menu-open="selectedBetBox"
+              @sub-click="toggleBetBox(1)"
+            />
 
-        <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
-          <div class="flex flex-row">
-            <button
-              class="btn history-button rounded-xl text-xl px-2 w-full text-white"
-              :style="
-                selected_category == 1
-                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                  : ''
-              "
-              @click.stop="openHistory(1)"
-            >
-              <p class="font-bold">All Bets</p>
-            </button>
-
-            <button
-              class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
-              :style="
-                selected_category == 2
-                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                  : ''
-              "
-              @click.stop="openHistory(2)"
-            >
-              <p class="font-bold">My Bets</p>
-            </button>
-
-            <button
-              class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
-              :style="
-                selected_category == 3
-                  ? 'background-color: rgba(150, 150, 150, 0.7) !important'
-                  : ''
-              "
-              @click.stop="openHistory(3)"
-            >
-              <p class="font-bold">Top</p>
-            </button>
+            <BetButton
+              :id="2"
+              :bet-value="button2amount"
+              :active="!showBetBox"
+              :menu-open="selectedBetBox"
+              @sub-click="toggleBetBox(2)"
+            />
           </div>
 
-          <div
-            id="history-container"
-            :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
-            class="flex rounded-xl mt-2"
-          >
-            <div
-              id="history-content"
-              :class="isOpen ? 'flex flex-col' : 'hidden'"
-              class="text-white w-full overflow-auto"
-              @mousedown="stopCloseTimer()"
-              @mouseup="startCloseTimer(closeHistory, history_close_time)"
-              @mouseleave="startCloseTimer(closeHistory, history_close_time)"
-              @click="
-                (e) => {
-                  e.stopPropagation();
-                }
-              "
-              @scroll.stop="stopCloseTimer()"
-              @scrollend.stop="
-                startCloseTimer(closeHistory, history_close_time)
-              "
-            >
-              <p v-for="i in 100">Bet {{ i }}</p>
+          <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
+            <div class="flex flex-row">
+              <button
+                class="btn history-button rounded-xl text-xl px-2 w-full text-white"
+                :style="
+                  selected_category == 1
+                    ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                    : ''
+                "
+                @click.stop="openHistory(1)"
+              >
+                <p class="font-bold">All Bets</p>
+              </button>
+
+              <button
+                class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
+                :style="
+                  selected_category == 2
+                    ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                    : ''
+                "
+                @click.stop="openHistory(2)"
+              >
+                <p class="font-bold">My Bets</p>
+              </button>
+
+              <button
+                class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+                :style="
+                  selected_category == 3
+                    ? 'background-color: rgba(150, 150, 150, 0.7) !important'
+                    : ''
+                "
+                @click.stop="openHistory(3)"
+              >
+                <p class="font-bold">Top</p>
+              </button>
             </div>
-          </div>
 
-          <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
-            <button
-              class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
-              @click="closeHistory()"
+            <div
+              id="history-container"
+              :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
+              class="flex rounded-xl mt-2"
             >
-              <p class="font-bold">Close</p>
-            </button>
+              <div
+                id="history-content"
+                :class="isOpen ? 'flex flex-col' : 'hidden'"
+                class="text-white w-full overflow-auto"
+                @mousedown="stopCloseTimer()"
+                @mouseup="startCloseTimer(closeHistory, history_close_time)"
+                @mouseleave="startCloseTimer(closeHistory, history_close_time)"
+                @click="
+                  (e) => {
+                    e.stopPropagation();
+                  }
+                "
+                @scroll.stop="stopCloseTimer()"
+                @scrollend.stop="
+                  startCloseTimer(closeHistory, history_close_time)
+                "
+              >
+                <p v-for="i in 100">Bet {{ i }}</p>
+              </div>
+            </div>
+
+            <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
+              <button
+                class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
+                @click="closeHistory()"
+              >
+                <p class="font-bold">Close</p>
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -98,14 +98,14 @@ export default {
       }
     },
 
-    handleOrientation() {
-      this.turnDevice = window.orientation === 90 || window.orientation === -90;
+    handleOrientation(e) {
+      this.turnDevice = e.target.angle === 90 || e.target.angle === -90;
     },
   },
 
   created() {
     window.addEventListener("deviceorientation", this.handleOrientation, true);
-    window.addEventListener("orientationchange", this.handleOrientation, true);
+    screen.orientation.addEventListener("change", this.handleOrientation, true);
 
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;

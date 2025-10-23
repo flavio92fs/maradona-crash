@@ -218,7 +218,7 @@ const updateScale = () => {
     isMobile.value = true;
   }
 
-  const newScale = Math.min(
+  let newScale = Math.min(
     window.innerWidth / baseWidth,
     window.innerHeight / baseHeight
   );

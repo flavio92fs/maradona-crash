@@ -2,11 +2,7 @@
   <div
     id="game-multiplier"
     class="text-white text-2xl p-1 rounded-md z-[20] text-center pointer-events-none"
-    style="
-      font-size: 5rem;
-      text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6);
-      top: 65%;
-    "
+    style="font-size: 5rem; text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6)"
   >
     <div class="font-bold">
       <span class="maradona-font" style="font-size: 2.5rem">x </span

@@ -66,7 +66,10 @@
         <img class="h-full pointer-events-none" :src="'public/vignette.png'" />
       </div>
 
-      <GameMultiplier class="absolute w-full" />
+      <GameMultiplier
+        class="hidden lg:block absolute w-full"
+        style="top: 82%"
+      />
 
       <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
         <GameMultiplier />

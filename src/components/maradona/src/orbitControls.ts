@@ -4,8 +4,10 @@ import GUI from 'lil-gui';
 import { loadSettings, resetSettings, saveSettings } from './saveLoadGUI';
 import { gsap } from 'gsap';
 
+
 export default class CameraControls{
     private _camera: THREE.PerspectiveCamera
+    private folder: GUI | undefined;
 
     private _cameraMoves: {
         angleDeg: number; // in gradi per GUI
@@ -20,6 +22,7 @@ export default class CameraControls{
 
     private _orbitControls: OrbitControls;
 
+    private _targetY: number;
     private _minZoom: number = 1.5;
     private _maxZoom: number = 2.4;
 
@@ -27,12 +30,15 @@ export default class CameraControls{
         return this._orbitControls;
     }
     
-    constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, gui?: GUI){
+    constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, container: HTMLElement, gui?: GUI){
         this._camera = camera;
+
+        this._targetY = this.calculateTargetY(container.clientHeight)
+        this._minZoom = this.calculateMinZoom(container.clientHeight)
 
         this._orbitControls = new OrbitControls(camera, renderer.domElement);
 
-        this._orbitControls.target.set(0, 0.17, 0);
+        this._orbitControls.target.set(0, this._targetY, 0);
         this._orbitControls.enableDamping = true;   // rende il movimento più fluido
         this._orbitControls.dampingFactor = 0.05;   // velocità di smorzamento
 
@@ -47,22 +53,79 @@ export default class CameraControls{
         this._orbitControls.update()
 
         if(gui){
-            this.addGUIControls(gui);
+            this.folder = gui.addFolder('Camera Controls').close();
+
+            this.addGUIControls(this.folder);
             const initialAnimationGUI = gui?.addFolder('Initial Animation');
             this.addCameraAnimationGUI(initialAnimationGUI)
         }
+
+        // const resizeObserver = new ResizeObserver(() => {
+        //     this.calculateTargetY(container.clientHeight);
+        //     this.calculateMinZoom(container.clientHeight);
+        //     // this.folder?.controllers.forEach((controller) => controller.updateDisplay());
+        // });
+
+        // resizeObserver.observe(container);
     }
 
-    private addGUIControls(gui: GUI){
-        const folder = gui.addFolder('Camera Controls').close();
+    public calculateTargetY(height: number) {
+        const h1 = 950;
+        const h2 = 667;
+        const targetY1 = 0.18;
+        const targetY2 = 0.1;
 
+        let newTargetY = targetY1;
+
+        if (height < h1) {
+            if (height <= h2) {
+            newTargetY = targetY2;
+            } else {
+            // interpolazione lineare tra 950 e 667
+            const t = (height - h2) / (h1 - h2);
+            newTargetY = targetY2 + (targetY1 - targetY2) * t;
+            }
+        }
+
+        return newTargetY
+
+        // // 🔹 Aggiorna il target
+        // this._orbitControls.target.y = newY;
+        // this._orbitControls.update();
+    }
+
+    public calculateMinZoom(height: number) {
+        const h1 = 950;
+        const h2 = 667;
+        const zoom1 = 1.7;
+        const zoom2 = 1.7;
+
+        let newMinZoom = zoom1;
+
+        if (height < h1) {
+            if (height <= h2) {
+            newMinZoom = zoom2;
+            } else {
+            // interpolazione lineare tra 950 e 667
+            const t = (height - h2) / (h1 - h2);
+            newMinZoom = zoom2 + (zoom1 - zoom2) * t;
+            }
+        }
+
+        return newMinZoom;
+
+        // this._orbitControls.update();
+        // this._camera.lookAt(this._orbitControls.target);
+    }
+
+    private addGUIControls(folder: GUI){
         const STORAGE_KEY = 'Camera Controls';
 
         const defaultParams = {
             minZoom: this._minZoom,
             maxZoom: this._maxZoom,
             targetX: 0,
-            targetY: 0.22,
+            targetY: this._targetY,
             targetZ: 0,
         }
 
@@ -73,7 +136,7 @@ export default class CameraControls{
         this.orbitControls.maxDistance = params.maxZoom;
         this.orbitControls.target.set(params.targetX, params.targetY, params.targetZ);
 
-        folder.add(params, 'minZoom', 0.1, 5, 0.1).onChange((v: number) => {
+        folder.add(params, 'minZoom', this._minZoom, 5, 0.1).onChange((v: number) => {
             this._orbitControls.minDistance = v;
 
             // assicura che min non superi max
@@ -107,7 +170,7 @@ export default class CameraControls{
             this._orbitControls.update();
             saveSettings(STORAGE_KEY, params);
         });
-        folder.add(params, 'targetY', -5, 5, 0.01).onChange((v: number) => {
+        folder.add(params, 'targetY', this._targetY, 5, 0.01).onChange((v: number) => {
             this._orbitControls.target.y = v;
             this._orbitControls.update();
             saveSettings(STORAGE_KEY, params);

@@ -265,7 +265,7 @@ export function initScene(container: HTMLElement) {
   camera.position.set(0, 0.51, -1.2);
 
   addCameraGUI();
-  const cameraControls = new CameraControls(camera, renderer, gui);
+  const cameraControls = new CameraControls(camera, renderer, container, gui);
 
   //#region ANIMATE
   function animate() {

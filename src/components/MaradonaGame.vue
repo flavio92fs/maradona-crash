@@ -76,7 +76,7 @@
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
             v-if="showBetBox"
-            class="mb-4"
+            class="mb-4 mx-2"
             @confirm="setButton"
             @close="closeBox"
             @click.stop="(e) => e.stopPropagation()"
@@ -105,7 +105,7 @@
           <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
             <div class="flex flex-row">
               <button
-                class="btn history-button rounded-xl text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
                 :style="
                   selected_category == 1
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -117,7 +117,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 mx-2 w-full text-white"
                 :style="
                   selected_category == 2
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -129,7 +129,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
                 :style="
                   selected_category == 3
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -143,8 +143,8 @@
 
             <div
               id="history-container"
-              :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
-              class="flex rounded-xl mt-2"
+              :class="isOpen ? 'h-56 p-2 mt-2' : 'h-0 p-0 mt-0'"
+              class="flex rounded-xl"
             >
               <div
                 id="history-content"
@@ -269,7 +269,7 @@ function toggleBetBox(id) {
   stopCloseTimer();
   closeHistory();
 
-  startCloseTimer(closeBox, bet_box_close_time);
+  // startCloseTimer(closeBox, bet_box_close_time);
 
   if (showBetBox.value == true) {
     selectedBetBox.value = 0;

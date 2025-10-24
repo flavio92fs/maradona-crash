@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="bg-primary text-white p-5 rounded-xl">
+    <div class="bg-primary text-white rounded-xl">
       <div class="relative bg-primary-dark rounded-xl border border-secondary">
         <button
           class="absolute cursor-pointer right-5 top-5 z-10"
@@ -9,10 +9,10 @@
           <XCircleIcon class="h-7 w-7"></XCircleIcon>
         </button>
         <div
-          class="flex flex-row items-end p-5 gap-x-8"
+          class="flex flex-col sm:flex-row items-end p-5 gap-x-8"
           :class="betMode ? 'justify-between' : ''"
         >
-          <div class="flex flex-col flex-grow">
+          <div class="flex flex-col flex-grow w-full">
             <div class="flex justify-center">
               <button
                 class="rounded-full border border-secondary px-5 mr-2"
@@ -68,9 +68,9 @@
             </div>
           </div>
 
-          <div class="flex flex-col flex-grow justify-end">
-            <div class="flex flex-col mt-5 flex-grow">
-              <div>
+          <div class="flex flex-col flex-grow justify-end w-full">
+            <div class="flex flex-row sm:flex-col mt-5 flex-grow">
+              <div class="w-full">
                 <button
                   class="px-5 w-full"
                   :class="
@@ -96,7 +96,7 @@
                 </button>
               </div>
 
-              <div class="mt-3">
+              <div class="w-full mt-0 ms-3 sm:mt-3 sm:ms-0">
                 <button
                   class="px-5 w-full"
                   :class="

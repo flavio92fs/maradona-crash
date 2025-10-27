@@ -23,6 +23,9 @@ export function initScene(container: HTMLElement) {
   let mixerFireworks: THREE.AnimationMixer;
   let isFireworkAnimationPlaying = false;
 
+  const spotLights: THREE.SpotLight[] = [];
+  const isDay = false
+
   const rendererGUI = gui.addFolder("Renderer").close();
   const lightsFolderGUI = gui.addFolder("Lights").close();
   const maradonaMaterialsGUI = gui.addFolder("Maradona Materials").close();
@@ -35,7 +38,6 @@ export function initScene(container: HTMLElement) {
     window.addEventListener("click", () => {
       audioManager.playBackgroundMusic();
     });
-
     // window.addEventListener("resize", resizeRenderer);
 
     // resizeRenderer();
@@ -262,10 +264,9 @@ export function initScene(container: HTMLElement) {
     scene.add(ambientLight);
   }
 
-  camera.position.set(0, 0.51, -1.2);
-
   addCameraGUI();
   const cameraControls = new CameraControls(camera, renderer, container, gui);
+  cameraControls.startAnimation();
 
   //#region ANIMATE
   function animate() {
@@ -280,6 +281,8 @@ export function initScene(container: HTMLElement) {
       mixerFireworks?.update(delta);
       updateTextureAnimationMaterial(delta, fireworksMaterial, fireWorkAnimatedTextures);
     }
+
+    // console.log(camera.position)
 
     cameraControls.orbitControls.update();
     renderer.render(scene, camera);
@@ -393,6 +396,8 @@ export function initScene(container: HTMLElement) {
 
   addAmbientLight();
   createSpotLight(lightsFolderGUI, "Spotlight Centrale", 0, 1, 0, 5);
+  const directionalLight = createDirectionalLight(lightsFolderGUI, 'Directional Light', 0, 1, 0, 10);
+  setNight();
 
   addDOM();
 
@@ -405,23 +410,126 @@ export function initScene(container: HTMLElement) {
   addMaradona(fbxLoader, scene, gui);
   addShadowPlane(gui, scene);
 
+  addDayNightToggle();
+
   function createDirectionalLight(
     gui: GUI,
     guiName: string,
     x: number,
     y: number,
-    z: number
+    z: number,
+    intensity: number
   ): THREE.DirectionalLight {
-    const dirLightGUI = gui.addFolder("Directional Light").close();
+    const folder = gui.addFolder(guiName).close();
 
-    const light = new THREE.DirectionalLight(0xffffff, 1.5); // intensità più bassa per bilanciare
+    const light = new THREE.DirectionalLight(0xffffff, intensity); // intensità più bassa per bilanciare
     light.position.set(x, y, z);
 
     light.castShadow = true;
+    light.position.set(x, y, z);
 
     scene.add(light);
+    scene.add(light.target);
 
-    dirLightGUI.add(light, "intensity");
+    // helper
+    const helper = new THREE.SpotLightHelper(light);
+    helper.visible = false;
+    scene.add(helper);
+
+    const STORAGE_KEY = guiName;
+
+    const defaultParams = {
+      positionX: 0.04999,
+      positionY: 0.8,
+      positionZ: -0.6,
+
+      intensity: intensity,
+      castShadow: true,
+      color: 0xffffff,
+      bias: 0,
+      normalBias: 0.1,
+
+      showHelper: false,
+    };
+
+    let params = { ...defaultParams };
+    loadSettings(STORAGE_KEY, defaultParams, params);
+
+    light.position.set(params.positionX, params.positionY, params.positionZ);
+    light.intensity = params.intensity;
+    light.castShadow = params.castShadow;
+    light.color.set(params.color);
+    light.shadow.bias = params.bias;
+    light.shadow.normalBias = params.normalBias;
+
+    helper.visible = params.showHelper;
+
+    folder.add(params, "positionX", -10, 10, 0.01).onChange((val) => {
+      light.position.x = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+    folder.add(params, "positionY", -10, 10, 0.01).onChange((val) => {
+      light.position.y = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+    folder.add(params, "positionZ", -10, 10, 0.01).onChange((val) => {
+      light.position.z = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params, "intensity", 0, 100, 0.01).onChange((val) => {
+      light.intensity = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params, "castShadow").onChange((val) => {
+      light.castShadow = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.addColor(params, "color").onChange((val) => {
+      light.color.set(val);
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params,'bias', -1, 1, 0.0001).onChange((val) => {
+      light.shadow.bias  = val
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(params,'normalBias', -1, 1, 0.0001).onChange((val) => {
+      light.shadow.normalBias = val
+      saveSettings(STORAGE_KEY, params);
+    });
+
+
+    folder.add(params, "showHelper").onChange((val) => {
+      helper.visible = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+    folder.add(light, 'visible');
+
+    const resetInput = {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams, params, folder);
+        saveSettings(STORAGE_KEY, defaultParams);
+
+        light.position.set(
+          params.positionX,
+          params.positionY,
+          params.positionZ
+        );
+        light.intensity = params.intensity;
+        light.castShadow = params.castShadow;
+        light.color.set(params.color);
+        helper.visible = params.showHelper;
+      },
+    };
+
+    folder.add(resetInput, "reset");
+
+    spotLights.push(light)
 
     return light;
   }
@@ -557,6 +665,8 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
+    folder.add(light, 'visible');
+
     const resetInput = {
       reset: () => {
         resetSettings(STORAGE_KEY, defaultParams, params, folder);
@@ -580,6 +690,8 @@ export function initScene(container: HTMLElement) {
     };
 
     folder.add(resetInput, "reset");
+
+    spotLights.push(light)
 
     return light;
   }
@@ -1675,4 +1787,40 @@ export function initScene(container: HTMLElement) {
 
     folder.add(resetInput, "reset");
   }
+
+  function addDayNightToggle() {
+    const lightingSettings = {
+      mode: 'Night', // stato iniziale
+    };
+
+    const lightingModes = ['Night', 'Day'];
+
+    const folder = gui.addFolder('Lighting Mode');
+
+    folder.add(lightingSettings, 'mode', lightingModes).name('Time of Day').onChange((val) => {
+      if(val === 'Day'){
+        setDay();
+      }
+      else setNight();
+    });
+  }
+
+  function setDay(){
+    console.log(spotLights);
+
+    spotLights.forEach(light => {
+      light.visible = false;
+    });
+    directionalLight.visible = true;
+  }
+
+  function setNight(){
+    console.log(spotLights);
+
+    spotLights.forEach(light => {
+      light.visible = true;
+    });
+    directionalLight.visible = false;
+  }
+
 }

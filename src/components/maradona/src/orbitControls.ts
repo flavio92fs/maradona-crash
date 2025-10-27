@@ -11,18 +11,18 @@ export default class CameraControls{
 
     private _cameraMoves: {
         angleDeg: number; // in gradi per GUI
-        zoom: number;
+        distance: number;
         duration: number;
         hold: number;
         }[] = [
-            { angleDeg: 45, zoom: 1.5, duration: 3, hold: 1 },
-            { angleDeg: -45, zoom: 2.0, duration: 3, hold: 1 },
-            { angleDeg: 0, zoom: 1.2, duration: 3, hold: 2 },
+            { angleDeg: 90, distance: 0.4, duration: 1, hold: 0.5 },
+            { angleDeg: -180, distance: 2, duration: 3, hold: 0.5 },
+            { angleDeg: 180, distance: 2, duration: 3, hold: 0.5 },
         ];
 
     private _orbitControls: OrbitControls;
 
-    private _targetY: number;
+    private _targetY: number = 0.1;
     private _minZoom: number = 1.5;
     private _maxZoom: number = 2.4;
 
@@ -33,8 +33,10 @@ export default class CameraControls{
     constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, container: HTMLElement, gui?: GUI){
         this._camera = camera;
 
-        this._targetY = this.calculateTargetY(container.clientHeight)
-        this._minZoom = this.calculateMinZoom(container.clientHeight)
+        if(window.innerWidth < window.innerHeight){ 
+            this._targetY = this.calculateTargetY(container.clientHeight)
+            this._minZoom = this.calculateMinZoom(container.clientHeight)
+        }
 
         this._orbitControls = new OrbitControls(camera, renderer.domElement);
 
@@ -56,17 +58,15 @@ export default class CameraControls{
             this.folder = gui.addFolder('Camera Controls').close();
 
             this.addGUIControls(this.folder);
-            const initialAnimationGUI = gui?.addFolder('Initial Animation');
-            this.addCameraAnimationGUI(initialAnimationGUI)
+            const initialAnimationGUI = gui?.addFolder('Camera Start Animation');
+
+            const startAnimation = {
+                startAnimation: () => { this.startAnimation(); }
+            }
+
+            initialAnimationGUI.add(startAnimation, 'startAnimation').name('Start Animation');
+
         }
-
-        // const resizeObserver = new ResizeObserver(() => {
-        //     this.calculateTargetY(container.clientHeight);
-        //     this.calculateMinZoom(container.clientHeight);
-        //     // this.folder?.controllers.forEach((controller) => controller.updateDisplay());
-        // });
-
-        // resizeObserver.observe(container);
     }
 
     public calculateTargetY(height: number) {
@@ -199,90 +199,169 @@ export default class CameraControls{
         folder.add(resetInput, 'reset');
     }
 
-    private startAnimation() {
+    public startAnimation() {
         const rotation = { angle: 0 };
-        const baseDistance = 5;
         const tl = gsap.timeline();
+        const distance = { value: this._orbitControls.getDistance() };
+
+        this._orbitControls.enabled = false;
+        this._orbitControls.minDistance = 0.001;
+        this._orbitControls.maxDistance = Infinity;
 
         this._cameraMoves.forEach((move) => {
             const angle = move.angleDeg * Math.PI / 180;
+            // const targetDistance = THREE.MathUtils.clamp(
+            //     move.distance,
+            //     this._orbitControls.minDistance,
+            //     this._orbitControls.maxDistance
+            // );
 
             tl.to(rotation, {
-            angle,
-            duration: move.duration,
-            ease: "power2.inOut",
-            onUpdate: () => this.updateCamera(rotation, baseDistance),
+                angle,
+                duration: move.duration,
+                ease: "power2.inOut",
+                onUpdate: () => this.updateCamera(rotation, distance.value),
             });
 
-            tl.to(this._camera, {
-            zoom: move.zoom,
-            duration: move.duration,
-            ease: "power2.inOut",
-            onUpdate: () => this._camera.updateProjectionMatrix(),
+            tl.to(distance, {
+                value: move.distance,
+                duration: move.duration,
+                ease: "power2.inOut",
+                onUpdate: () => this._camera.updateProjectionMatrix(),
             }, "<");
 
-            tl.to({}, { duration: move.hold });
+            tl.to({}, { 
+                duration: move.hold
+            });
         });
+
+        // const finalAngle = 180;
+        // // 👆 1.8 è un valore “preferito” che vuoi raggiungere, ma viene forzato nei limiti
+
+        // // 🔹 Step finale: animazione verso la posizione/zoom finale
+        // tl.to(rotation, {
+        //     angle: finalAngle * Math.PI / 180,
+        //     duration: 2,
+        //     ease: "power2.inOut",
+        //     onUpdate: () => this.updateCamera(rotation, baseDistance),
+        // });
+
+        // tl.to(this._camera, {
+        //     zoom: 1,
+        //     duration: 2,
+        //     ease: "power2.inOut",
+        //     onUpdate: () => this._camera.updateProjectionMatrix(),
+        // }, "<");
+
+        // // (Facoltativo) chiama qualcosa quando è tutto finito
+        tl.eventCallback("onComplete", () => {
+            this._orbitControls.minDistance = this._minZoom;
+            this._orbitControls.maxDistance = this._maxZoom;
+            this._camera.zoom = 1;
+            this._camera.updateProjectionMatrix();
+            this._orbitControls.enabled = true;
+            console.log("✅ Animazione completata — camera in posizione finale");
+        });
+    }
+
+    private setOrbitDistance(distance: number) {
+        // 1️⃣ calcola la direzione (dal target alla camera)
+        const dir = new THREE.Vector3()
+            .copy(this._camera.position)
+            .sub(this._orbitControls.target)
+            .normalize();
+
+        // 2️⃣ posiziona la camera lungo quella direzione alla distanza richiesta
+        this._camera.position.copy(
+            new THREE.Vector3().copy(this._orbitControls.target).add(dir.multiplyScalar(distance))
+        );
+
+        // 3️⃣ aggiorna i controlli
+        this._orbitControls.update();
     }
 
     private updateCamera(rotation: {angle: number}, baseDistance: number) {
         this._camera.position.x = Math.sin(rotation.angle) * baseDistance;
         this._camera.position.z = Math.cos(rotation.angle) * baseDistance;
         this._camera.lookAt(this._orbitControls.target);
-    }   
-
-    private addCameraAnimationGUI(gui: GUI) {
-        const STORAGE_KEY = "CameraAnimation";
-        const folder = gui.addFolder("Camera Animation").close();
-
-        const addMoveFolder = (move: any, index: number) => {
-            const moveFolder = folder.addFolder(`Move ${index + 1}`);
-
-            moveFolder.add(move, "angleDeg", -720, 720, 1).name("Angle (°)").onChange(() => this.saveCameraMoves(STORAGE_KEY));
-            moveFolder.add(move, "zoom", 0.5, 5, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
-            moveFolder.add(move, "duration", 0.1, 10, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
-            moveFolder.add(move, "hold", 0, 5, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
-
-            const removeBtn = { remove: () => {
-            this._cameraMoves.splice(index, 1);
-            moveFolder.destroy();
-            this.saveCameraMoves(STORAGE_KEY);
-            this.rebuildCameraAnimationGUI(gui); // ricrea tutto
-            }};
-            moveFolder.add(removeBtn, "remove").name("🗑️ Remove");
-        };
-
-        // pulsante per aggiungere nuovi step
-        const addBtn = {
-            add: () => {
-            this._cameraMoves.push({ angleDeg: 0, zoom: 1.5, duration: 2, hold: 1 });
-            this.saveCameraMoves(STORAGE_KEY);
-            this.rebuildCameraAnimationGUI(gui);
-            }
-        };
-
-        folder.add(addBtn, "add").name("➕ Add Move");
-
-        // crea le sotto-folder
-        this._cameraMoves.forEach((move, i) => addMoveFolder(move, i));
-
-        // play
-        folder.add({ play: () => this.startAnimation() }, "play").name("▶️ Play Animation");
     }
 
-    private rebuildCameraAnimationGUI(gui: GUI) {
-    // rimuove la vecchia folder e la ricrea
-        const oldFolder = gui.folders.find(f => f._title === "Camera Animation");
-        if (oldFolder) oldFolder.destroy();
-        this.addCameraAnimationGUI(gui);
-    }
+    // private resetCameraAfterAnimation() {
+    //     // 🔹 Ripristina i limiti di zoom ai valori di default
+    //     this._orbitControls.minDistance = this._minZoom;
+    //     this._orbitControls.maxDistance = this._maxZoom;
 
-    private saveCameraMoves(key: string) {
-        localStorage.setItem(key, JSON.stringify(this._cameraMoves));
-    }
+    //     // 🔹 Ripristina lo zoom effettivo della camera
+    //     this._camera.zoom = 1;
+    //     this._camera.updateProjectionMatrix();
 
-    private loadCameraMoves(key: string) {
-        const saved = localStorage.getItem(key);
-        if (saved) this._cameraMoves = JSON.parse(saved);
-    }
+    //     // 🔹 Posiziona la camera a una distanza valida (es. al minZoom)
+    //     const distance = this._minZoom;
+    //     const angle = 0; // o qualunque angolo desideri come posizione di default
+
+    //     this._camera.position.x = Math.sin(angle) * distance;
+    //     this._camera.position.z = Math.cos(angle) * distance;
+    //     this._camera.position.y = this._orbitControls.target.y + 0.5; // leggermente sopra il target (opzionale)
+
+    //     // 🔹 Aggiorna l’orientamento
+    //     this._camera.lookAt(this._orbitControls.target);
+
+    //     // 🔹 Aggiorna i controlli
+    //     this._orbitControls.update();
+    // }
+
+    // private addCameraAnimationGUI(gui: GUI) {
+    //     const STORAGE_KEY = "CameraAnimation";
+    //     const folder = gui.addFolder("Camera Animation").close();
+
+    //     const addMoveFolder = (move: any, index: number) => {
+    //         const moveFolder = folder.addFolder(`Move ${index + 1}`);
+
+    //         moveFolder.add(move, "angleDeg", -720, 720, 1).name("Angle (°)").onChange(() => this.saveCameraMoves(STORAGE_KEY));
+    //         moveFolder.add(move, "zoom", 0.5, 5, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
+    //         moveFolder.add(move, "duration", 0.1, 10, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
+    //         moveFolder.add(move, "hold", 0, 5, 0.1).onChange(() => this.saveCameraMoves(STORAGE_KEY));
+
+    //         const removeBtn = { remove: () => {
+    //         this._cameraMoves.splice(index, 1);
+    //         moveFolder.destroy();
+    //         this.saveCameraMoves(STORAGE_KEY);
+    //         this.rebuildCameraAnimationGUI(gui); // ricrea tutto
+    //         }};
+    //         moveFolder.add(removeBtn, "remove").name("🗑️ Remove");
+    //     };
+
+    //     // pulsante per aggiungere nuovi step
+    //     const addBtn = {
+    //         add: () => {
+    //         this._cameraMoves.push({ angleDeg: 0, zoom: 1.5, duration: 2, hold: 1 });
+    //         this.saveCameraMoves(STORAGE_KEY);
+    //         this.rebuildCameraAnimationGUI(gui);
+    //         }
+    //     };
+
+    //     folder.add(addBtn, "add").name("➕ Add Move");
+
+    //     // crea le sotto-folder
+    //     this._cameraMoves.forEach((move, i) => addMoveFolder(move, i));
+
+    //     // play
+    //     folder.add({ play: () => this.startAnimation() }, "play").name("▶️ Play Animation");
+    // }
+
+    // private rebuildCameraAnimationGUI(gui: GUI) {
+    // // rimuove la vecchia folder e la ricrea
+    //     const oldFolder = gui.folders.find(f => f._title === "Camera Animation");
+    //     if (oldFolder) oldFolder.destroy();
+    //     this.addCameraAnimationGUI(gui);
+    // }
+
+    // private saveCameraMoves(key: string) {
+    //     localStorage.setItem(key, JSON.stringify(this._cameraMoves));
+    // }
+
+    // private loadCameraMoves(key: string) {
+    //     const saved = localStorage.getItem(key);
+    //     if (saved) this._cameraMoves = JSON.parse(saved);
+    // }
 }

@@ -40,7 +40,7 @@
 
         <div class="w-full text-right z-[12]">
           <button
-            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
             v-if="!isMorning"
             @click="
               () => {
@@ -53,7 +53,7 @@
           </button>
 
           <button
-            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
             @click="
               () => {
                 isMorning = !isMorning;

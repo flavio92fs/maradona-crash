@@ -11,48 +11,46 @@
       <MultiplierHistory class="mt-5 mb-5" />
     </div>
 
-    <div class="flex flex-col flex-grow pb-0">
-      <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
-        <div
-          class="hidden lg:flex justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
-        >
-          <BetHistory style="width: 400px" @getLeaderboard="getLeaderBoard" />
+    <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
+      <div
+        class="hidden lg:flex justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
+      >
+        <BetHistory style="width: 400px" @getLeaderboard="getLeaderBoard" />
+      </div>
+
+      <div
+        class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5"
+      >
+        <div id="game-container" class="flex-grow">
+          <MaradonaGame />
         </div>
-
         <div
-          class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5"
+          class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-8"
         >
-          <div id="game-container" class="flex-grow">
-            <MaradonaGame />
+          <div class="order-1 3xl:order-0 mx-5">
+            <BetBox
+              :id="0"
+              @sendBet="setBet"
+              @cancelBet="cancelBet(0)"
+              @drawCash="drawCash(0)"
+            />
           </div>
-          <div
-            class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-8"
-          >
-            <div class="order-1 3xl:order-0 mx-5">
-              <BetBox
-                :id="0"
-                @sendBet="setBet"
-                @cancelBet="cancelBet(0)"
-                @drawCash="drawCash(0)"
-              />
-            </div>
 
-            <div class="order-2 3xl:order-2 mx-5 mt-5 md:mt-0">
-              <BetBox
-                :id="1"
-                @sendBet="setBet"
-                @cancelBet="cancelBet(1)"
-                @drawCash="drawCash(1)"
-              />
-            </div>
+          <div class="order-2 3xl:order-2 mx-5 mt-5 md:mt-0">
+            <BetBox
+              :id="1"
+              @sendBet="setBet"
+              @cancelBet="cancelBet(1)"
+              @drawCash="drawCash(1)"
+            />
           </div>
         </div>
+      </div>
 
-        <div
-          class="hidden 2xl:block xl:w-2/12 3xl:w-2/12 h-full order-2 xl:order-none my-8 xl:my-0"
-        >
-          <Chat class="h-full" />
-        </div>
+      <div
+        class="hidden 2xl:block xl:w-2/12 3xl:w-2/12 h-full order-2 xl:order-none my-8 xl:my-0"
+      >
+        <Chat class="h-full" />
       </div>
     </div>
   </div>
@@ -184,8 +182,6 @@ export default {
   min-height: 300px;
   max-height: 100%;
   max-width: 100%;
-  object-fit: contain;
-  position: relative;
 }
 
 canvas {
@@ -195,7 +191,7 @@ canvas {
 
 @media screen and (width < 1280px) {
   #game-container {
-    min-height: 500px;
+    min-height: 450px;
   }
 }
 

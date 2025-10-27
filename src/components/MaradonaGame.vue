@@ -4,12 +4,6 @@
     class="flex flex-col h-full w-full"
     ref="threeContainer"
     id="three-container"
-    style="
-      display: flex;
-      justify-content: center;
-      background-color: black;
-      align-items: center;
-    "
   >
     <div
       ref="threeGameContainer"
@@ -68,11 +62,11 @@
 
       <GameMultiplier
         class="hidden lg:block absolute w-full"
-        style="top: 82%"
+        style="top: 84%"
       />
 
       <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
-        <GameMultiplier />
+        <GameMultiplier id="game-multiplier" />
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
             v-if="showBetBox"
@@ -169,7 +163,7 @@
 
             <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
               <button
-                class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
+                class="btn history-button border border-white rounded-xl text-base sm:text-xl w-full text-white py-2"
                 @click="closeHistory()"
               >
                 <p class="font-bold">Close</p>
@@ -314,6 +308,13 @@ onMounted(() => {
   height: 100%;
 }
 
+#three-container {
+  display: flex;
+  justify-content: center;
+  background-color: black;
+  align-items: center;
+}
+
 .bg-overlay {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -358,5 +359,12 @@ onMounted(() => {
     rgba(0, 0, 0, 1) 100%
   );
   pointer-events: none;
+}
+
+@media screen and (width < 1024px) {
+  #three-container {
+    min-width: 280px;
+    min-height: 630px;
+  }
 }
 </style>

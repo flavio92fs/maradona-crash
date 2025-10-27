@@ -3,7 +3,7 @@
     <div class="bg-primary text-white rounded-xl">
       <div class="relative bg-primary-dark rounded-xl border border-secondary">
         <button
-          class="absolute cursor-pointer right-5 top-5 z-10"
+          class="absolute cursor-pointer right-0 top-0 z-10 me-2 mt-2"
           @click="closeBox()"
         >
           <XCircleIcon class="h-7 w-7"></XCircleIcon>
@@ -72,7 +72,7 @@
             <div class="flex flex-row sm:flex-col mt-5 flex-grow">
               <div class="w-full">
                 <button
-                  class="px-5 w-full"
+                  class="px-5 py-2 w-full"
                   :class="
                     betAmount == currency.default_bet ||
                     betInProgress ||
@@ -98,7 +98,7 @@
 
               <div class="w-full mt-0 ms-3 sm:mt-3 sm:ms-0">
                 <button
-                  class="px-5 w-full"
+                  class="px-5 py-2 w-full"
                   :class="
                     betAmount == currency.default_bet ||
                     betInProgress ||

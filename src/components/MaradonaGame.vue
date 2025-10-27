@@ -36,23 +36,32 @@
               :value="10.0"
             />
           </div>
-          <!-- <div class="w-full text-right">
-        <button
-          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
-          v-if="isFullscreen == true"
-          @click.stop="exitFullscreen"
-        >
-          <ArrowsPointingInIcon class="text-white h-8 w-8" />
-        </button>
+        </div>
 
-        <button
-          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
-          v-if="isFullscreen == false"
-          @click.stop="enterFullscreen"
-        >
-          <ArrowsPointingOutIcon class="text-white h-8 w-8" />
-        </button>
-      </div> -->
+        <div class="w-full text-right z-[12]">
+          <button
+            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            v-if="!isMorning"
+            @click="
+              () => {
+                isMorning = !isMorning;
+              }
+            "
+          >
+            <MoonIcon class="text-white h-8 w-8" />
+          </button>
+
+          <button
+            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            @click="
+              () => {
+                isMorning = !isMorning;
+              }
+            "
+            v-else
+          >
+            <SunIcon class="text-white h-8 w-8" />
+          </button>
         </div>
       </div>
 
@@ -179,10 +188,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import store from "@/store";
-import {
-  ArrowsPointingOutIcon,
-  ArrowsPointingInIcon,
-} from "@heroicons/vue/24/outline";
+import { MoonIcon, SunIcon } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 import BetButton from "./BetButton.vue";
@@ -206,6 +212,7 @@ let selected_category = ref(0);
 let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
+let isMorning = ref(true);
 
 //Methods
 

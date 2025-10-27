@@ -45,6 +45,7 @@
             @click="
               () => {
                 isMorning = !isMorning;
+                toggleDayTime(isMorning);
               }
             "
           >
@@ -56,6 +57,7 @@
             @click="
               () => {
                 isMorning = !isMorning;
+                toggleDayTime(isMorning);
               }
             "
             v-else
@@ -195,6 +197,7 @@ import BetButton from "./BetButton.vue";
 import BetBoxMobile from "./BetBoxMobile.vue";
 import Navigation from "./Navigation.vue";
 import GameMultiplier from "./GameMultiplier.vue";
+import emitter from "@/eventEmitter";
 
 //Data
 
@@ -215,6 +218,10 @@ let bet_box_close_time = 5000;
 let isMorning = ref(true);
 
 //Methods
+
+function toggleDayTime(daytime) {
+  emitter.emit("toggleDayTime", daytime);
+}
 
 function openHistory(category) {
   if (showBetBox.value) {

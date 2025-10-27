@@ -4,7 +4,7 @@ export default createStore({
   state: {
     balance: 0.0,
     currency: {},
-    coins: [],
+    coins: [1, 2, 5, 10],
     player: {},
     chatMessages: [],
     isFullscreen: false,

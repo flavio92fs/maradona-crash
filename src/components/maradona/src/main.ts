@@ -8,6 +8,7 @@ import { resetSettings, saveSettings } from "./saveLoadGUI";
 import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
 import { gsap } from "gsap";
+import emitter from "@/eventEmitter";
 
 export function initScene(container: HTMLElement) {
   const gui: GUI = new GUI().close();
@@ -24,14 +25,14 @@ export function initScene(container: HTMLElement) {
   let isFireworkAnimationPlaying = false;
 
   const spotLights: THREE.SpotLight[] = [];
-  const isDay = false
+  const isDay = false;
 
   const rendererGUI = gui.addFolder("Renderer").close();
   const lightsFolderGUI = gui.addFolder("Lights").close();
   const maradonaMaterialsGUI = gui.addFolder("Maradona Materials").close();
   const sphereDomGUI = gui.addFolder("Sphere DOM").close();
   const animationsGUI = gui.addFolder("Animations");
-  const animatedLightsGUI = gui.addFolder('Luci Animate').close();
+  const animatedLightsGUI = gui.addFolder("Luci Animate").close();
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
@@ -75,7 +76,7 @@ export function initScene(container: HTMLElement) {
       arr.push(texture);
     }
     return arr;
-  };
+  }
 
   const fireWorkAnimatedTextures = addFireworkTextures();
 
@@ -160,7 +161,7 @@ export function initScene(container: HTMLElement) {
   }
 
   function resizeRenderer() {
-    console.log(container)
+    console.log(container);
 
     const windowWidth = container.clientWidth;
     const windowHeight = container.clientHeight;
@@ -189,17 +190,35 @@ export function initScene(container: HTMLElement) {
   let currentAction: THREE.AnimationAction;
 
   const maradonaSuitsTexture: Record<string, THREE.Texture> = {
-    argentina: textureLoader.load('textures/maradona/Maradona_divisa_argentina.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-    barcellona: textureLoader.load('textures/maradona/Maradona_divisa_barcellona.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-    boca: textureLoader.load('textures/maradona/Maradona_divisa_boca.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-    napoliUfficiale: textureLoader.load('textures/maradona/Maradona_divisa_napoli_ufficiale.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-    napoli: textureLoader.load('textures/maradona/Maradona_divisa_napoli.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-    sevilla: textureLoader.load('textures/maradona/Maradona_divisa_sevilla.png', (texture) => texture.colorSpace = THREE.SRGBColorSpace),
-  }
+    argentina: textureLoader.load(
+      "textures/maradona/Maradona_divisa_argentina.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+    barcellona: textureLoader.load(
+      "textures/maradona/Maradona_divisa_barcellona.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+    boca: textureLoader.load(
+      "textures/maradona/Maradona_divisa_boca.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+    napoliUfficiale: textureLoader.load(
+      "textures/maradona/Maradona_divisa_napoli_ufficiale.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+    napoli: textureLoader.load(
+      "textures/maradona/Maradona_divisa_napoli.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+    sevilla: textureLoader.load(
+      "textures/maradona/Maradona_divisa_sevilla.png",
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    ),
+  };
 
   const maradonaMaterialLibrary: Record<string, THREE.MeshStandardMaterial> = {
     divisa: new THREE.MeshStandardMaterial({
-      map: maradonaSuitsTexture['napoliUfficiale'],
+      map: maradonaSuitsTexture["napoliUfficiale"],
       side: THREE.DoubleSide,
       name: "divisa",
     }),
@@ -279,7 +298,11 @@ export function initScene(container: HTMLElement) {
 
     if (isFireworkAnimationPlaying) {
       mixerFireworks?.update(delta);
-      updateTextureAnimationMaterial(delta, fireworksMaterial, fireWorkAnimatedTextures);
+      updateTextureAnimationMaterial(
+        delta,
+        fireworksMaterial,
+        fireWorkAnimatedTextures
+      );
     }
 
     // console.log(camera.position)
@@ -396,15 +419,26 @@ export function initScene(container: HTMLElement) {
 
   addAmbientLight();
   createSpotLight(lightsFolderGUI, "Spotlight Centrale", 0, 1, 0, 5);
-  const directionalLight = createDirectionalLight(lightsFolderGUI, 'Directional Light', 0, 1, 0, 10);
+  const directionalLight = createDirectionalLight(
+    lightsFolderGUI,
+    "Directional Light",
+    0,
+    1,
+    0,
+    10
+  );
   setNight();
 
   addDOM();
 
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
-  addAnimatedLights(scene, 'animatedLights').then((mixer) => mixerLuci = mixer);
-  addAnimatedLights(scene, 'animatedLights2').then((mixer) => mixerLuci2 = mixer);
+  addAnimatedLights(scene, "animatedLights").then(
+    (mixer) => (mixerLuci = mixer)
+  );
+  addAnimatedLights(scene, "animatedLights2").then(
+    (mixer) => (mixerLuci2 = mixer)
+  );
   addAnimatedFireworks(scene);
   addStadio(gltfLoader, textureLoader, scene, gui);
   addMaradona(fbxLoader, scene, gui);
@@ -492,23 +526,22 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params,'bias', -1, 1, 0.0001).onChange((val) => {
-      light.shadow.bias  = val
+    folder.add(params, "bias", -1, 1, 0.0001).onChange((val) => {
+      light.shadow.bias = val;
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params,'normalBias', -1, 1, 0.0001).onChange((val) => {
-      light.shadow.normalBias = val
+    folder.add(params, "normalBias", -1, 1, 0.0001).onChange((val) => {
+      light.shadow.normalBias = val;
       saveSettings(STORAGE_KEY, params);
     });
-
 
     folder.add(params, "showHelper").onChange((val) => {
       helper.visible = val;
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(light, 'visible');
+    folder.add(light, "visible");
 
     const resetInput = {
       reset: () => {
@@ -529,7 +562,7 @@ export function initScene(container: HTMLElement) {
 
     folder.add(resetInput, "reset");
 
-    spotLights.push(light)
+    spotLights.push(light);
 
     return light;
   }
@@ -649,23 +682,22 @@ export function initScene(container: HTMLElement) {
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params,'bias', -1, 1, 0.0001).onChange((val) => {
-      light.shadow.bias  = val
+    folder.add(params, "bias", -1, 1, 0.0001).onChange((val) => {
+      light.shadow.bias = val;
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(params,'normalBias', -1, 1, 0.0001).onChange((val) => {
-      light.shadow.normalBias = val
+    folder.add(params, "normalBias", -1, 1, 0.0001).onChange((val) => {
+      light.shadow.normalBias = val;
       saveSettings(STORAGE_KEY, params);
     });
-
 
     folder.add(params, "showHelper").onChange((val) => {
       helper.visible = val;
       saveSettings(STORAGE_KEY, params);
     });
 
-    folder.add(light, 'visible');
+    folder.add(light, "visible");
 
     const resetInput = {
       reset: () => {
@@ -691,7 +723,7 @@ export function initScene(container: HTMLElement) {
 
     folder.add(resetInput, "reset");
 
-    spotLights.push(light)
+    spotLights.push(light);
 
     return light;
   }
@@ -756,7 +788,9 @@ export function initScene(container: HTMLElement) {
     pelleBaseColor = textureLoader.load("textures/maradona/Maradona_pelle.png");
     pelleBaseColor.colorSpace = THREE.SRGBColorSpace;
 
-    capelliBaseColor = textureLoader.load("textures/maradona/Capelli_Diffuse.png");
+    capelliBaseColor = textureLoader.load(
+      "textures/maradona/Capelli_Diffuse.png"
+    );
     capelliBaseColor.colorSpace = THREE.SRGBColorSpace;
 
     pallaBaseColor = textureLoader.load("textures/palla/palla_BaseColor.png");
@@ -883,22 +917,23 @@ export function initScene(container: HTMLElement) {
     texture.repeat.x = -1;
     texture.offset.y = 0.62;
 
-    gsap.timeline({ repeat: -1, repeatDelay: 10 })
-    .to(texture.offset, {
-      y: 0.42,
-      duration: 1,
-      ease: "none"
-    })
-    .to(texture.offset, {
-      y: 0.42,
-      duration: 10,
-      ease: "none"
-    })
-    .to(texture.offset, {
-      y: 0.62,
-      duration: 1,
-      ease: "none"
-    })
+    gsap
+      .timeline({ repeat: -1, repeatDelay: 10 })
+      .to(texture.offset, {
+        y: 0.42,
+        duration: 1,
+        ease: "none",
+      })
+      .to(texture.offset, {
+        y: 0.42,
+        duration: 10,
+        ease: "none",
+      })
+      .to(texture.offset, {
+        y: 0.62,
+        duration: 1,
+        ease: "none",
+      });
 
     const STORAGE_KEY = "CARTELLONI";
     const cartelloniMaterial = new THREE.MeshStandardMaterial({ map: texture });
@@ -931,7 +966,10 @@ export function initScene(container: HTMLElement) {
     });
   }
 
-  function addAnimatedLights(scene: THREE.Scene, glbName: string) : Promise<THREE.AnimationMixer> {
+  function addAnimatedLights(
+    scene: THREE.Scene,
+    glbName: string
+  ): Promise<THREE.AnimationMixer> {
     return new Promise((resolve) => {
       const lightTexture = textureLoader.load("textures/luce.png");
       lightTexture.colorSpace = THREE.SRGBColorSpace;
@@ -953,7 +991,7 @@ export function initScene(container: HTMLElement) {
           }
         });
 
-        animatedLightsGUI.add(model, 'visible');
+        animatedLightsGUI.add(model, "visible");
 
         const mixer = new THREE.AnimationMixer(model);
 
@@ -1201,22 +1239,10 @@ export function initScene(container: HTMLElement) {
 
       scene.add(model);
 
-      addSuitsGUI(
-        maradonaMaterialsGUI,
-        maradonaMaterialLibrary["divisa"]
-      );
-      addMaterialGUI(
-        maradonaMaterialsGUI,
-        maradonaMaterialLibrary["capelli"]
-      );
-      addMaterialGUI(
-        maradonaMaterialsGUI,
-        maradonaMaterialLibrary["pelle"]
-      );
-      addMaterialGUI(
-        maradonaMaterialsGUI,
-        maradonaMaterialLibrary["palla"]
-      );
+      addSuitsGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["divisa"]);
+      addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["capelli"]);
+      addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["pelle"]);
+      addMaterialGUI(maradonaMaterialsGUI, maradonaMaterialLibrary["palla"]);
 
       mixerMaradona = new THREE.AnimationMixer(model);
 
@@ -1307,10 +1333,17 @@ export function initScene(container: HTMLElement) {
     const STORAGE_KEY = `material_${material.name}`;
 
     const selectedSuit = {
-      selected: 'Napoli Ufficiale'
-    }
+      selected: "Napoli Ufficiale",
+    };
 
-    const suitOptions = ["Argentina", "Barcellona", "Boca", "Napoli Ufficiale", "Napoli", "Sevilla" ];
+    const suitOptions = [
+      "Argentina",
+      "Barcellona",
+      "Boca",
+      "Napoli Ufficiale",
+      "Napoli",
+      "Sevilla",
+    ];
 
     // valori di default
     const defaultParams = {
@@ -1321,7 +1354,7 @@ export function initScene(container: HTMLElement) {
       texturePath: "",
       offsetX: 0,
       offsetY: 0,
-      suit: 'Napoli Ufficiale'
+      suit: "Napoli Ufficiale",
     };
 
     // carico eventuali valori salvati
@@ -1375,32 +1408,37 @@ export function initScene(container: HTMLElement) {
     };
 
     // GUI
-    const materialGUI = guiName ? gui.addFolder(guiName) : gui.addFolder(material.name);
+    const materialGUI = guiName
+      ? gui.addFolder(guiName)
+      : gui.addFolder(material.name);
     materialGUI.close();
 
     materialGUI.add(controls, "loadTexture").name("Carica Texture");
-    materialGUI.add(selectedSuit, "selected", suitOptions).name("Seleziona Divisa").onChange((val) => {
-      switch(val){
-        case "Argentina":
-          material.map = maradonaSuitsTexture['argentina'];
-          break;
-        case "Barcellona":
-          material.map = maradonaSuitsTexture['barcellona'];
-          break;
-        case "Boca":
-          material.map = maradonaSuitsTexture['boca'];
-          break;
-        case "Napoli Ufficiale":
-          material.map = maradonaSuitsTexture['napoliUfficiale'];
-          break;
-        case "Napoli":
-          material.map = maradonaSuitsTexture['napoli'];
-          break;
-        case "Sevilla":
-          material.map = maradonaSuitsTexture['sevilla'];
-          break;
-      }
-    })
+    materialGUI
+      .add(selectedSuit, "selected", suitOptions)
+      .name("Seleziona Divisa")
+      .onChange((val) => {
+        switch (val) {
+          case "Argentina":
+            material.map = maradonaSuitsTexture["argentina"];
+            break;
+          case "Barcellona":
+            material.map = maradonaSuitsTexture["barcellona"];
+            break;
+          case "Boca":
+            material.map = maradonaSuitsTexture["boca"];
+            break;
+          case "Napoli Ufficiale":
+            material.map = maradonaSuitsTexture["napoliUfficiale"];
+            break;
+          case "Napoli":
+            material.map = maradonaSuitsTexture["napoli"];
+            break;
+          case "Sevilla":
+            material.map = maradonaSuitsTexture["sevilla"];
+            break;
+        }
+      });
 
     // colore base
     materialGUI.addColor(params, "color").onChange((val: string) => {
@@ -1790,37 +1828,46 @@ export function initScene(container: HTMLElement) {
 
   function addDayNightToggle() {
     const lightingSettings = {
-      mode: 'Night', // stato iniziale
+      mode: "Night", // stato iniziale
     };
 
-    const lightingModes = ['Night', 'Day'];
+    const lightingModes = ["Night", "Day"];
 
-    const folder = gui.addFolder('Lighting Mode');
+    const folder = gui.addFolder("Lighting Mode");
 
-    folder.add(lightingSettings, 'mode', lightingModes).name('Time of Day').onChange((val) => {
-      if(val === 'Day'){
-        setDay();
-      }
-      else setNight();
-    });
+    folder
+      .add(lightingSettings, "mode", lightingModes)
+      .name("Time of Day")
+      .onChange((val) => {
+        if (val === "Day") {
+          setDay();
+        } else setNight();
+      });
   }
 
-  function setDay(){
+  function setDay() {
     console.log(spotLights);
 
-    spotLights.forEach(light => {
+    spotLights.forEach((light) => {
       light.visible = false;
     });
     directionalLight.visible = true;
   }
 
-  function setNight(){
+  function setNight() {
     console.log(spotLights);
 
-    spotLights.forEach(light => {
+    spotLights.forEach((light) => {
       light.visible = true;
     });
     directionalLight.visible = false;
   }
 
+  emitter.on("toggleDayTime", (daytime) => {
+    if (daytime) {
+      setNight();
+    } else {
+      setDay();
+    }
+  });
 }

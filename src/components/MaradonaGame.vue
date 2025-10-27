@@ -4,12 +4,6 @@
     class="flex flex-col h-full w-full"
     ref="threeContainer"
     id="three-container"
-    style="
-      display: flex;
-      justify-content: center;
-      background-color: black;
-      align-items: center;
-    "
   >
     <div
       ref="threeGameContainer"
@@ -42,23 +36,34 @@
               :value="10.0"
             />
           </div>
-          <!-- <div class="w-full text-right">
-        <button
-          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
-          v-if="isFullscreen == true"
-          @click.stop="exitFullscreen"
-        >
-          <ArrowsPointingInIcon class="text-white h-8 w-8" />
-        </button>
+        </div>
 
-        <button
-          class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
-          v-if="isFullscreen == false"
-          @click.stop="enterFullscreen"
-        >
-          <ArrowsPointingOutIcon class="text-white h-8 w-8" />
-        </button>
-      </div> -->
+        <div class="w-full text-right z-[12]">
+          <button
+            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            v-if="!isMorning"
+            @click="
+              () => {
+                isMorning = !isMorning;
+                toggleDayTime(isMorning);
+              }
+            "
+          >
+            <MoonIcon class="text-white h-8 w-8" />
+          </button>
+
+          <button
+            class="btn fullscreen-button p-2 rounded-full mt-3 me-1"
+            @click="
+              () => {
+                isMorning = !isMorning;
+                toggleDayTime(isMorning);
+              }
+            "
+            v-else
+          >
+            <SunIcon class="text-white h-8 w-8" />
+          </button>
         </div>
       </div>
 
@@ -68,15 +73,15 @@
 
       <GameMultiplier
         class="hidden lg:block absolute w-full"
-        style="top: 82%"
+        style="top: 84%"
       />
 
       <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
-        <GameMultiplier />
+        <GameMultiplier id="game-multiplier" />
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
             v-if="showBetBox"
-            class="mb-4"
+            class="mb-4 mx-2"
             @confirm="setButton"
             @close="closeBox"
             @click.stop="(e) => e.stopPropagation()"
@@ -105,7 +110,7 @@
           <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
             <div class="flex flex-row">
               <button
-                class="btn history-button rounded-xl text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
                 :style="
                   selected_category == 1
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -117,7 +122,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl bg-green-600 text-xl px-2 mx-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 mx-2 w-full text-white"
                 :style="
                   selected_category == 2
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -129,7 +134,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl bg-green-600 text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
                 :style="
                   selected_category == 3
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -143,8 +148,8 @@
 
             <div
               id="history-container"
-              :class="isOpen ? 'h-56 p-2' : 'h-0 p-0'"
-              class="flex rounded-xl mt-2"
+              :class="isOpen ? 'h-56 p-2 mt-2' : 'h-0 p-0 mt-0'"
+              class="flex rounded-xl"
             >
               <div
                 id="history-content"
@@ -169,7 +174,7 @@
 
             <div class="rounded-xl mt-3" :class="isOpen ? 'block' : 'hidden'">
               <button
-                class="btn history-button border border-white rounded-xl bg-green-600 text-xl w-full text-white py-2"
+                class="btn history-button border border-white rounded-xl text-base sm:text-xl w-full text-white py-2"
                 @click="closeHistory()"
               >
                 <p class="font-bold">Close</p>
@@ -185,16 +190,14 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import store from "@/store";
-import {
-  ArrowsPointingOutIcon,
-  ArrowsPointingInIcon,
-} from "@heroicons/vue/24/outline";
+import { MoonIcon, SunIcon } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 import BetButton from "./BetButton.vue";
 import BetBoxMobile from "./BetBoxMobile.vue";
 import Navigation from "./Navigation.vue";
 import GameMultiplier from "./GameMultiplier.vue";
+import emitter from "@/eventEmitter";
 
 //Data
 
@@ -212,8 +215,13 @@ let selected_category = ref(0);
 let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
+let isMorning = ref(true);
 
 //Methods
+
+function toggleDayTime(daytime) {
+  emitter.emit("toggleDayTime", daytime);
+}
 
 function openHistory(category) {
   if (showBetBox.value) {
@@ -269,7 +277,7 @@ function toggleBetBox(id) {
   stopCloseTimer();
   closeHistory();
 
-  startCloseTimer(closeBox, bet_box_close_time);
+  // startCloseTimer(closeBox, bet_box_close_time);
 
   if (showBetBox.value == true) {
     selectedBetBox.value = 0;
@@ -312,6 +320,13 @@ onMounted(() => {
 #container {
   width: 100%;
   height: 100%;
+}
+
+#three-container {
+  display: flex;
+  justify-content: center;
+  background-color: black;
+  align-items: center;
 }
 
 .bg-overlay {
@@ -358,5 +373,12 @@ onMounted(() => {
     rgba(0, 0, 0, 1) 100%
   );
   pointer-events: none;
+}
+
+@media screen and (width < 1024px) {
+  #three-container {
+    min-width: 280px;
+    min-height: 630px;
+  }
 }
 </style>

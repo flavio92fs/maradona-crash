@@ -89,7 +89,7 @@ export default {
   }),
 
   mounted() {
-    this.gameInstance = new Phaser.Game(this.game);
+    // this.gameInstance = new Phaser.Game(this.game);
   },
 
   created() {

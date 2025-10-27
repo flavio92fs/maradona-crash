@@ -8,6 +8,7 @@ import { resetSettings, saveSettings } from "./saveLoadGUI";
 import { loadSettings } from "./saveLoadGUI";
 import AudioManager from "./audioManager";
 import { gsap } from "gsap";
+import emitter from "@/eventEmitter";
 
 export function initScene(container: HTMLElement) {
   const gui: GUI = new GUI().close();
@@ -1818,4 +1819,12 @@ export function initScene(container: HTMLElement) {
     });
     directionalLight.visible = false;
   }
+
+  emitter.on("toggleDayTime", (daytime) => {
+    if (daytime) {
+      setNight();
+    } else {
+      setDay();
+    }
+  });
 }

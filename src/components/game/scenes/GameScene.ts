@@ -311,17 +311,17 @@ export default class GameScene extends BaseScene {
     console.log("Audio Status: " + value);
   }
 
-  setMusic(value: boolean) {
-    this.isMusicOn = value;
-    if (this.isMusicOn) {
-      this.music.volume = 1;
-    } else {
-      this.music.volume = 0;
-    }
+  // setMusic(value: boolean) {
+  //   this.isMusicOn = value;
+  //   if (this.isMusicOn) {
+  //     this.music.volume = 1;
+  //   } else {
+  //     this.music.volume = 0;
+  //   }
 
-    console.log("Music in game set");
-    console.log("Music Status: " + value);
-  }
+  //   console.log("Music in game set");
+  //   console.log("Music Status: " + value);
+  // }
 
   setMultiplier(value: number) {
     if (this.multiplierText != null) {

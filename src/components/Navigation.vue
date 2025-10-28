@@ -161,7 +161,7 @@ export default {
     },
 
     setMusic() {
-      this.$emit("setMusic", this.isMusicOn);
+      this.$mitt.emit("setMusic", this.isMusicOn);
     },
   },
 };

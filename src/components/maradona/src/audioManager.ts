@@ -1,6 +1,7 @@
 import type GUI from "lil-gui";
 import * as THREE from "three";
 import { loadSettings, saveSettings } from "./saveLoadGUI";
+import emitter from "@/eventEmitter";
 
 export default class AudioManager {
   private _audioLoader: THREE.AudioLoader;
@@ -56,6 +57,20 @@ export default class AudioManager {
       // riprende solo se era in riproduzione
       if (!this._backgroundSound.isPlaying) {
         this.playBackgroundMusic();
+      }
+    });
+
+    
+    emitter.on("setMusic", (val) => {
+      if(val){
+        if (!this._backgroundSound.isPlaying) {
+          this.playBackgroundMusic();
+        }
+      }
+      else{
+        if (this._backgroundSound.isPlaying) {
+          this._backgroundSound.pause();
+        }
       }
     });
   }

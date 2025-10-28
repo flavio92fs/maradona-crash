@@ -1,183 +1,180 @@
 <template>
-  <div>
-    <div class="bg-primary text-white rounded-xl">
-      <div class="relative bg-primary-dark rounded-xl border border-secondary">
-        <button
-          class="absolute cursor-pointer right-0 top-0 z-10 me-2 mt-2"
-          @click="closeBox()"
-        >
-          <XCircleIcon class="h-7 w-7"></XCircleIcon>
-        </button>
-        <div
-          class="flex flex-col sm:flex-row items-end p-5 gap-x-8"
-          :class="betMode ? 'justify-between' : ''"
-        >
-          <div class="flex flex-col flex-grow w-full">
-            <div class="flex justify-center">
-              <button
-                class="rounded-full border border-secondary px-5 mr-2"
-                :class="[
-                  betMode == 0 ? 'bg-primary' : '',
-                  isAutoPlay ? 'text-secondary border-secondary' : '',
-                ]"
-                @click="betMode = 0"
-                :disabled="autoCash || isAutoPlay"
-              >
-                Bet
-              </button>
-              <button
-                class="rounded-full border border-secondary px-5"
-                :class="[
-                  betMode == 1 ? 'bg-primary' : '',
-                  isAutoPlay ? 'text-secondary border-secondary' : '',
-                ]"
-                @click="betMode = 1"
-                :disabled="autoCash || isAutoPlay"
-              >
-                Auto
-              </button>
-            </div>
-
-            <div class="my-3">
-              <AmountSetter
-                v-model="betAmount"
-                :currency="currency.symbol"
-                :disabled="isAutoPlay || betInProgress || amountClaimed"
-                :minimumValue="currency.default_bet"
-                :maximumValue="currency.max_bet"
-                @increase="increaseBetAmount('manual')"
-                @decrease="decreaseBetAmount()"
-              >
-              </AmountSetter>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                v-for="coin in coins"
-                class="pill h-8"
-                :class="[
-                  isAutoPlay || betInProgress || amountClaimed
-                    ? 'disabled text-secondary'
-                    : '',
-                ]"
-                :disabled="isAutoPlay || betInProgress || amountClaimed"
-                @click="increaseBetAmount('auto', coin)"
-              >
-                {{ coin }}{{ currency.symbol }}
-              </button>
-            </div>
-          </div>
-
-          <div class="flex flex-col flex-grow justify-end w-full">
-            <div class="flex flex-row sm:flex-col mt-5 flex-grow">
-              <div class="w-full">
-                <button
-                  class="px-5 py-2 w-full"
-                  :class="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                      ? 'button-70-disabled'
-                      : 'button-70-red'
-                  "
-                  @click="
-                    valueSkip = true;
-                    initialState = true;
-                    initialAutoAmount = 0;
-                    betAmount = parseFloat(currency.default_bet).toFixed(2);
-                  "
-                  :disabled="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                  "
-                >
-                  {{ $t("clear") }}
-                </button>
-              </div>
-
-              <div class="w-full mt-0 ms-3 sm:mt-3 sm:ms-0">
-                <button
-                  class="px-5 py-2 w-full"
-                  :class="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                      ? 'button-70-disabled text-secondary'
-                      : 'button-70'
-                  "
-                  :disabled="
-                    betAmount == currency.default_bet ||
-                    betInProgress ||
-                    amountClaimed
-                  "
-                  @click="confirmOptions()"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </div>
+  <div
+    id="bet-box-mobile"
+    class="relative bg-primary-dark rounded-xl border border-secondary"
+  >
+    <div class="flex justify-center mt-3">
+      <button
+        class="rounded-full border border-secondary px-5 mr-2"
+        :class="[
+          betMode == 0 ? 'bg-primary' : '',
+          isAutoPlay ? 'text-secondary border-secondary' : '',
+        ]"
+        @click="betMode = 0"
+        :disabled="autoCash || isAutoPlay"
+      >
+        Bet
+      </button>
+      <button
+        class="rounded-full border border-secondary px-5"
+        :class="[
+          betMode == 1 ? 'bg-primary' : '',
+          isAutoPlay ? 'text-secondary border-secondary' : '',
+        ]"
+        @click="betMode = 1"
+        :disabled="autoCash || isAutoPlay"
+      >
+        Auto
+      </button>
+    </div>
+    <button
+      class="absolute cursor-pointer right-0 top-0 z-10 me-2 mt-2"
+      @click="closeBox()"
+    >
+      <XCircleIcon class="h-7 w-7"></XCircleIcon>
+    </button>
+    <div
+      class="flex flex-col sm:flex-row items-end px-5 gap-x-8"
+      :class="betMode == 1 ? 'pt-2 pb-2' : 'p-5'"
+    >
+      <div class="flex flex-col flex-grow w-full">
+        <div class="my-3">
+          <AmountSetter
+            v-model="betAmount"
+            :currency="currency.symbol"
+            :disabled="isAutoPlay || betInProgress || amountClaimed"
+            :minimumValue="currency.default_bet"
+            :maximumValue="currency.max_bet"
+            @increase="increaseBetAmount('manual')"
+            @decrease="decreaseBetAmount()"
+          >
+          </AmountSetter>
         </div>
 
-        <div
-          v-if="betMode == 1"
-          class="flex flex-row justify-between items-center border-t border-secondary px-5 py-3 gap-x-5"
-        >
-          <div>
-            <button
-              v-if="!isAutoPlay"
-              class="pill p-1 px-3 text-xs"
-              @click="$refs.autoPlayModal.openModal()"
-            >
-              Autoplay
-            </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="coin in coins"
+            class="pill h-8"
+            :class="[
+              isAutoPlay || betInProgress || amountClaimed
+                ? 'disabled text-secondary'
+                : '',
+            ]"
+            :disabled="isAutoPlay || betInProgress || amountClaimed"
+            @click="increaseBetAmount('auto', coin)"
+          >
+            {{ coin }}{{ currency.symbol }}
+          </button>
+        </div>
+      </div>
 
+      <div class="flex flex-col flex-grow justify-end w-full">
+        <div class="flex flex-row sm:flex-col mt-5 flex-grow">
+          <div class="w-full">
             <button
-              v-if="isAutoPlay && betInProgress"
-              class="pill p-1 px-3 text-xs bg-red-700 border border-red-500"
-              @click="cancelBet()"
+              class="px-5 py-2 w-full"
+              :class="
+                betAmount == currency.default_bet ||
+                betInProgress ||
+                amountClaimed
+                  ? 'button-70-disabled'
+                  : 'button-70-red'
+              "
+              @click="
+                valueSkip = true;
+                initialState = true;
+                initialAutoAmount = 0;
+                betAmount = parseFloat(currency.default_bet).toFixed(2);
+              "
+              :disabled="
+                betAmount == currency.default_bet ||
+                betInProgress ||
+                amountClaimed
+              "
             >
-              Ferma ({{ this.autoPlayData.number_of_rounds }})
-            </button>
-
-            <button
-              v-if="isAutoPlay && !betInProgress"
-              class="pill p-1 px-3 text-xs bg-red-700 border border-red-500"
-              @click="isAutoPlay = false"
-            >
-              Ferma ({{ this.autoPlayData.number_of_rounds }})
+              {{ $t("clear") }}
             </button>
           </div>
 
-          <div class="flex flex-row items-center">
-            <div class="text-xs">Auto Cash Out</div>
-
-            <div class="flex flex-row items-center">
-              <div class="mx-3">
-                <input
-                  class="mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-green-600 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-neutral-500 checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary checked:focus:bg-green-600 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-neutral-600 dark:after:bg-neutral-400"
-                  type="checkbox"
-                  role="switch"
-                  v-model="autoCash"
-                />
-              </div>
-              <div>
-                <input
-                  :min="1.01"
-                  type="number"
-                  class="bg-primary-dark border border-secondary rounded-xl px-2 py-0.5 w-20 text-center"
-                  :class="autoCash ? 'text-white' : 'text-neutral-500'"
-                  v-model="autoCashAmount"
-                  :disabled="!autoCash"
-                />
-              </div>
-            </div>
+          <div class="w-full mt-0 ms-3 sm:mt-3 sm:ms-0">
+            <button
+              class="px-5 py-2 w-full"
+              :class="
+                betAmount == currency.default_bet ||
+                betInProgress ||
+                amountClaimed
+                  ? 'button-70-disabled text-secondary'
+                  : 'button-70'
+              "
+              :disabled="
+                betAmount == currency.default_bet ||
+                betInProgress ||
+                amountClaimed
+              "
+              @click="confirmOptions()"
+            >
+              Confirm
+            </button>
           </div>
         </div>
       </div>
     </div>
 
+    <div
+      v-if="betMode == 1"
+      class="flex flex-row justify-between items-center border-t border-secondary px-5 py-1 gap-x-5"
+    >
+      <div>
+        <button
+          v-if="!isAutoPlay"
+          class="pill p-1 px-3 text-xs"
+          @click="$refs.autoPlayModal.openModal()"
+        >
+          Autoplay
+        </button>
+
+        <button
+          v-if="isAutoPlay && betInProgress"
+          class="pill p-1 px-3 text-xs bg-red-700 border border-red-500"
+          @click="cancelBet()"
+        >
+          Ferma ({{ this.autoPlayData.number_of_rounds }})
+        </button>
+
+        <button
+          v-if="isAutoPlay && !betInProgress"
+          class="pill p-1 px-3 text-xs bg-red-700 border border-red-500"
+          @click="isAutoPlay = false"
+        >
+          Ferma ({{ this.autoPlayData.number_of_rounds }})
+        </button>
+      </div>
+
+      <div class="flex flex-row items-center">
+        <div class="text-xs">Auto Cash Out</div>
+
+        <div class="flex flex-row items-center">
+          <div class="mx-3">
+            <input
+              class="mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-green-600 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-neutral-500 checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary checked:focus:bg-green-600 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-neutral-600 dark:after:bg-neutral-400"
+              type="checkbox"
+              role="switch"
+              v-model="autoCash"
+            />
+          </div>
+          <div>
+            <input
+              :min="1.01"
+              type="number"
+              class="bg-primary-dark border border-secondary rounded-xl px-2 py-0.5 w-20 text-center"
+              :class="autoCash ? 'text-white' : 'text-neutral-500'"
+              v-model="autoCashAmount"
+              :disabled="!autoCash"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
     <AutoplayModal @startAutoplay="startAutoplay" ref="autoPlayModal" />
   </div>
 </template>
@@ -470,5 +467,12 @@ export default {
 
 .pill.disabled {
   @apply text-secondary;
+}
+
+@media screen and (width > 768px) {
+  #bet-box-mobile {
+    max-height: 220px;
+    min-height: 220px;
+  }
 }
 </style>

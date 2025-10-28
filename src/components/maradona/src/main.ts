@@ -25,7 +25,6 @@ export function initScene(container: HTMLElement) {
   let isFireworkAnimationPlaying = false;
 
   const spotLights: THREE.SpotLight[] = [];
-  const isDay = false
 
   const rendererGUI = gui.addFolder("Renderer").close();
   const lightsFolderGUI = gui.addFolder("Lights").close();
@@ -51,6 +50,22 @@ export function initScene(container: HTMLElement) {
   const gltfLoader = loadingManager.gltfLoader;
   const fbxLoader = loadingManager.fbxLoader;
   const textureLoader = loadingManager.textureLoader;
+
+  const domeTextureNight = textureLoader.load("DOM.png", (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    scene.environment = texture; // ✅ riflessi e illuminazione globale
+  });
+  const domeTextureDay = textureLoader.load("DOM2.png", (texture) => {
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  scene.environment = texture; // ✅ riflessi e illuminazione globale
+});
+  const domMaterial = new THREE.MeshBasicMaterial({map: domeTextureNight});
+
+
 
   //#region Maradona Textures
   let pelleBaseColor: THREE.Texture;
@@ -400,7 +415,7 @@ export function initScene(container: HTMLElement) {
   const directionalLight = createDirectionalLight(lightsFolderGUI, 'Directional Light', 0, 1, 0, 10);
   setNight();
 
-  addDOM();
+  addDOM(domMaterial);
 
   addGrassPlane(gui, scene, textureLoader);
   addCartelloni(gui, scene);
@@ -697,18 +712,11 @@ export function initScene(container: HTMLElement) {
     return light;
   }
 
-  function addDOM() {
+
+  function addDOM(material: THREE.MeshBasicMaterial) {
     const geometry = new THREE.SphereGeometry(300, 60, 40);
     geometry.scale(-1, 1, 1); // Inverti la sfera (così si vede dall’interno)
 
-    const domeTexture = textureLoader.load("DOM.png", (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      texture.colorSpace = THREE.SRGBColorSpace;
-
-      scene.environment = texture; // ✅ riflessi e illuminazione globale
-    });
-
-    const material = new THREE.MeshBasicMaterial({ map: domeTexture });
     material.name = "sphereDomMaterial";
 
     const sphere = new THREE.Mesh(geometry, material);
@@ -1789,28 +1797,12 @@ export function initScene(container: HTMLElement) {
     folder.add(resetInput, "reset");
   }
 
-  // function addDayNightToggle() {
-  //   const lightingSettings = {
-  //     mode: 'Night', // stato iniziale
-  //   };
-
-  //   const lightingModes = ['Night', 'Day'];
-
-  //   const folder = gui.addFolder('Lighting Mode');
-
-  //   folder.add(lightingSettings, 'mode', lightingModes).name('Time of Day').onChange((val) => {
-  //     if(val === 'Day'){
-  //       setDay();
-  //     }
-  //     else setNight();
-  //   });
-  // }
-
   function setDay(){
     spotLights.forEach(light => {
       light.visible = false;
     });
     directionalLight.visible = true;
+    domMaterial.map = domeTextureDay
   }
 
   function setNight(){
@@ -1818,6 +1810,7 @@ export function initScene(container: HTMLElement) {
       light.visible = true;
     });
     directionalLight.visible = false;
+    domMaterial.map = domeTextureNight
   }
 
   emitter.on("toggleDayTime", (daytime) => {

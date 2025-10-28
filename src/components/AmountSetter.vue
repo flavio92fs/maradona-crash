@@ -4,6 +4,7 @@
       class="border border-secondary flex flex-row justify-between items-center rounded-full p-1"
     >
       <button
+        v-if="controls"
         class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
         :class="disabled ? 'text-secondary' : 'text-white'"
         @click="decreaseValue()"
@@ -17,7 +18,7 @@
         :min="minimumValue"
         :max="maximumValue"
         :value="modelValue"
-        class="bg-primary-dark flex-grow mx-1 focus:outline-none text-lg font-normal w-10 text-center"
+        class="text-normal bg-primary-dark flex-grow mx-1 focus:outline-none font-medium w-10 text-center rounded-lg"
         :class="disabled ? 'text-secondary' : 'text-white'"
         :disabled="disabled"
         @focusout="checkValue"
@@ -25,6 +26,7 @@
       />
 
       <button
+        v-if="controls"
         class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
         :class="disabled ? 'text-secondary' : 'text-white'"
         @click="increaseValue()"
@@ -46,6 +48,7 @@ export default {
     disabled: false,
     minimumValue: Number,
     maximumValue: Number,
+    controls: false,
   },
 
   methods: {

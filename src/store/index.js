@@ -3,7 +3,7 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     balance: 0.0,
-    currency: {},
+    currency: { default_bet: 0.1 },
     coins: [1, 2, 5, 10],
     player: {},
     chatMessages: [],

@@ -1,15 +1,14 @@
 <template>
   <div class="flex flex-col h-full">
-    <Navigation
-      class="hidden lg:flex z-[9998]"
-      :data="gameData"
-    />
+    <Navigation class="hidden lg:flex z-[9998]" :data="gameData" />
 
     <div class="hidden lg:flex flex-row" style="height: 92px">
       <MultiplierHistory class="mt-5 mb-5" />
     </div>
 
-    <div class="flex flex-col xl:flex-row mt-0 flex-grow justify-around">
+    <div
+      class="flex flex-col xl:flex-row mt-0 flex-grow justify-around height-display"
+    >
       <div
         class="hidden lg:flex justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
       >
@@ -23,7 +22,7 @@
           <MaradonaGame />
         </div>
         <div
-          class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-8"
+          class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-4"
         >
           <div class="order-1 3xl:order-0 mx-5">
             <BetBox
@@ -177,7 +176,7 @@ export default {
 }
 
 #game-container {
-  min-height: 300px;
+  min-height: 200px;
   max-height: 100%;
   max-width: 100%;
 }

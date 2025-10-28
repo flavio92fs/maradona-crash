@@ -26,7 +26,7 @@
       <div class="flex gap-3 p-3">
         <input
           type="text"
-          class="flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
+          class="focus:outline-none flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
           :placeholder="$t('chat_prompt')"
           v-model="message"
           @keydown.enter="sendMessage(message)"

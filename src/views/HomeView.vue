@@ -3,8 +3,6 @@
     <Navigation
       class="hidden lg:flex z-[9998]"
       :data="gameData"
-      @setAudio="setAudio"
-      @setMusic="setMusic"
     />
 
     <div class="hidden lg:flex flex-row" style="height: 92px">

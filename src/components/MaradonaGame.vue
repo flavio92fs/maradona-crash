@@ -15,7 +15,7 @@
       "
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation class="rounded-none z-[12] lg:hidden" />
+        <Navigation class="rounded-none z-[15] lg:hidden" />
 
         <div
           id="multipliers-overlay"

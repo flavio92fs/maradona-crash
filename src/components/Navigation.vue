@@ -1,13 +1,17 @@
 <template>
-  <div class="flex justify-between bg-primary p-3 rounded-md">
+  <div
+    class="@container/navigation flex justify-between bg-primary p-3 rounded-md"
+  >
     <div></div>
     <div class="flex items-center">
       <button
-        class="cursor-pointer flex flex-row items-center bg-orange-300 rounded-full p-1 sm:rounded-xl sm:py-0 sm:px-2 text-black"
+        class="cursor-pointer flex flex-row items-center bg-orange-300 rounded-full p-1 @sm/navigation:rounded-xl @sm/navigation:py-0 @sm/navigation:px-2 text-black"
         @click="$root.$refs.howToPlayModal.openModal()"
       >
-        <InformationCircleIcon class="text-black h-5 w-5 sm:mr-1" />
-        <span class="hidden sm:inline-block">{{ $t("how_to_play") }}?</span>
+        <InformationCircleIcon class="text-black h-5 w-5 @sm/navigation:mr-1" />
+        <span class="hidden @sm/navigation:inline-block"
+          >{{ $t("how_to_play") }}?</span
+        >
       </button>
 
       <div

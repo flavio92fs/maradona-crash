@@ -7,7 +7,8 @@
   >
     <div
       ref="threeGameContainer"
-      class="relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
+      id="threeGameContainer"
+      class="@container/threegamecontainer relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
       style="max-width: 100%"
       @click.stop="
         closeHistory();
@@ -110,7 +111,7 @@
           <div id="history-overlay" class="flex flex-col mt-4 p-2 rounded-t-lg">
             <div class="flex flex-row">
               <button
-                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl px-2 py-1 w-full text-white"
                 :style="
                   selected_category == 1
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -122,7 +123,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl text-base sm:text-xl px-2 mx-2 w-full text-white"
+                class="btn history-button rounded-xl px-2 py-1 mx-2 w-full text-white"
                 :style="
                   selected_category == 2
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -134,7 +135,7 @@
               </button>
 
               <button
-                class="btn history-button rounded-xl text-base sm:text-xl px-2 w-full text-white"
+                class="btn history-button rounded-xl px-2 py-1 w-full text-white"
                 :style="
                   selected_category == 3
                     ? 'background-color: rgba(150, 150, 150, 0.7) !important'
@@ -378,7 +379,7 @@ onMounted(() => {
 @media screen and (width < 1024px) {
   #three-container {
     min-width: 280px;
-    min-height: 630px;
+    min-height: 554px;
   }
 }
 </style>

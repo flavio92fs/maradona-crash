@@ -29,7 +29,7 @@
   font-size: 2.8rem;
 }
 
-@media screen and (width < 768px) {
+@container threegamecontainer (width < 25rem) {
   .multiplier-x {
     font-size: 2.5rem;
   }

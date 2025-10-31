@@ -6,6 +6,25 @@ import { RouterView } from "vue-router";
   <div id="main" class="h-full" ref="el">
     <Transition>
       <div
+        id="small_disclaimer"
+        class="absolute h-full w-full bg-black z-[10000] text-white"
+      >
+        <div class="relative h-full w-full">
+          <div class="absolute top-1/2 left-1/2">
+            <div
+              class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
+            >
+              <h2 class="text-xl font-bold">
+                {{ $t("too_small") }}
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition>
+      <div
         v-if="turnDevice"
         class="absolute h-full w-full bg-black z-[10000] text-white"
       >
@@ -47,7 +66,11 @@ import { RouterView } from "vue-router";
       </div>
     </Transition>
 
-    <RouterView class="p-0 lg:p-5" :class="loading ? 'overflow-hidden' : ''" />
+    <RouterView
+      id="router-view"
+      class="p-0 lg:p-5"
+      :class="loading ? 'overflow-hidden' : ''"
+    />
 
     <!-- How to Play Modal -->
 
@@ -249,6 +272,10 @@ nav a:first-of-type {
   border: 0;
 }
 
+#small_disclaimer {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -273,6 +300,17 @@ nav a:first-of-type {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+}
+
+@media (max-height: 554px) {
+  #small_disclaimer {
+    display: flex;
+    transition: all 1s ease-in-out;
+  }
+
+  #router-view {
+    overflow: hidden;
   }
 }
 </style>

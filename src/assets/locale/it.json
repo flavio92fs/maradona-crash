@@ -29,5 +29,6 @@
   "music": "Musica",
   "sound_effects": "Effetti Sonori",
   "retrieving_data": "Recupero Dati",
-  "rotate_device": "Per favore, ruota il dispositivo per continuare a giocare"
+  "rotate_device": "Per favore, ruota il dispositivo per continuare a giocare",
+  "too_small": "Lo schermo è troppo piccolo. Ridimensiona la finestra o utilizza un altro dispositivo."
 }

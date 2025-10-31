@@ -29,5 +29,6 @@
   "music": "Music",
   "sound_effects": "Sound Effects",
   "retrieving_data": "Retrieving Data",
-  "rotate_device": "Please, rotate your device to keep playing"
+  "rotate_device": "Please, rotate your device to keep playing",
+  "too_small": "Screen is too small. Please resize your window or change device."
 }

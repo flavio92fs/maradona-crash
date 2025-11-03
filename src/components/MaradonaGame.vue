@@ -73,8 +73,8 @@
       </div>
 
       <GameMultiplier
+        id="game-multiplier-horizontal"
         class="hidden lg:block absolute w-full"
-        style="top: 84%"
       />
 
       <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
@@ -328,6 +328,10 @@ onMounted(() => {
   justify-content: center;
   background-color: black;
   align-items: center;
+}
+
+#game-multiplier-horizontal {
+  top: 80%;
 }
 
 .bg-overlay {

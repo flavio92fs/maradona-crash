@@ -187,7 +187,7 @@ export function initScene(container: HTMLElement) {
 
   const resizeObserver = new ResizeObserver(() => {
     const width = container.clientWidth - 1;
-    const height = container.clientHeight;
+    const height = container.clientHeight - 1;
 
     renderer.setSize(width, height);
     camera.aspect = width / height;

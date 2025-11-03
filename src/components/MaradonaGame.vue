@@ -8,7 +8,7 @@
     <div
       ref="threeGameContainer"
       id="threeGameContainer"
-      class="@container/threegamecontainer relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9]"
+      class="@container/threegamecontainer relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9] h-full"
       style="max-width: 100%"
       @click.stop="
         closeHistory();

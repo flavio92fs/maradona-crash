@@ -1,7 +1,7 @@
 <template>
   <div
     class="select-none"
-    :style="'background-color: ' + color + ' ; color: white'"
+    :style="'border: solid 1px; border-color: ' + color + ' ; color: white'"
   >
     {{ value.toFixed(2) }}x
   </div>

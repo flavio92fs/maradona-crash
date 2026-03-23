@@ -1,22 +1,8 @@
 <template>
-  <div
-    class="bg-primary-dark rounded-xl border border-secondary"
-    style="min-height: 220px; max-height: 220px"
-  >
-    <div class="flex justify-center mt-2">
-      <button
-        class="rounded-full border border-secondary px-5 mr-2"
-        :class="[
-          betMode == 0 ? 'bg-primary' : '',
-          isAutoPlay ? 'text-secondary border-secondary' : '',
-        ]"
-        @click="betMode = 0"
-        :disabled="autoCash || isAutoPlay"
-      >
-        Bet
-      </button>
-      <button
-        class="rounded-full border border-secondary px-5"
+  <div class="rounded-xl">
+    <div class="flex justify-center">
+      <!-- <button
+        class="rounded-md border border-secondary px-5"
         :class="[
           betMode == 1 ? 'bg-primary' : '',
           isAutoPlay ? 'text-secondary border-secondary' : '',
@@ -25,14 +11,25 @@
         :disabled="autoCash || isAutoPlay"
       >
         Auto
-      </button>
+      </button> -->
     </div>
-    <div
-      class="flex flex-row items-end justify-around px-5"
-      :class="betMode == 1 ? 'pt-2 pb-2' : 'p-5'"
-    >
-      <div class="flex flex-col w-1/2">
-        <div class="my-3">
+    <div class="flex flex-row justify-between p-2">
+      <div class="w-full mr-5 flex flex-col w-1/2">
+        <div class="flex justify-between mb-2">
+          <span class="font-bold text-white">Bet</span>
+          <div class="flex items-center">
+            <span class="mr-2 text-xs" :class="autoBet ? 'text-white' : ''"
+              >Auto</span
+            >
+            <input
+              class="mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-green-600 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-neutral-500 checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer checked:focus:bg-green-600 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 dark:bg-neutral-600 dark:after:bg-neutral-400"
+              type="checkbox"
+              role="switch"
+              v-model="autoBet"
+            />
+          </div>
+        </div>
+        <div class="mb-3">
           <AmountSetter
             v-model="betAmount"
             :currency="currency.symbol"
@@ -47,7 +44,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <button
-            class="pill h-8"
+            class="border border-1 border-secondary rounded-md h-8"
             :class="[
               isAutoPlay || betInProgress || amountClaimed
                 ? 'disabled text-secondary'
@@ -59,7 +56,7 @@
             {{ coins[0] }}{{ currency.symbol }}
           </button>
           <button
-            class="pill h-8"
+            class="border border-1 border-secondary rounded-md h-8"
             :class="[
               isAutoPlay || betInProgress || amountClaimed
                 ? 'disabled text-secondary'
@@ -71,7 +68,7 @@
             {{ coins[1] }}{{ currency.symbol }}
           </button>
           <button
-            class="pill h-8"
+            class="border border-1 border-secondary rounded-md h-8"
             :class="[
               isAutoPlay || betInProgress || amountClaimed
                 ? 'disabled text-secondary'
@@ -83,7 +80,7 @@
             {{ coins[2] }}{{ currency.symbol }}
           </button>
           <button
-            class="pill h-8"
+            class="border border-1 border-secondary rounded-md h-8"
             :class="[
               isAutoPlay || betInProgress || amountClaimed
                 ? 'disabled text-secondary'
@@ -97,18 +94,40 @@
         </div>
       </div>
 
-      <div class="flex flex-col items-center">
+      <div class="w-full flex flex-col">
+        <div class="flex justify-between mb-2">
+          <span class="font-bold text-white">Cashout</span>
+          <div class="flex items-center">
+            <span class="mr-2 text-xs" :class="autoCash ? 'text-white' : ''"
+              >Auto</span
+            >
+            <input
+              class="mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-green-600 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-neutral-500 checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer checked:focus:bg-green-600 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 dark:bg-neutral-600 dark:after:bg-neutral-400"
+              type="checkbox"
+              role="switch"
+              v-model="autoCash"
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <AmountSetter
+            v-model="autoCashAmount"
+            :currency="currency.symbol"
+            :disabled="isAutoPlay || betInProgress || amountClaimed"
+            :minimumValue="currency.default_bet"
+            :maximumValue="currency.max_bet"
+            @increase="increaseBetAmount('manual')"
+            @decrease="decreaseBetAmount()"
+          >
+          </AmountSetter>
+        </div>
         <button
           v-if="!inGame && !isStarted"
           @click="betInProgress ? cancelBet() : sendBet()"
-          class="w-20 h-20 text-white rounded-full font-medium text-xl"
-          :class="
-            betInProgress
-              ? 'bg-red-700 shadow-[0px_0px_3px_3px_rgba(185,28,28,1)]'
-              : 'bg-green-600 shadow-[0px_0px_3px_3px_rgba(22,173,62,1)]'
-          "
+          class="w-full text-white rounded-md font-medium text-xl h-full"
+          :class="betInProgress ? 'bg-red-700' : 'green-gradient'"
         >
-          {{ betInProgress ? "CANCEL" : "BET" }}
+          {{ betInProgress ? "CANCEL" : "PLACE BET" }}
         </button>
 
         <button
@@ -133,7 +152,7 @@
           {{ betInProgress ? "DRAW" : "WAIT" }}
         </button>
 
-        <div class="flex flex-col mt-5">
+        <!-- <div class="flex flex-col mt-5">
           <div>
             <button
               class="rounded-full px-5"
@@ -158,11 +177,11 @@
               {{ $t("clear") }}
             </button>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 
-    <div
+    <!-- <div
       class="flex flex-row justify-between items-center border-t border-secondary px-5 py-1 gap-x-5"
       :class="betMode == 0 ? 'invisible h-0' : ''"
     >
@@ -216,7 +235,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     <AutoplayModal
       @startAutoplay="startAutoplay"
       ref="autoPlayModal"
@@ -246,7 +265,7 @@ export default {
   data: () => ({
     //Data
     betAmount: "0.10",
-    autoCashAmount: 1.01,
+    autoCashAmount: "2.00",
     autoPlayData: {},
     startingBalance: 0,
     win: 0,
@@ -254,6 +273,7 @@ export default {
     //Helpers
     betMode: 0,
     autoCash: false,
+    autoBet: false,
     cancelDisabled: false,
     inGame: false,
     betInProgress: false,
@@ -265,7 +285,7 @@ export default {
   }),
 
   created() {
-    this.$mitt.on("sceneComplete", () => {
+    (this.$mitt.on("sceneComplete", () => {
       this.betInProgress = false;
       this.inGame = false;
       this.amountClaimed = false;
@@ -278,7 +298,7 @@ export default {
         this.cancelDisabled = false;
         this.inGame = true;
         this.isStarted = false;
-      });
+      }));
     this.$mitt.on("crash", () => {
       this.betInProgress = false;
       this.cancelDisabled = true;
@@ -505,5 +525,25 @@ export default {
 
 button {
   user-select: none;
+}
+
+.green-gradient {
+  background: #acdb65;
+  background: -webkit-linear-gradient(
+    135deg,
+    rgba(172, 219, 101, 1) 1%,
+    rgba(73, 179, 70, 1) 100%
+  );
+  background: -moz-linear-gradient(
+    135deg,
+    rgba(172, 219, 101, 1) 1%,
+    rgba(73, 179, 70, 1) 100%
+  );
+  background: linear-gradient(
+    135deg,
+    rgba(172, 219, 101, 1) 1%,
+    rgba(73, 179, 70, 1) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ACDB65", endColorstr="#49B346", GradientType=0);
 }
 </style>

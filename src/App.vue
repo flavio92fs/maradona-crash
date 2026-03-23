@@ -68,7 +68,7 @@ import { RouterView } from "vue-router";
 
     <RouterView
       id="router-view"
-      class="p-0 lg:p-5"
+      class="p-0 lg:p-2"
       :class="loading ? 'overflow-hidden' : ''"
     />
 
@@ -166,12 +166,12 @@ export default {
     window.removeEventListener(
       "deviceorientation",
       this.handleOrientation,
-      true
+      true,
     );
     window.removeEventListener(
       "orientationchange",
       this.handleOrientation,
-      true
+      true,
     );
   },
 };

@@ -50,10 +50,11 @@
               }
             "
           >
-            <MoonIcon class="text-white h-8 w-8" />
+            <SunIcon class="text-white h-6 w-6" />
           </button>
 
           <button
+            v-else
             class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
             @click="
               () => {
@@ -61,9 +62,21 @@
                 toggleDayTime(isMorning);
               }
             "
-            v-else
           >
-            <SunIcon class="text-white h-8 w-8" />
+            <MoonIcon class="text-white h-6 w-6" />
+          </button>
+
+          <button
+            class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
+            @click="
+              () => {
+                isAudioOn = !isAudioOn;
+                setMusic();
+              }
+            "
+          >
+            <SpeakerWaveIcon v-if="isAudioOn" class="text-white h-6 w-6" />
+            <SpeakerXMarkIcon v-else class="text-white h-6 w-6" />
           </button>
         </div>
       </div>
@@ -191,7 +204,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import store from "@/store";
-import { MoonIcon, SunIcon } from "@heroicons/vue/24/outline";
+import {
+  MoonIcon,
+  SunIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
+} from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
 import BetButton from "./BetButton.vue";
@@ -217,6 +235,7 @@ let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
 let isMorning = ref(true);
+let isAudioOn = ref(true);
 
 //Methods
 
@@ -303,6 +322,10 @@ function setButton(value) {
   }
 
   closeBox();
+
+  function setMusic() {
+    this.$mitt.emit("setMusic", this.isMusicOn);
+  }
 }
 
 onMounted(() => {

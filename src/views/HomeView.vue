@@ -1,30 +1,38 @@
 <template>
   <div class="flex flex-col h-full">
-    <Navigation class="hidden lg:flex z-[9998]" :data="gameData" />
+    <!-- <Navigation class="hidden lg:flex z-[9998]" :data="gameData" /> -->
 
-    <div class="hidden lg:flex flex-row" style="height: 92px">
+    <!-- <div class="hidden lg:flex flex-row" style="height: 92px">
       <MultiplierHistory class="mt-5 mb-5" />
-    </div>
+    </div> -->
 
     <div
       class="flex flex-col xl:flex-row mt-0 flex-grow justify-around height-display"
     >
       <div
-        class="hidden lg:flex justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
+        class="hidden xl:flex xl:flex-col justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
       >
-        <BetHistory style="width: 400px" @getLeaderboard="getLeaderBoard" />
+        <UserBox class="mb-2" />
+        <BetHistory
+          class="flex-grow"
+          style="width: 350px"
+          @getLeaderboard="getLeaderBoard"
+        />
       </div>
 
       <div
-        class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5"
+        class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5 overflow-hidden"
       >
+        <div class="hidden lg:flex flex-row">
+          <MultiplierHistory class="mb-2" />
+        </div>
         <div id="game-container" class="flex-grow">
           <MaradonaGame />
         </div>
         <div
           class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-4"
         >
-          <div class="order-1 3xl:order-0 mx-5">
+          <div class="w-full order-1 3xl:order-0 mr-2">
             <BetBox
               :id="0"
               @sendBet="setBet"
@@ -33,7 +41,7 @@
             />
           </div>
 
-          <div class="order-2 3xl:order-2 mx-5 mt-5 md:mt-0">
+          <div class="w-full order-2 3xl:order-2 mt-5 md:mt-0">
             <BetBox
               :id="1"
               @sendBet="setBet"
@@ -62,6 +70,7 @@ import BetBox from "../components/BetBox.vue";
 import Chat from "../components/Chat.vue";
 import BetAudio from "../components/game/assets/Sounds/bet.mp3";
 import WinAudio from "../components/game/assets/Sounds/win.mp3";
+import UserBox from "@/components/UserBox.vue";
 import { game } from "../components/game/config.js";
 import { mapState, mapActions } from "vuex";
 import { toast } from "vue3-toastify";
@@ -76,6 +85,7 @@ export default {
     BetHistory,
     BetBox,
     Chat,
+    UserBox,
   },
   data: () => ({
     initialize: false,
@@ -122,7 +132,7 @@ export default {
       this.gameInstance.scene.scenes[2].sendBet(
         value.value,
         value.id,
-        value.cashout_at
+        value.cashout_at,
       );
     },
 
@@ -148,7 +158,7 @@ export default {
     getLeaderBoard(value: any) {
       this.gameInstance.scene.scenes[1].getLeaderboard(
         value.subtype,
-        value.period
+        value.period,
       );
     },
 

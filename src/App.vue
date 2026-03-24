@@ -101,12 +101,13 @@ export default {
     loading: true,
     loading_progress: 0,
     disconnected: false,
-    turnDevice: false,
+    // turnDevice: false,
   }),
 
   computed: {
     ...mapState({
       isFullscreen: "isFullscreen",
+      turnDevice: "turnDevice",
     }),
   },
 
@@ -166,12 +167,12 @@ export default {
     window.removeEventListener(
       "deviceorientation",
       this.handleOrientation,
-      true,
+      true
     );
     window.removeEventListener(
       "orientationchange",
       this.handleOrientation,
-      true,
+      true
     );
   },
 };

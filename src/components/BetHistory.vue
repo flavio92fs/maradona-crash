@@ -46,7 +46,7 @@
         class="flex flex-col border border-secondary p-3 flex-grow rounded-t-none sm:rounded-t-xl rounded-xl"
       >
         <div
-          class="flex flex-col flex-grow h-96 max-h-96 xl:max-h-full xl:h-0 overflow-y-auto"
+          class="flex flex-col flex-grow h-96 max-h-96 xs:max-h-full xs:h-0 overflow-y-auto"
         >
           <!-- Tutte le scommesse -->
 
@@ -419,7 +419,7 @@
               >
                 {{
                   moment(leaderboardData[0].timestamp * 1000).format(
-                    "D MMMM YYYY, HH:mm:ss",
+                    "D MMMM YYYY, HH:mm:ss"
                   )
                 }}
 
@@ -437,7 +437,7 @@
                 <div class="text-xs text-gray-400">
                   {{
                     moment(topMultiplier.timestamp * 1000).format(
-                      "D MMMM YYYY, HH:mm:ss",
+                      "D MMMM YYYY, HH:mm:ss"
                     )
                   }}
                 </div>

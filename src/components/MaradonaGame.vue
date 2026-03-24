@@ -16,11 +16,15 @@
       "
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation class="rounded-none z-[15] lg:hidden" />
+        <Navigation
+          class="rounded-none z-[15]"
+          :class="isLandscape ? 'hidden' : 'block'"
+        />
 
         <div
           id="multipliers-overlay"
-          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
+          class="game-overlay flex-row top-0 w-full z-[11] py-2"
+          :class="isLandscape ? 'hidden' : 'flex'"
           @click.stop="
             closeHistory();
             closeBox();
@@ -90,10 +94,14 @@
 
       <GameMultiplier
         id="game-multiplier-horizontal"
-        class="hidden lg:block absolute w-full"
+        class="absolute w-full"
+        :class="isLandscape ? 'block' : 'hidden'"
       />
 
-      <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
+      <div
+        class="absolute bottom-0 w-full z-[150] pb-0"
+        :class="isLandscape ? 'hidden' : 'block'"
+      >
         <GameMultiplier id="game-multiplier" />
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
@@ -226,6 +234,12 @@ import emitter from "@/eventEmitter";
 let button1amount = ref((1.0).toFixed(2));
 let button2amount = ref((1.0).toFixed(2));
 let multiplier = ref((0.0).toFixed(2));
+
+//Props
+
+const props = defineProps({
+  isLandscape: Boolean,
+});
 
 //Helpers
 
@@ -409,7 +423,7 @@ onMounted(() => {
 @media screen and (width < 1024px) {
   #three-container {
     min-width: 280px;
-    min-height: 554px;
+    min-height: 200px;
   }
 }
 </style>

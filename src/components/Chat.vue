@@ -12,7 +12,7 @@
       </div>
       <div
         id="messages-container"
-        class="flex flex-col flex-grow h-96 max-h-96 xl:max-h-full xl:h-0 overflow-y-auto mx-2 mt-2 px-2"
+        class="flex flex-col flex-grow h-96 max-h-96 xs:max-h-full xs:h-0 overflow-y-auto mx-2 mt-2 px-2"
       >
         <ChatMessage
           v-for="(message, index) in chatMessages"

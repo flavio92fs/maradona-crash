@@ -68,7 +68,7 @@ import { RouterView } from "vue-router";
 
     <RouterView
       id="router-view"
-      class="p-0 lg:p-2"
+      class="p-0 xl:p-2"
       :class="loading ? 'overflow-hidden' : ''"
     />
 

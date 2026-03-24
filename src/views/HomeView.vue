@@ -20,7 +20,7 @@
       </div>
 
       <div
-        class="flex flex-col lg:w-5/12 2xl:w-5/12 3xl:w-8/12 flex-grow order-2 lg:order-none lg:mx-5 overflow-hidden"
+        class="flex flex-col xl:w-5/12 3xl:w-8/12 flex-grow order-2 lg:order-none xl:mx-5 overflow-hidden"
       >
         <div :class="isLandscape ? 'flex flex-row' : 'hidden'">
           <MultiplierHistory class="mb-2" />
@@ -218,7 +218,7 @@ canvas {
   margin: 0 auto;
 }
 
-@media screen and (width < 1280px) {
+@media screen and (width < 1024px) {
   #game-container {
     min-height: 200px;
   }

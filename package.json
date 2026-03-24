@@ -40,7 +40,7 @@
     "vue-template-compiler": "^0.1.0",
     "vue-toast-notification": "^3.0.4",
     "vue-toggle-component": "^1.0.16",
-    "vue3-toastify": "^0.1.14",
+    "vue3-toastify": "^0.2.9",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@
     <div
       ref="threeGameContainer"
       id="threeGameContainer"
-      class="@container/threegamecontainer relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9] h-full"
+      class="@container/threegamecontainer relative flex flex-grow justify-center items-center h-full w-full"
       style="max-width: 100%"
       @click.stop="
         closeHistory();
@@ -82,7 +82,10 @@
       </div>
 
       <div class="absolute w-full h-full z-[9] pointer-events-none">
-        <img class="h-full pointer-events-none" :src="'public/vignette.png'" />
+        <img
+          class="h-full w-full pointer-events-none"
+          :src="'public/vignette.png'"
+        />
       </div>
 
       <GameMultiplier

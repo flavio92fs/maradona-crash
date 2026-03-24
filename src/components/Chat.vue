@@ -21,8 +21,8 @@
         />
       </div>
 
-      <div class="flex gap-3 p-3">
-        <input
+      <div class="flex p-2 relative">
+        <!-- <input
           type="text"
           class="focus:outline-none flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
           :placeholder="$t('chat_prompt')"
@@ -36,7 +36,26 @@
           :disabled="message.length <= 0"
         >
           {{ $t("send") }}
+        </button> -->
+
+        <button
+          class="bg-secondary p-2 rounded-md text-white h-full w-full"
+          @click="isEmojiOpen ? (isEmojiOpen = false) : (isEmojiOpen = true)"
+        >
+          {{ isEmojiOpen ? "Close" : "Send Reaction" }}
         </button>
+
+        <Picker
+          v-if="isEmojiOpen"
+          class="absolute left-0 right-0 bottom-16 mx-auto bg-primary border-secondary"
+          :data="emojiIndex"
+          :showPreview="false"
+          style="width: 96% !important"
+          @select="sendMessage"
+          native
+        >
+          ></Picker
+        >
       </div>
     </div>
   </div>
@@ -45,19 +64,27 @@
 <script>
 import ChatMessage from "./ChatMessage.vue";
 import ChatWebSocket from "@/WebSockets/Chat";
+import data from "emoji-mart-vue-fast/data/all.json";
+import "emoji-mart-vue-fast/css/emoji-mart.css";
+import { Picker, EmojiIndex } from "emoji-mart-vue-fast/src";
 import { mapActions, mapState } from "vuex";
+
+let emojiIndex = new EmojiIndex(data);
 
 export default {
   name: "Chat",
 
   components: {
     ChatMessage,
+    Picker,
   },
 
   data: () => ({
+    isEmojiOpen: false,
     chat: new ChatWebSocket(),
     messages: [],
     message: "",
+    emojiIndex: emojiIndex,
   }),
 
   computed: {
@@ -78,6 +105,7 @@ export default {
 
     this.$mitt.on("chat-message", (data) => {
       const messages = document.getElementById("messages-container");
+      this.chat.sendMessage(data);
       this.$nextTick(() => {
         messages.scrollTo(0, 9999);
       });
@@ -91,18 +119,24 @@ export default {
   methods: {
     ...mapActions(["setChatMessages"]),
 
-    sendMessage(message) {
+    sendMessage(emoji) {
+      console.log(emoji);
       const messages = document.getElementById("messages-container");
 
-      if (message.length > 0) {
+      if (emoji) {
+        const message = {
+          user: "Test",
+          text: emoji.native,
+        };
+
         this.chat.sendChatMessage(message);
 
         this.chatMessages.push({
-          message: message,
-          username: this.player.name,
-          timestamp: new Date(),
+          user: "Test",
+          text: emoji.native,
         });
-        this.message = "";
+        this.message = {};
+        this.isEmojiOpen = false;
         this.$nextTick(() => {
           messages.scrollTo(0, 9999);
         });
@@ -133,5 +167,28 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+</style>
+
+<style>
+.emoji-mart-search {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+  background-color: bg-primary !important;
+}
+
+.emoji-mart-search > input {
+  @apply bg-primary;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.emoji-mart-category-label {
+  @apply bg-primary !important;
+  font-weight: 600 !important;
+  color: white !important;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 </style>

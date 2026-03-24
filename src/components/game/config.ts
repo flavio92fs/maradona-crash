@@ -1,7 +1,5 @@
 import Phaser from "phaser";
 import WebSocketPlugin from "./plugin/WebSocketPlugin";
-import GameScene from "./scenes/GameScene";
-import LoadingScene from "./scenes/LoadingScene";
 
 const GAME_WIDTH = 1920;
 const GAME_HEIGHT = 1080;

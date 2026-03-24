@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex flex-col h-full text-white">
-      <div class="flex flex-row justify-center">
+      <!-- <div class="flex flex-row justify-center">
         <button
           class="py-1 rounded-t-xl px-2 border border-secondary border-b-0 font-medium text-sm"
           @click="type = 0"
@@ -40,10 +40,10 @@
         >
           {{ $t("top_bets") }}
         </button>
-      </div>
+      </div> -->
 
       <div
-        class="flex flex-col bg-primary border border-secondary p-3 flex-grow rounded-t-none sm:rounded-t-xl rounded-xl"
+        class="flex flex-col border border-secondary p-3 flex-grow rounded-t-none sm:rounded-t-xl rounded-xl"
       >
         <div
           class="flex flex-col flex-grow h-96 max-h-96 xl:max-h-full xl:h-0 overflow-y-auto"
@@ -52,7 +52,7 @@
 
           <div v-if="type == 0">
             <div class="flex justify-between space-x-20">
-              <div>
+              <div class="w-full text-center">
                 <div class="font-medium">
                   {{ $t("total_bets") }}:
                   <span class="text-green-700 font-bold">{{
@@ -60,7 +60,6 @@
                   }}</span>
                 </div>
               </div>
-              <div>Mano Precedente</div>
             </div>
 
             <div class="table w-full">
@@ -420,7 +419,7 @@
               >
                 {{
                   moment(leaderboardData[0].timestamp * 1000).format(
-                    "D MMMM YYYY, HH:mm:ss"
+                    "D MMMM YYYY, HH:mm:ss",
                   )
                 }}
 
@@ -438,7 +437,7 @@
                 <div class="text-xs text-gray-400">
                   {{
                     moment(topMultiplier.timestamp * 1000).format(
-                      "D MMMM YYYY, HH:mm:ss"
+                      "D MMMM YYYY, HH:mm:ss",
                     )
                   }}
                 </div>

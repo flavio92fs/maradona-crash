@@ -1,10 +1,12 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import emitter from "@/eventEmitter";
 
 export default class LoadingManager {
   private _loadingManager: THREE.LoadingManager;
   private _fbxLoader: FBXLoader;
+  private _gltfLoader: GLTFLoader;
   private _textureLoader: THREE.TextureLoader;
 
   public get loadingManager() {
@@ -15,6 +17,11 @@ export default class LoadingManager {
     return this._fbxLoader;
   }
 
+  public get gltfLoader(){
+    return this._gltfLoader;
+  }
+
+
   public get textureLoader() {
     return this._textureLoader;
   }
@@ -22,7 +29,7 @@ export default class LoadingManager {
   constructor(onComplete: () => void) {
     this._loadingManager = new THREE.LoadingManager();
     this._loadingManager.onStart = (url) =>
-      console.log(`Inizio caricamento: ${url}`);
+      console.log(`Inizio caricamento`);
 
     this._loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
       const percent = (itemsLoaded / itemsTotal) * 100;
@@ -47,5 +54,6 @@ export default class LoadingManager {
 
     this._fbxLoader = new FBXLoader(this._loadingManager);
     this._textureLoader = new THREE.TextureLoader(this._loadingManager);
+    this._gltfLoader = new GLTFLoader(this._loadingManager);
   }
 }

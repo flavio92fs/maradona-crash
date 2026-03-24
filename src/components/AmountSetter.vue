@@ -1,38 +1,38 @@
 <template>
-  <div>
-    <div
-      class="border border-secondary flex flex-row justify-between items-center rounded-full p-1"
+  <div
+    class="border border-secondary flex flex-row justify-between items-center rounded-md"
+  >
+    <button
+      v-if="controls"
+      class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
+      :class="disabled ? 'text-secondary' : 'text-white'"
+      @click="decreaseValue()"
+      :disabled="disabled"
     >
-      <button
-        class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
-        :class="disabled ? 'text-secondary' : 'text-white'"
-        @click="decreaseValue()"
-        :disabled="disabled"
-      >
-        -
-      </button>
-      <input
-        type="number"
-        :step="0.01"
-        :min="minimumValue"
-        :max="maximumValue"
-        :value="modelValue"
-        class="bg-primary-dark flex-grow mx-1 focus:outline-none text-lg font-normal w-10 text-center"
-        :class="disabled ? 'text-secondary' : 'text-white'"
-        :disabled="disabled"
-        @focusout="checkValue"
-        @keypress="preventKeys"
-      />
+      -
+    </button>
+    <input
+      type="number"
+      :step="0.01"
+      :min="minimumValue"
+      :max="maximumValue"
+      :value="modelValue"
+      class="amount-input text-normal bg-primary-dark flex-grow focus:outline-none font-medium w-10 text-center rounded-md p-1"
+      :class="disabled ? 'text-secondary' : 'text-white'"
+      :disabled="disabled"
+      @focusout="checkValue"
+      @keypress="preventKeys"
+    />
 
-      <button
-        class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
-        :class="disabled ? 'text-secondary' : 'text-white'"
-        @click="increaseValue()"
-        :disabled="disabled"
-      >
-        +
-      </button>
-    </div>
+    <button
+      v-if="controls"
+      class="flex items-center justify-center bg-primary h-8 w-8 rounded-full text-2xl font-medium leading-8"
+      :class="disabled ? 'text-secondary' : 'text-white'"
+      @click="increaseValue()"
+      :disabled="disabled"
+    >
+      +
+    </button>
   </div>
 </template>
 
@@ -46,6 +46,7 @@ export default {
     disabled: false,
     minimumValue: Number,
     maximumValue: Number,
+    controls: false,
   },
 
   methods: {
@@ -75,3 +76,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+button {
+  user-select: none;
+}
+</style>

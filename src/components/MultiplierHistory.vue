@@ -1,10 +1,10 @@
 <template>
-  <div class="flex p-3 rounded-md border-2 border-primary overflow-x-auto">
+  <div class="flex justify-center px-1 py-3 rounded-md overflow-auto">
     <MultiplierLabel
-      class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-      v-for="(multiplier, index) in multipliersHistory"
-      :key="index"
-      :value="multiplier"
+      class="rounded-md py-1 px-2 mx-1 text-sm font-medium"
+      v-for="i in 100"
+      :key="i"
+      :value="Math.floor(Math.random() * 10)"
     />
   </div>
 </template>

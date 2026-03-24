@@ -349,7 +349,7 @@ onMounted(() => {
 #three-container {
   display: flex;
   justify-content: center;
-  background-color: black;
+  /* background-color: black; */
   align-items: center;
 }
 

@@ -4,7 +4,7 @@
       class="rounded-md py-1 px-2 mx-1 text-sm font-medium"
       v-for="i in 100"
       :key="i"
-      :value="Math.floor(Math.random() * 10)"
+      :value="Math.floor(Math.random() * (10 - 1) + 1)"
     />
   </div>
 </template>

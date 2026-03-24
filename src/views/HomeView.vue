@@ -6,14 +6,12 @@
       <MultiplierHistory class="mt-5 mb-5" />
     </div> -->
 
-    {{ isLandscape }}
-
     <div
       class="flex mt-0 flex-grow justify-around height-display"
       :class="isLandscape ? 'flex-row' : 'flex-col'"
     >
       <div
-        class="justify-center lg:w-3/12 2xl:w-3/12 3xl:w-2/12 order-1 lg:order-none mt-5 mr-1 lg:mt-0"
+        class="justify-center lg:w-3/12 2xl:w-3/12 3xl:w-2/12 order-1 lg:order-none my-1 mr-1 lg:my-0"
         :class="isLandscape ? 'flex flex-col' : 'hidden'"
       >
         <UserBox class="mb-2" />

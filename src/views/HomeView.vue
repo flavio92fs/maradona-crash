@@ -13,11 +13,8 @@
         class="hidden xl:flex xl:flex-col justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
       >
         <UserBox class="mb-2" />
-        <BetHistory
-          class="flex-grow"
-          style="width: 350px"
-          @getLeaderboard="getLeaderBoard"
-        />
+        <BetHistory class="flex-grow mb-2" @getLeaderboard="getLeaderBoard" />
+        <Chat class="flex-grow" />
       </div>
 
       <div
@@ -52,11 +49,11 @@
         </div>
       </div>
 
-      <div
+      <!-- <div
         class="hidden 2xl:block xl:w-2/12 3xl:w-2/12 h-full order-2 xl:order-none my-8 xl:my-0"
       >
         <Chat class="h-full" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -132,7 +129,7 @@ export default {
       this.gameInstance.scene.scenes[2].sendBet(
         value.value,
         value.id,
-        value.cashout_at,
+        value.cashout_at
       );
     },
 
@@ -158,7 +155,7 @@ export default {
     getLeaderBoard(value: any) {
       this.gameInstance.scene.scenes[1].getLeaderboard(
         value.subtype,
-        value.period,
+        value.period
       );
     },
 

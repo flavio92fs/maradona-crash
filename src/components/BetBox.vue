@@ -124,7 +124,7 @@
         <button
           v-if="!inGame && !isStarted"
           @click="betInProgress ? cancelBet() : sendBet()"
-          class="w-full text-white rounded-md font-medium text-xl h-full"
+          class="w-full text-white rounded-md font-bold text-xl h-full"
           :class="betInProgress ? 'bg-red-700' : 'green-gradient'"
         >
           {{ betInProgress ? "CANCEL" : "PLACE BET" }}
@@ -285,7 +285,7 @@ export default {
   }),
 
   created() {
-    (this.$mitt.on("sceneComplete", () => {
+    this.$mitt.on("sceneComplete", () => {
       this.betInProgress = false;
       this.inGame = false;
       this.amountClaimed = false;
@@ -298,7 +298,7 @@ export default {
         this.cancelDisabled = false;
         this.inGame = true;
         this.isStarted = false;
-      }));
+      });
     this.$mitt.on("crash", () => {
       this.betInProgress = false;
       this.cancelDisabled = true;

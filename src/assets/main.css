@@ -3,10 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  @apply bg-background;
-}
-
 body {
   user-select: none;
 }

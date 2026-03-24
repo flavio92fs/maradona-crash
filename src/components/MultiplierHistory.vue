@@ -1,9 +1,7 @@
 <template>
-  <div
-    class="flex justify-center px-1 py-3 rounded-md border-2 border-primary overflow-auto"
-  >
+  <div class="flex justify-center px-1 py-3 rounded-md overflow-auto">
     <MultiplierLabel
-      class="rounded-xl py-0.5 px-1 mx-1 text-sm font-bold"
+      class="rounded-md py-1 px-2 mx-1 text-sm font-medium"
       v-for="i in 100"
       :key="i"
       :value="Math.floor(Math.random() * 10)"

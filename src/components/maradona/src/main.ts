@@ -1785,10 +1785,15 @@ export function initScene(container: HTMLElement) {
     const STORAGE_KEY = "UI";
 
     const gameMultiplier = document.getElementById("game-multiplier");
+    const app = document.getElementById("app");
+    const amountInput = document.querySelectorAll(".amount-input");
 
     const folder = gui.addFolder("UI").close();
 
     const defaultParams = {
+      mainBackgroundColor: "#ffffff",
+      globalTextColor: "#ffffff",
+      amountInputBgColor: "#ffffff",
       showMultiplier: true,
       positionY: 74,
       scale: 0,
@@ -1808,6 +1813,41 @@ export function initScene(container: HTMLElement) {
     }
 
     showMultiplier(params.showMultiplier);
+
+    folder
+      .addColor(params, "mainBackgroundColor")
+      .onChange((val) => {
+        console.log("color: " + val);
+        app!.style.backgroundColor = val;
+        saveSettings(STORAGE_KEY, params);
+      })
+      .onFinishChange((val) => {
+        saveSettings(STORAGE_KEY, params);
+      });
+
+    folder
+      .addColor(params, "globalTextColor")
+      .onChange((val) => {
+        console.log("color: " + val);
+        app!.style.color = val;
+        saveSettings(STORAGE_KEY, params);
+      })
+      .onFinishChange((val) => {
+        saveSettings(STORAGE_KEY, params);
+      });
+
+    folder
+      .addColor(params, "amountInputBgColor")
+      .onChange((val) => {
+        console.log("color: " + val);
+        amountInput!.forEach((el) => {
+          el!.style.backgroundColor = val;
+        });
+        saveSettings(STORAGE_KEY, params);
+      })
+      .onFinishChange((val) => {
+        saveSettings(STORAGE_KEY, params);
+      });
 
     folder.add(params, "showMultiplier").onChange((val) => {
       showMultiplier(params.showMultiplier);

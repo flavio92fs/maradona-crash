@@ -17,7 +17,7 @@
       :min="minimumValue"
       :max="maximumValue"
       :value="modelValue"
-      class="text-normal bg-primary-dark flex-grow focus:outline-none font-medium w-10 text-center rounded-md p-1"
+      class="amount-input text-normal bg-primary-dark flex-grow focus:outline-none font-medium w-10 text-center rounded-md p-1"
       :class="disabled ? 'text-secondary' : 'text-white'"
       :disabled="disabled"
       @focusout="checkValue"

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div
-      class="bg-primary h-full flex flex-col border border-secondary rounded-xl"
-    >
+    <div class="h-full flex flex-col border border-secondary rounded-xl">
       <div
         class="flex justify-between text-white border-b border-secondary rounded-t-xl p-2"
       >

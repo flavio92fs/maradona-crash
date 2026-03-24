@@ -1786,7 +1786,7 @@ export function initScene(container: HTMLElement) {
 
     const gameMultiplier = document.getElementById("game-multiplier");
     const app = document.getElementById("app");
-    const amountInput = document.querySelectorAll(".amount-input");
+    const amountInput = document.querySelectorAll<HTMLElement>(".amount-input");
 
     const folder = gui.addFolder("UI").close();
 
@@ -1841,7 +1841,7 @@ export function initScene(container: HTMLElement) {
       .onChange((val) => {
         console.log("color: " + val);
         amountInput!.forEach((el) => {
-          el!.style.backgroundColor = val;
+          el.style.backgroundColor = val;
         });
         saveSettings(STORAGE_KEY, params);
       })

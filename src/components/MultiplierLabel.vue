@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="select-none"
-    :style="'border: solid 1px; border-color: ' + color + ' ; color: white'"
-  >
+  <div class="select-none" :class="color" style="border: solid 1px">
     {{ value.toFixed(2) }}x
   </div>
 </template>
@@ -19,16 +16,31 @@ export default {
   computed: {
     color() {
       switch (true) {
-        // case this.value > 0 && this.value < 3:
-        //   return "green";
-        // case this.value >= 2 && this.value < 10:
-        //   return "yellow";
-        case this.value >= 10:
-          return "#8203D0";
-        default:
-          return "#57aadc";
+        case this.value > 0 && this.value < 2:
+          return "low-multiplier";
+        case this.value >= 2 && this.value < 6:
+          return "medium-multiplier";
+        case this.value >= 6:
+          return "high-multiplier";
       }
     },
   },
 };
 </script>
+
+<style scoped>
+.low-multiplier {
+  border-color: red !important;
+  color: red;
+}
+
+.medium-multiplier {
+  border-color: gold !important;
+  color: gold;
+}
+
+.high-multiplier {
+  border-color: green !important;
+  color: green;
+}
+</style>

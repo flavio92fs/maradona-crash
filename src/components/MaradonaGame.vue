@@ -74,12 +74,12 @@
             class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
             @click="
               () => {
-                isAudioOn = !isAudioOn;
+                isMusicOn = !isMusicOn;
                 setMusic();
               }
             "
           >
-            <SpeakerWaveIcon v-if="isAudioOn" class="text-white h-6 w-6" />
+            <SpeakerWaveIcon v-if="isMusicOn" class="text-white h-6 w-6" />
             <SpeakerXMarkIcon v-else class="text-white h-6 w-6" />
           </button>
         </div>
@@ -252,12 +252,16 @@ let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
 let isMorning = ref(true);
-let isAudioOn = ref(true);
+let isMusicOn = ref(true);
 
 //Methods
 
 function toggleDayTime(daytime) {
   emitter.emit("toggleDayTime", daytime);
+}
+
+function setMusic() {
+  this.$mitt.emit("setMusic", isMusicOn.value);
 }
 
 function openHistory(category) {
@@ -339,10 +343,6 @@ function setButton(value) {
   }
 
   closeBox();
-
-  function setMusic() {
-    this.$mitt.emit("setMusic", this.isMusicOn);
-  }
 }
 
 onMounted(() => {

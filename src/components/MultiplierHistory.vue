@@ -35,3 +35,28 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+  border-radius: 25px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-primary;
+  border-radius: 25px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 25px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>

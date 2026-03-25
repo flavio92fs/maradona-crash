@@ -46,8 +46,9 @@ export default class ChatWebSocket {
         emitter.emit("chat-messages", json);
         break;
       }
-      case "System": {
+      case "message": {
         emitter.emit("chat-message", json);
+        console.log(json);
         break;
       }
     }

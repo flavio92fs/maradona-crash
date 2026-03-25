@@ -110,19 +110,20 @@ const messages = document.getElementById("mobile-messages-container");
 
 emitter.on("chat-messages", () => {
   nextTick(() => {
-    if(messages != null)
-    messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+    if (messages != null)
+      messages.scrollTop = messages.scrollHeight - messages.clientHeight;
   });
 });
 
 emitter.on("chat-message", (data) => {
+  console.log(data);
   addChatMessage({
-    username: data.username,
-    message: data.message,
-    timestamp: data.timestamp,
+    user: data.data.user,
+    text: data.data.text,
   });
   nextTick(() => {
-    messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+    if (messages != null)
+      messages.scrollTop = messages.scrollHeight - messages.clientHeight;
   });
 });
 

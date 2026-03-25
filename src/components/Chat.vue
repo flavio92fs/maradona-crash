@@ -5,6 +5,7 @@
         class="flex justify-between text-white border-b border-secondary rounded-t-xl p-2"
       >
         <div>CHAT</div>
+
         <div class="flex flex-row items-center">
           <div class="bg-green-500 h-3 w-3 rounded-full mr-1.5"></div>
           <div>Online: <b>138</b></div>
@@ -83,7 +84,7 @@ export default {
     isEmojiOpen: false,
     chat: new ChatWebSocket(),
     messages: [],
-    message: "",
+    message: {},
     emojiIndex: emojiIndex,
   }),
 
@@ -105,7 +106,6 @@ export default {
 
     this.$mitt.on("chat-message", (data) => {
       const messages = document.getElementById("messages-container");
-      this.chat.sendMessage(data);
       this.$nextTick(() => {
         messages.scrollTo(0, 9999);
       });
@@ -120,7 +120,6 @@ export default {
     ...mapActions(["setChatMessages"]),
 
     sendMessage(emoji) {
-      console.log(emoji);
       const messages = document.getElementById("messages-container");
 
       if (emoji) {
@@ -131,10 +130,6 @@ export default {
 
         this.chat.sendChatMessage(message);
 
-        this.chatMessages.push({
-          user: "Test",
-          text: emoji.native,
-        });
         this.message = {};
         this.isEmojiOpen = false;
         this.$nextTick(() => {

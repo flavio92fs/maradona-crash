@@ -941,7 +941,7 @@ export function initScene(container: HTMLElement) {
       });
 
     const STORAGE_KEY = "CARTELLONI";
-    const cartelloniMaterial = new THREE.MeshStandardMaterial({ map: texture });
+    const cartelloniMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
     cartelloniMaterial.name = "Cartelloni Material";
 

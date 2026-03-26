@@ -49,6 +49,7 @@
 
                   <div
                     ref="mobile-messages-container"
+                    id="mobile-messages-container"
                     class="flex flex-col flex-grow bg-primary bg-opacity-90 px-4 sm:px-6 overflow-y-scroll max-h-full h-0"
                   >
                     <ChatMessage
@@ -60,7 +61,7 @@
 
                   <div class="bg-secondary">
                     <div class="flex gap-3 p-3 items-center">
-                      <input
+                      <!-- <input
                         type="text"
                         class="flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
                         placeholder="Invia un messaggio..."
@@ -73,7 +74,29 @@
                         @click="sendMessage(message)"
                       >
                         Invia
+                      </button> -->
+
+                      <button
+                        class="border border-1 bg-secondary p-2 rounded-md text-white h-full w-full"
+                        @click="
+                          isEmojiOpen
+                            ? (isEmojiOpen = false)
+                            : (isEmojiOpen = true)
+                        "
+                      >
+                        {{ isEmojiOpen ? "Close" : "Send Reaction" }}
                       </button>
+
+                      <Picker
+                        v-if="isEmojiOpen"
+                        class="absolute left-0 right-0 bottom-16 mx-auto bg-primary border-secondary z-[999999] mb-2"
+                        :data="emojiIndex"
+                        :showPreview="false"
+                        style="width: 96% !important"
+                        @select="sendMessage"
+                        native
+                      >
+                      </Picker>
                     </div>
                   </div>
                 </div>
@@ -100,15 +123,20 @@ import ChatMessage from "./ChatMessage.vue";
 import { computed } from "@vue/reactivity";
 import store from "@/store";
 import emitter from "@/eventEmitter";
+import data from "emoji-mart-vue-fast/data/all.json";
+import "emoji-mart-vue-fast/css/emoji-mart.css";
+import { Picker, EmojiIndex } from "emoji-mart-vue-fast/src";
 
 const open = ref(false);
 
 const chatMessages = computed(() => store.state.chatMessages);
 const player = computed(() => store.state.player);
 const message = ref("");
-const messages = document.getElementById("mobile-messages-container");
+const isEmojiOpen = ref(false);
+const emojiIndex = new EmojiIndex(data);
 
 emitter.on("chat-messages", () => {
+  const messages = document.getElementById("mobile-messages-container");
   nextTick(() => {
     if (messages != null)
       messages.scrollTop = messages.scrollHeight - messages.clientHeight;
@@ -116,11 +144,9 @@ emitter.on("chat-messages", () => {
 });
 
 emitter.on("chat-message", (data) => {
-  console.log(data);
-  addChatMessage({
-    user: data.data.user,
-    text: data.data.text,
-  });
+  const messages = document.getElementById("mobile-messages-container");
+  console.log("message received");
+  addChatMessage(data.data);
   nextTick(() => {
     if (messages != null)
       messages.scrollTop = messages.scrollHeight - messages.clientHeight;
@@ -131,18 +157,23 @@ function openChatPanel() {
   open.value = true;
 }
 
-function sendMessage(message) {
-  if (message.length > 0) {
-    emitter.emit("mobile-message", message);
+function sendMessage(emoji) {
+  const messages = document.getElementById("mobile-messages-container");
+  console.log(messages);
+  if (emoji) {
+    emitter.emit("mobile-message", emoji);
 
-    addChatMessage({
-      message: message,
-      username: player.value.name,
-      timestamp: new Date(),
-    });
-    message = "";
+    // addChatMessage({
+    //   user: "Test",
+    //   text: emoji.native,
+    // });
+
+    isEmojiOpen.value = false;
+
     nextTick(() => {
-      messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+      if (messages != null) {
+        messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+      }
     });
   }
 }

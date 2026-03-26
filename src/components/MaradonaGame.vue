@@ -390,7 +390,7 @@ onMounted(() => {
 }
 
 .game-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 #history-overlay {

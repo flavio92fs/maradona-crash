@@ -66,11 +66,7 @@ import { RouterView } from "vue-router";
       </div>
     </Transition>
 
-    <RouterView
-      id="router-view"
-      class="p-0 xl:p-2"
-      :class="loading ? 'overflow-hidden' : ''"
-    />
+    <RouterView id="router-view" :class="loading ? 'overflow-hidden' : ''" />
 
     <!-- How to Play Modal -->
 

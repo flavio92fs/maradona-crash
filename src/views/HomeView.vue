@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full" :class="isLandscape ? 'p-2' : ''">
     <!-- <Navigation class="hidden lg:flex z-[9998]" :data="gameData" /> -->
 
     <!-- <div class="hidden lg:flex flex-row" style="height: 92px">
@@ -11,7 +11,7 @@
       :class="isLandscape ? 'flex-row' : 'flex-col'"
     >
       <div
-        class="justify-center sm:w-4/12 md:w-3/12 2xl:w-3/12 3xl:w-2/12 order-1 md:order-none my-1 mr-1 md:my-0"
+        class="justify-center sm:w-5/12 2xl:w-3/12 3xl:w-2/12 order-1 md:order-none my-1 mr-1 md:my-0"
         :class="isLandscape ? 'flex flex-col' : 'hidden'"
       >
         <UserBox class="mb-2" />
@@ -20,7 +20,7 @@
       </div>
 
       <div
-        class="flex flex-col sm:w-4/12 lg:w-5/12 3xl:w-8/12 flex-grow order-2 lg:order-none xl:mx-5 overflow-hidden"
+        class="flex flex-col 3xl:w-8/12 flex-grow order-2 lg:order-none overflow-hidden"
       >
         <div :class="isLandscape ? 'block' : 'hidden'">
           <MultiplierHistory class="mb-2" />

@@ -105,6 +105,13 @@ input[type="number"] {
   background: #1f1f1f !important;
 }
 
+.border-gold {
+  background: padding-box,
+    linear-gradient(to right, #a49647, #b6b082) border-box;
+  border: 2px solid transparent;
+  @apply rounded-md;
+}
+
 @font-face {
   font-family: "Sablon";
   src: local("Sablon"), url("./fonts/Sablon_Up_College.otf") format("opentype"),

@@ -7,10 +7,12 @@
     </div> -->
 
     <div
-      class="flex flex-col xl:flex-row mt-0 flex-grow justify-around height-display"
+      class="flex mt-0 flex-grow justify-around height-display"
+      :class="isLandscape ? 'flex-row' : 'flex-col'"
     >
       <div
-        class="hidden xl:flex xl:flex-col justify-center 2xl:w-3/12 3xl:w-2/12 order-3 xl:order-none mt-5 xl:mt-0"
+        class="justify-center lg:w-3/12 2xl:w-3/12 3xl:w-2/12 order-1 lg:order-none my-1 mr-1 lg:my-0"
+        :class="isLandscape ? 'flex flex-col' : 'hidden'"
       >
         <UserBox class="mb-2" />
         <BetHistory class="flex-grow mb-2" @getLeaderboard="getLeaderBoard" />
@@ -18,16 +20,17 @@
       </div>
 
       <div
-        class="2xl:w-5/12 3xl:w-8/12 flex flex-col flex-grow order-1 xl:order-none xl:mx-5 overflow-hidden"
+        class="flex flex-col xl:w-5/12 3xl:w-8/12 flex-grow order-2 lg:order-none xl:mx-5 overflow-hidden"
       >
-        <div class="hidden lg:flex flex-row">
+        <div :class="isLandscape ? 'block' : 'hidden'">
           <MultiplierHistory class="mb-2" />
         </div>
         <div id="game-container" class="flex-grow">
-          <MaradonaGame />
+          <MaradonaGame :isLandscape="isLandscape" />
         </div>
         <div
-          class="hidden lg:flex flex-col md:flex-row justify-center items-center mt-3 3xl:mt-4"
+          class="md:flex-row justify-center items-center mt-3 3xl:mt-4"
+          :class="isLandscape ? 'flex flex-col' : 'hidden'"
         >
           <div class="w-full order-1 3xl:order-0 mr-2">
             <BetBox
@@ -38,7 +41,7 @@
             />
           </div>
 
-          <div class="w-full order-2 3xl:order-2 mt-5 md:mt-0">
+          <div class="hidden md:block w-full order-2 3xl:order-2 mt-5 md:mt-0">
             <BetBox
               :id="1"
               @sendBet="setBet"
@@ -75,6 +78,7 @@ import "vue3-toastify/dist/index.css";
 
 export default {
   name: "HomeView",
+
   components: {
     MaradonaGame,
     Navigation,
@@ -84,16 +88,24 @@ export default {
     Chat,
     UserBox,
   },
+
   data: () => ({
     initialize: false,
     game: game,
     gameInstance: {},
     gameData: {},
     startedGame: false,
+    turnDevice: false,
+    height: window.innerHeight,
+    width: window.innerWidth,
   }),
 
   mounted() {
-    // this.gameInstance = new Phaser.Game(this.game);
+    window.addEventListener("resize", this.updateSize);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener("resize", this.updateSize);
   },
 
   created() {
@@ -104,10 +116,19 @@ export default {
 
   computed: {
     ...mapState({ gameData: "gameData" }),
+
+    isLandscape() {
+      return this.width > this.height;
+    },
   },
 
   methods: {
     ...mapActions(["setGameData"]),
+
+    updateSize() {
+      this.height = window.innerHeight;
+      this.width = window.innerWidth;
+    },
 
     initConnection() {
       this.websocket.connect();
@@ -159,6 +180,10 @@ export default {
       );
     },
 
+    handleOrientation(e) {
+      this.turnDevice = e.target.angle === 90 || e.target.angle === -90;
+    },
+
     notify(value) {
       let winAudio = new Audio(WinAudio);
       winAudio.play();
@@ -186,16 +211,18 @@ export default {
   min-height: 200px;
   max-height: 100%;
   max-width: 100%;
+  border-radius: 10px;
 }
 
 canvas {
   position: static;
   margin: 0 auto;
+  border-radius: 10px;
 }
 
-@media screen and (width < 1280px) {
+@media screen and (width < 1024px) {
   #game-container {
-    min-height: 450px;
+    min-height: 200px;
   }
 }
 

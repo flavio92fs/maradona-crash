@@ -8,7 +8,7 @@
     <div
       ref="threeGameContainer"
       id="threeGameContainer"
-      class="@container/threegamecontainer relative flex flex-grow justify-center items-center aspect-[9/16] lg:aspect-[16/9] h-full"
+      class="@container/threegamecontainer relative flex flex-grow justify-center items-center h-full w-full"
       style="max-width: 100%"
       @click.stop="
         closeHistory();
@@ -16,11 +16,15 @@
       "
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation class="rounded-none z-[15] lg:hidden" />
+        <!-- <Navigation
+          class="rounded-none z-[15]"
+          :class="isLandscape ? 'hidden' : 'block'"
+        /> -->
 
         <div
           id="multipliers-overlay"
-          class="game-overlay flex flex-col lg:hidden flex-row top-0 w-full z-[11] py-2"
+          class="game-overlay flex-row top-0 w-full z-[11] py-2"
+          :class="isLandscape ? 'hidden' : 'flex'"
           @click.stop="
             closeHistory();
             closeBox();
@@ -28,13 +32,13 @@
         >
           <div
             class="flex flex-row flex-wrap justify-center overflow-hidden"
-            style="height: 26px; row-gap: 20px"
+            style="height: 30px; row-gap: 20px"
           >
             <MultiplierLabel
-              class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-              v-for="i in 10"
+              class="rounded-md py-0.5 px-2 mx-1 text-sm font-bold"
+              v-for="i in 100"
               :key="i"
-              :value="10.0"
+              :value="Math.floor(Math.random() * (10 - 1) + 1)"
             />
           </div>
         </div>
@@ -70,27 +74,43 @@
             class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
             @click="
               () => {
-                isAudioOn = !isAudioOn;
+                isMusicOn = !isMusicOn;
                 setMusic();
               }
             "
           >
-            <SpeakerWaveIcon v-if="isAudioOn" class="text-white h-6 w-6" />
+            <SpeakerWaveIcon v-if="isMusicOn" class="text-white h-6 w-6" />
             <SpeakerXMarkIcon v-else class="text-white h-6 w-6" />
+          </button>
+
+          <button
+            v-if="!isLandscape"
+            class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
+            @click="$root.$refs.chatMobilePanel.openChatPanel()"
+          >
+            <ChatBubbleOvalLeftEllipsisIcon class="text-white h-6 w-6" />
           </button>
         </div>
       </div>
 
       <div class="absolute w-full h-full z-[9] pointer-events-none">
-        <img class="h-full pointer-events-none" :src="'public/vignette.png'" />
+        <img
+          class="h-full w-full pointer-events-none"
+          :src="'public/vignette.png'"
+          style="border-radius: 10px"
+        />
       </div>
 
       <GameMultiplier
         id="game-multiplier-horizontal"
-        class="hidden lg:block absolute w-full"
+        class="absolute w-full"
+        :class="isLandscape ? 'block' : 'hidden'"
       />
 
-      <div class="absolute block lg:hidden bottom-0 w-full z-[150] pb-0">
+      <div
+        class="absolute bottom-0 w-full z-[150] pb-0"
+        :class="isLandscape ? 'hidden' : 'block'"
+      >
         <GameMultiplier id="game-multiplier" />
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
@@ -209,6 +229,7 @@ import {
   SunIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
@@ -224,6 +245,12 @@ let button1amount = ref((1.0).toFixed(2));
 let button2amount = ref((1.0).toFixed(2));
 let multiplier = ref((0.0).toFixed(2));
 
+//Props
+
+const props = defineProps({
+  isLandscape: Boolean,
+});
+
 //Helpers
 
 const threeGameContainer = ref(null);
@@ -235,12 +262,17 @@ let close_timer = ref(() => {});
 let history_close_time = 10000;
 let bet_box_close_time = 5000;
 let isMorning = ref(true);
-let isAudioOn = ref(true);
+let isMusicOn = ref(true);
+let chatIsOpen = ref(false);
 
 //Methods
 
 function toggleDayTime(daytime) {
   emitter.emit("toggleDayTime", daytime);
+}
+
+function setMusic() {
+  emitter.emit("setMusic", isMusicOn.value);
 }
 
 function openHistory(category) {
@@ -322,10 +354,6 @@ function setButton(value) {
   }
 
   closeBox();
-
-  function setMusic() {
-    this.$mitt.emit("setMusic", this.isMusicOn);
-  }
 }
 
 onMounted(() => {
@@ -349,7 +377,7 @@ onMounted(() => {
 #three-container {
   display: flex;
   justify-content: center;
-  background-color: black;
+  /* background-color: black; */
   align-items: center;
 }
 
@@ -406,7 +434,7 @@ onMounted(() => {
 @media screen and (width < 1024px) {
   #three-container {
     min-width: 280px;
-    min-height: 554px;
+    min-height: 200px;
   }
 }
 </style>

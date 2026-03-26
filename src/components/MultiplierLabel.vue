@@ -1,6 +1,6 @@
 <template>
-  <div class="select-none" :class="color" style="border: solid 1px">
-    {{ value.toFixed(2) }}x
+  <div class="select-none text-center" :class="color" style="border: solid 1px">
+    <span class="multiplier-value">{{ value.toFixed(2) }}x</span>
   </div>
 </template>
 
@@ -42,5 +42,9 @@ export default {
 .high-multiplier {
   border-color: green !important;
   color: green;
+}
+
+.multiplier-value {
+  font-size: calc(130px / 10);
 }
 </style>

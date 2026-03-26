@@ -415,6 +415,7 @@ export default {
     sendBet() {
       if (this.balance - this.betAmount < 0) {
         toast("Credito insufficiente", {
+          autoClose: 3000,
           position: toast.POSITION.TOP_CENTER,
           toastStyle: {
             backgroundColor: "red",

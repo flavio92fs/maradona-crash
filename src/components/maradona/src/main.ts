@@ -35,9 +35,13 @@ export function initScene(container: HTMLElement) {
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
-    window.addEventListener("click", () => {
-      audioManager.playBackgroundMusic();
-    });
+    window.addEventListener(
+      "click",
+      () => {
+        audioManager.playBackgroundMusic();
+      },
+      { once: true }
+    );
     // window.addEventListener("resize", resizeRenderer);
 
     // resizeRenderer();
@@ -941,7 +945,7 @@ export function initScene(container: HTMLElement) {
       });
 
     const STORAGE_KEY = "CARTELLONI";
-    const cartelloniMaterial = new THREE.MeshStandardMaterial({ map: texture });
+    const cartelloniMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
     cartelloniMaterial.name = "Cartelloni Material";
 

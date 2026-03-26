@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
-import obfuscator from 'vite-plugin-javascript-obfuscator';
+import obfuscator from "vite-plugin-javascript-obfuscator";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -7,9 +7,9 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
+  base: "./",
   build: {
-    assetsInlineLimit: 0
+    assetsInlineLimit: 0,
   },
   plugins: [
     vue({
@@ -20,33 +20,33 @@ export default defineConfig({
       },
     }),
     vueJsx(),
-    obfuscator({
-      include: [/\.ts$/, /\.js$/],
-      exclude: [/node_modules/], // Escludiamo phaser per sicurezza extra
-      apply: 'build',
-      options: {
-          compact: true,
-          unicodeEscapeSequence: false,
+    //   obfuscator({
+    //     include: [/\.ts$/, /\.js$/],
+    //     exclude: [/node_modules/], // Escludiamo phaser per sicurezza extra
+    //     apply: 'build',
+    //     options: {
+    //         compact: true,
+    //         unicodeEscapeSequence: false,
 
-          controlFlowFlattening: true,
-          controlFlowFlatteningThreshold: 0.5,
-          deadCodeInjection: false,
-          stringArray: true,
-          stringArrayRotate: true,
-          stringArrayShuffle: true,
-          stringArrayThreshold: 0.75,
+    //         controlFlowFlattening: true,
+    //         controlFlowFlatteningThreshold: 0.5,
+    //         deadCodeInjection: false,
+    //         stringArray: true,
+    //         stringArrayRotate: true,
+    //         stringArrayShuffle: true,
+    //         stringArrayThreshold: 0.75,
 
-          domainLock: ['client.caseragames.com'],
-          domainLockRedirectUrl: 'about:blank',
+    //         domainLock: ['client.caseragames.com'],
+    //         domainLockRedirectUrl: 'about:blank',
 
-          // 4. ANTI-HACKING
-          debugProtection: false,
-          debugProtectionInterval: 4000,
-          disableConsoleOutput: true,
-          selfDefending: false,
-          splitStrings: true
-      }
-  })
+    //         // 4. ANTI-HACKING
+    //         debugProtection: false,
+    //         debugProtectionInterval: 4000,
+    //         disableConsoleOutput: true,
+    //         selfDefending: false,
+    //         splitStrings: true
+    //     }
+    // })
   ],
   resolve: {
     alias: {

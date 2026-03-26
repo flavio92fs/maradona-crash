@@ -8,6 +8,7 @@ export default class AudioManager {
   private _listener: THREE.AudioListener;
   private _backgroundSound: THREE.Audio;
   private _gui: GUI;
+  private _userStopped: Boolean;
 
   public get listener(): THREE.AudioListener {
     return this._listener;
@@ -17,6 +18,7 @@ export default class AudioManager {
     this._audioLoader = new THREE.AudioLoader(loadingManager);
     this._listener = new THREE.AudioListener();
     this._backgroundSound = new THREE.Audio(this._listener);
+    this._userStopped = false;
 
     this._gui = gui;
 
@@ -36,7 +38,7 @@ export default class AudioManager {
     loadSettings(STORAGE_KEY, defaultParams, params);
 
     this._backgroundSound.setVolume(params.volume);
-    
+
     const folder = gui.addFolder("Sound").close();
     folder
       .add(params, "volume", 0, 1, 0.1)
@@ -55,20 +57,20 @@ export default class AudioManager {
 
     window.addEventListener("focus", () => {
       // riprende solo se era in riproduzione
-      if (!this._backgroundSound.isPlaying) {
+      if (!this._backgroundSound.isPlaying && !this._userStopped) {
         this.playBackgroundMusic();
       }
     });
 
-    
     emitter.on("setMusic", (val) => {
-      if(val){
+      if (val) {
         if (!this._backgroundSound.isPlaying) {
+          this._userStopped = false;
           this.playBackgroundMusic();
         }
-      }
-      else{
+      } else {
         if (this._backgroundSound.isPlaying) {
+          this._userStopped = true;
           this._backgroundSound.pause();
         }
       }

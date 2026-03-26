@@ -1,13 +1,15 @@
 <template>
   <div>
-    <div class="h-full flex flex-col border border-secondary rounded-xl">
+    <div class="h-full flex flex-col border border-secondary rounded-md">
       <div
         class="flex justify-between text-white border-b border-secondary rounded-t-xl p-2"
       >
         <div>CHAT</div>
 
         <div class="flex flex-row items-center">
-          <div class="bg-green-500 h-3 w-3 rounded-full mr-1.5"></div>
+          <div
+            class="bg-green-500 h-3 w-3 rounded-full mr-1.5 animate-pulse"
+          ></div>
           <div>Online: <b>138</b></div>
         </div>
       </div>
@@ -55,8 +57,7 @@
           @select="sendMessage"
           native
         >
-          ></Picker
-        >
+        </Picker>
       </div>
     </div>
   </div>
@@ -111,9 +112,10 @@ export default {
       });
     });
 
-    this.$mitt.on("mobile-message", (data) => {
-      this.chat.sendChatMessage(data);
-    });
+    // this.$mitt.on("mobile-message", (data) => {
+    //   console.log("mobile-data" + data);
+    //   this.chat.sendChatMessage(data);
+    // });
   },
 
   methods: {

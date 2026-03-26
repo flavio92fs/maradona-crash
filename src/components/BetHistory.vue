@@ -43,7 +43,7 @@
       </div> -->
 
       <div
-        class="flex flex-col border border-secondary p-3 flex-grow rounded-t-none sm:rounded-t-xl rounded-xl"
+        class="flex flex-col border border-secondary p-3 flex-grow rounded-t-none sm:rounded-t-md rounded-md"
       >
         <div
           class="flex flex-col flex-grow h-96 max-h-96 xs:max-h-full xs:h-0 overflow-y-auto"

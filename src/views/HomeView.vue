@@ -22,7 +22,7 @@
       <div
         class="flex flex-col xl:w-5/12 3xl:w-8/12 flex-grow order-2 lg:order-none xl:mx-5 overflow-hidden"
       >
-        <div :class="isLandscape ? 'flex flex-row' : 'hidden'">
+        <div :class="isLandscape ? 'block' : 'hidden'">
           <MultiplierHistory class="mb-2" />
         </div>
         <div id="game-container" class="flex-grow">
@@ -211,11 +211,13 @@ export default {
   min-height: 200px;
   max-height: 100%;
   max-width: 100%;
+  border-radius: 10px;
 }
 
 canvas {
   position: static;
   margin: 0 auto;
+  border-radius: 10px;
 }
 
 @media screen and (width < 1024px) {

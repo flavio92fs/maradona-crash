@@ -35,9 +35,13 @@ export function initScene(container: HTMLElement) {
 
   const loadingManager = new LoadingManager(() => {
     requestAnimationFrame(animate);
-    window.addEventListener("click", () => {
-      audioManager.playBackgroundMusic();
-    });
+    window.addEventListener(
+      "click",
+      () => {
+        audioManager.playBackgroundMusic();
+      },
+      { once: true }
+    );
     // window.addEventListener("resize", resizeRenderer);
 
     // resizeRenderer();

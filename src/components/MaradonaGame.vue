@@ -16,10 +16,10 @@
       "
     >
       <div class="container-top absolute top-0 w-full">
-        <Navigation
+        <!-- <Navigation
           class="rounded-none z-[15]"
           :class="isLandscape ? 'hidden' : 'block'"
-        />
+        /> -->
 
         <div
           id="multipliers-overlay"
@@ -32,13 +32,13 @@
         >
           <div
             class="flex flex-row flex-wrap justify-center overflow-hidden"
-            style="height: 26px; row-gap: 20px"
+            style="height: 30px; row-gap: 20px"
           >
             <MultiplierLabel
-              class="rounded-xl py-0.5 px-2 mx-1 text-sm font-bold"
-              v-for="i in 10"
+              class="rounded-md py-0.5 px-2 mx-1 text-sm font-bold"
+              v-for="i in 100"
               :key="i"
-              :value="10.0"
+              :value="Math.floor(Math.random() * (10 - 1) + 1)"
             />
           </div>
         </div>
@@ -82,6 +82,14 @@
             <SpeakerWaveIcon v-if="isMusicOn" class="text-white h-6 w-6" />
             <SpeakerXMarkIcon v-else class="text-white h-6 w-6" />
           </button>
+
+          <button
+            v-if="!isLandscape"
+            class="btn fullscreen-button p-2 rounded-full me-2 mt-2"
+            @click="$root.$refs.chatMobilePanel.openChatPanel()"
+          >
+            <ChatBubbleOvalLeftEllipsisIcon class="text-white h-6 w-6" />
+          </button>
         </div>
       </div>
 
@@ -89,6 +97,7 @@
         <img
           class="h-full w-full pointer-events-none"
           :src="'public/vignette.png'"
+          style="border-radius: 10px"
         />
       </div>
 
@@ -220,6 +229,7 @@ import {
   SunIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
@@ -253,6 +263,7 @@ let history_close_time = 10000;
 let bet_box_close_time = 5000;
 let isMorning = ref(true);
 let isMusicOn = ref(true);
+let chatIsOpen = ref(false);
 
 //Methods
 
@@ -261,7 +272,7 @@ function toggleDayTime(daytime) {
 }
 
 function setMusic() {
-  this.$mitt.emit("setMusic", isMusicOn.value);
+  emitter.emit("setMusic", isMusicOn.value);
 }
 
 function openHistory(category) {

@@ -6,8 +6,46 @@ import { RouterView } from "vue-router";
   <div id="main" class="h-full" ref="el">
     <Transition>
       <div
+        id="small_disclaimer"
+        class="absolute h-full w-full bg-black z-[10000] text-white"
+      >
+        <div class="relative h-full w-full">
+          <div class="absolute top-1/2 left-1/2">
+            <div
+              class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
+            >
+              <h2 class="text-xl font-bold">
+                {{ $t("too_small") }}
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition>
+      <div
+        v-if="turnDevice"
+        class="absolute h-full w-full bg-black z-[10000] text-white"
+      >
+        <div class="relative h-full w-full">
+          <div class="absolute top-1/2 left-1/2">
+            <div
+              class="flex flex-col justify-center items-center gap-y-5 transform -translate-x-1/2 -translate-y-1/2"
+            >
+              <h2 class="text-xl font-bold">
+                {{ $t("rotate_device") }}
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition>
+      <div
         v-if="loading && !disconnected"
-        class="absolute h-full w-full bg-black z-50 text-white"
+        class="absolute h-full w-full bg-black z-[9999] text-white"
       >
         <div class="relative h-full w-full">
           <div class="absolute top-1/2 left-1/2">
@@ -23,12 +61,12 @@ import { RouterView } from "vue-router";
     </Transition>
 
     <Transition>
-      <div v-if="disconnected" class="absolute h-full w-full bg-black z-50">
+      <div v-if="disconnected" class="absolute h-full w-full bg-black z-[9999]">
         <DisconnectionModal />
       </div>
     </Transition>
 
-    <RouterView class="p-0 lg:p-5" :class="loading ? 'overflow-hidden' : ''" />
+    <RouterView id="router-view" :class="loading ? 'overflow-hidden' : ''" />
 
     <!-- How to Play Modal -->
 
@@ -59,11 +97,13 @@ export default {
     loading: true,
     loading_progress: 0,
     disconnected: false,
+    // turnDevice: false,
   }),
 
   computed: {
     ...mapState({
       isFullscreen: "isFullscreen",
+      turnDevice: "turnDevice",
     }),
   },
 
@@ -77,9 +117,16 @@ export default {
         this.$refs.el.requestFullscreen();
       }
     },
+
+    handleOrientation(e) {
+      this.turnDevice = e.target.angle === 90 || e.target.angle === -90;
+    },
   },
 
   created() {
+    window.addEventListener("deviceorientation", this.handleOrientation, true);
+    screen.orientation.addEventListener("change", this.handleOrientation, true);
+
     this.$mitt.on("loadingProgress", (value) => {
       this.loading = true;
       this.loading_progress = Math.round(value.percent);
@@ -110,6 +157,19 @@ export default {
       await import("tw-elements"!);
     };
     importTE();
+  },
+
+  unmounted() {
+    window.removeEventListener(
+      "deviceorientation",
+      this.handleOrientation,
+      true
+    );
+    window.removeEventListener(
+      "orientationchange",
+      this.handleOrientation,
+      true
+    );
   },
 };
 </script>
@@ -209,6 +269,10 @@ nav a:first-of-type {
   border: 0;
 }
 
+#small_disclaimer {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -233,6 +297,17 @@ nav a:first-of-type {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+}
+
+@media (max-height: 554px) {
+  #small_disclaimer {
+    display: flex;
+    transition: all 1s ease-in-out;
+  }
+
+  #router-view {
+    overflow: hidden;
   }
 }
 </style>

@@ -1,20 +1,21 @@
 <template>
   <div>
-    <div
-      class="bg-primary h-full flex flex-col border border-secondary rounded-xl"
-    >
+    <div class="h-full flex flex-col border border-secondary rounded-md">
       <div
         class="flex justify-between text-white border-b border-secondary rounded-t-xl p-2"
       >
         <div>CHAT</div>
+
         <div class="flex flex-row items-center">
-          <div class="bg-green-500 h-3 w-3 rounded-full mr-1.5"></div>
+          <div
+            class="bg-green-500 h-3 w-3 rounded-full mr-1.5 animate-pulse"
+          ></div>
           <div>Online: <b>138</b></div>
         </div>
       </div>
       <div
         id="messages-container"
-        class="flex flex-col flex-grow h-96 max-h-96 xl:max-h-full xl:h-0 overflow-y-auto mx-2 mt-2 px-2"
+        class="flex flex-col flex-grow h-96 max-h-96 xs:max-h-full xs:h-0 overflow-y-auto mx-2 mt-2 px-2"
       >
         <ChatMessage
           v-for="(message, index) in chatMessages"
@@ -23,10 +24,10 @@
         />
       </div>
 
-      <div class="flex gap-3 p-3">
-        <input
+      <div class="flex p-2 relative">
+        <!-- <input
           type="text"
-          class="flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
+          class="focus:outline-none flex-grow bg-transparent text-white border border-white rounded-md px-2 py-1 min-w-0"
           :placeholder="$t('chat_prompt')"
           v-model="message"
           @keydown.enter="sendMessage(message)"
@@ -38,7 +39,25 @@
           :disabled="message.length <= 0"
         >
           {{ $t("send") }}
+        </button> -->
+
+        <button
+          class="bg-secondary p-2 rounded-md text-white h-full w-full"
+          @click="isEmojiOpen ? (isEmojiOpen = false) : (isEmojiOpen = true)"
+        >
+          {{ isEmojiOpen ? "Close" : "Send Reaction" }}
         </button>
+
+        <Picker
+          v-if="isEmojiOpen"
+          class="absolute left-0 right-0 bottom-16 mx-auto bg-primary border-secondary"
+          :data="emojiIndex"
+          :showPreview="false"
+          style="width: 96% !important"
+          @select="sendMessage"
+          native
+        >
+        </Picker>
       </div>
     </div>
   </div>
@@ -47,19 +66,27 @@
 <script>
 import ChatMessage from "./ChatMessage.vue";
 import ChatWebSocket from "@/WebSockets/Chat";
+import data from "emoji-mart-vue-fast/data/all.json";
+import "emoji-mart-vue-fast/css/emoji-mart.css";
+import { Picker, EmojiIndex } from "emoji-mart-vue-fast/src";
 import { mapActions, mapState } from "vuex";
+
+let emojiIndex = new EmojiIndex(data);
 
 export default {
   name: "Chat",
 
   components: {
     ChatMessage,
+    Picker,
   },
 
   data: () => ({
+    isEmojiOpen: false,
     chat: new ChatWebSocket(),
     messages: [],
-    message: "",
+    message: {},
+    emojiIndex: emojiIndex,
   }),
 
   computed: {
@@ -85,26 +112,28 @@ export default {
       });
     });
 
-    this.$mitt.on("mobile-message", (data) => {
-      this.chat.sendChatMessage(data);
-    });
+    // this.$mitt.on("mobile-message", (data) => {
+    //   console.log("mobile-data" + data);
+    //   this.chat.sendChatMessage(data);
+    // });
   },
 
   methods: {
     ...mapActions(["setChatMessages"]),
 
-    sendMessage(message) {
+    sendMessage(emoji) {
       const messages = document.getElementById("messages-container");
 
-      if (message.length > 0) {
+      if (emoji) {
+        const message = {
+          user: "Test",
+          text: emoji.native,
+        };
+
         this.chat.sendChatMessage(message);
 
-        this.chatMessages.push({
-          message: message,
-          username: this.player.name,
-          timestamp: new Date(),
-        });
-        this.message = "";
+        this.message = {};
+        this.isEmojiOpen = false;
         this.$nextTick(() => {
           messages.scrollTo(0, 9999);
         });
@@ -135,5 +164,28 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+</style>
+
+<style>
+.emoji-mart-search {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+  background-color: bg-primary !important;
+}
+
+.emoji-mart-search > input {
+  @apply bg-primary;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.emoji-mart-category-label {
+  @apply bg-primary !important;
+  font-weight: 600 !important;
+  color: white !important;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 </style>

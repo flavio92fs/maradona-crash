@@ -3,11 +3,12 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     balance: 0.0,
-    currency: {},
-    coins: [],
+    currency: { default_bet: 0.1 },
+    coins: [1, 2, 5, 10],
     player: {},
     chatMessages: [],
     isFullscreen: false,
+    turnDevice: false,
   },
   mutations: {
     setBalance(state, balance) {
@@ -24,6 +25,9 @@ export default createStore({
     },
     setFullscreen(state, isFullscreen) {
       state.isFullscreen = isFullscreen;
+    },
+    setTurnDevice(state, turnDevice) {
+      state.turnDevice = turnDevice;
     },
     setChatMessages(state, chatMessages) {
       state.chatMessages = chatMessages;
@@ -53,6 +57,9 @@ export default createStore({
     },
     setFullscreen({ commit }, isFullscreen) {
       commit("setFullscreen", isFullscreen);
+    },
+    setTurnDevice({ commit }, turnDevice) {
+      commit("setTurnDevice", turnDevice);
     },
     setChatMessages({ commit }, chatMessages) {
       commit("setChatMessages", chatMessages);

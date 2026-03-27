@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="true">
-    <Dialog as="div" class="relative z-50">
+    <Dialog as="div" class="relative z-[9999]">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -15,7 +15,7 @@
         />
       </TransitionChild>
 
-      <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="fixed inset-0 z-[9999] overflow-y-auto">
         <div
           class="flex min-h-full justify-center p-4 text-center items-center sm:p-0"
         >
@@ -79,6 +79,7 @@ import {
 } from "@headlessui/vue";
 
 const open = ref(false);
+const landingUrl = "https://google.com/";
 
 function openModal() {
   console.log("Opening Modal");
@@ -86,7 +87,7 @@ function openModal() {
 }
 
 function goToLanding() {
-  window.location.href = "https://eldorado-gaming.it/games.html";
+  window.location.href = landingUrl;
 }
 
 defineExpose({

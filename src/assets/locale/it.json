@@ -25,8 +25,10 @@
   "rule_1": "Fai una o due scommesse durante la fase di preparazione del round.",
   "rule_2": "Osserva l'anatra vincente. La tua vincita aumenta in base al moltiplicatore generato casualmente.",
   "rule_3": "Incassa prima che l'anatra venga abbattuta e goditi i tuoi guadagni!",
-  "clear": "Azzera",
+  "clear": "Reset",
   "music": "Musica",
   "sound_effects": "Effetti Sonori",
-  "retrieving_data": "Recupero Dati"
+  "retrieving_data": "Recupero Dati",
+  "rotate_device": "Per favore, ruota il dispositivo per continuare a giocare",
+  "too_small": "Lo schermo è troppo piccolo. Ridimensiona la finestra o utilizza un altro dispositivo."
 }

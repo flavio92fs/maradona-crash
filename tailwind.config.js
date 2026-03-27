@@ -4,6 +4,7 @@ module.exports = {
   theme: {
     extend: {
       screens: {
+        xs: "500px",
         "3xl": "2053px",
       },
       colors: {
@@ -16,4 +17,5 @@ module.exports = {
       },
     },
   },
+  plugins: [require("@tailwindcss/container-queries")],
 };

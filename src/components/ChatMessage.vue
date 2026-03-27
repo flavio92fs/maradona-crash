@@ -1,30 +1,13 @@
 <template>
   <div class="flex flex-col">
-    <div
-      class="flex flex-row gap-x-2 items-end my-3"
-      :class="message.username == player.name ? 'justify-end' : ''"
-    >
-      <div
-        :class="message.username == player.name ? 'order-last' : 'order-first'"
-        class="flex-shrink-0 w-6 h-6 bg-gray-50 rounded-full"
-      ></div>
-      <div
-        :class="
-          message.username == player.name ? 'my-message' : 'other-message'
-        "
-      >
-        <p
-          :class="
-            message.username == player.name ? 'text-white' : 'text-neutral-500'
-          "
-          class="font-bold text-xs mb-2"
-        >
-          {{ message.username == player.name ? "Tu" : message.username + ":" }}
-        </p>
-        <p>{{ message.message }}</p>
-        <p class="text-xs text-right mt-2">
+    <div class="flex flex-row gap-x-2 items-end my-3">
+      <!-- <div class="flex-shrink-0 w-6 h-6 bg-gray-50 rounded-full"></div> -->
+      <div class="flex flex-row items-center">
+        <p class="font-bold text-xs mr-2">{{ message.user }}:</p>
+        <p>{{ message.text }}</p>
+        <!-- <p class="text-xs text-right mt-2">
           {{ moment(message.timestamp).format("HH:mm") }}
-        </p>
+        </p> -->
       </div>
     </div>
   </div>

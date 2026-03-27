@@ -399,7 +399,7 @@ onMounted(() => {
 }
 
 #game-multiplier-horizontal {
-  top: 78%;
+  bottom: 2%;
 }
 
 .bg-overlay {

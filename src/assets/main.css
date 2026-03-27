@@ -112,6 +112,12 @@ input[type="number"] {
   @apply rounded-md;
 }
 
+@media screen and (width < 768px) {
+  .lil-gui {
+    display: none !important;
+  }
+}
+
 @font-face {
   font-family: "Sablon";
   src: local("Sablon"), url("./fonts/Sablon_Up_College.otf") format("opentype"),

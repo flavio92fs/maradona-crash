@@ -16,14 +16,16 @@
         @click="isExtended = true"
       >
         <div class="flex items-center justify-center h-full">
-          <div>...</div>
+          <ChevronDownIcon class="text-white h-6 w-6" />
         </div>
       </button>
     </div>
 
     <div v-if="isExtended" class="absolute top-0 bg-secondary rounded-md">
       <div class="w-full text-right">
-        <button class="mr-3 mt-3" @click="isExtended = false">X</button>
+        <button class="mr-3 mt-3" @click="isExtended = false">
+          <ChevronUpIcon class="text-white h-6 w-6" />
+        </button>
       </div>
       <div
         class="flex flex-wrap gap-y-2 items-center bg-secondary w-100 px-1 py-3 rounded-md z-[99999]"
@@ -41,12 +43,15 @@
 
 <script>
 import MultiplierLabel from "../components/MultiplierLabel.vue";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
 
 export default {
   name: "MultiplierHistory",
 
   components: {
     MultiplierLabel,
+    ChevronUpIcon,
+    ChevronDownIcon,
   },
 
   data: () => ({

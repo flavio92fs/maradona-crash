@@ -31,8 +31,9 @@
           "
         >
           <div
-            class="flex flex-row flex-wrap justify-center overflow-hidden"
-            style="height: 30px; row-gap: 20px"
+            class="flex flex-row flex-wrap overflow-hidden transition-[height]"
+            style="row-gap: 10px"
+            :style="isHistoryExtended ? 'height: 100px' : 'height: 30px'"
           >
             <MultiplierLabel
               class="rounded-md py-0.5 px-2 mx-1 text-sm font-bold"
@@ -40,6 +41,15 @@
               :key="i"
               :value="Math.floor(Math.random() * (10 - 1) + 1)"
             />
+          </div>
+          <div class="flex-grow mr-4">
+            <button class="text-center" @click="toggleMultiplierExtension">
+              <ChevronDownIcon
+                v-if="!isHistoryExtended"
+                class="text-white h-6 w-6"
+              />
+              <ChevronUpIcon v-else class="text-white h-6 w-6" />
+            </button>
           </div>
         </div>
 
@@ -230,6 +240,8 @@ import {
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/vue/24/outline";
 import { initScene } from "@/components/maradona/src/main.ts";
 import MultiplierLabel from "./MultiplierLabel.vue";
@@ -264,6 +276,7 @@ let bet_box_close_time = 5000;
 let isMorning = ref(true);
 let isMusicOn = ref(true);
 let chatIsOpen = ref(false);
+let isHistoryExtended = ref(false);
 
 //Methods
 
@@ -273,6 +286,10 @@ function toggleDayTime(daytime) {
 
 function setMusic() {
   emitter.emit("setMusic", isMusicOn.value);
+}
+
+function toggleMultiplierExtension() {
+  isHistoryExtended.value = !isHistoryExtended.value;
 }
 
 function openHistory(category) {

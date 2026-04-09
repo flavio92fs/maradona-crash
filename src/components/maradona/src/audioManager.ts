@@ -8,7 +8,7 @@ export default class AudioManager {
   private _listener: THREE.AudioListener;
   private _backgroundSound: THREE.Audio;
   private _gui: GUI;
-  private _userStopped: Boolean;
+  private _userStopped: boolean;
 
   public get listener(): THREE.AudioListener {
     return this._listener;

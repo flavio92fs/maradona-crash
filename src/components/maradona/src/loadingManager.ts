@@ -33,8 +33,6 @@ export default class LoadingManager {
 
     this._loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
       const percent = (itemsLoaded / itemsTotal) * 100;
-
-      emitter.on("loadingProgress", () => {});
       emitter.emit("loadingProgress", { percent: percent });
     };
 

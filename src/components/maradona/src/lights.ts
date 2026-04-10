@@ -2,7 +2,7 @@ import * as THREE from "three";
 import GUI from "lil-gui";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
 
-export function addAmbientLight(scene: THREE.Scene, gui: GUI) {
+export function addAmbientLight(scene: THREE.Scene, gui: GUI): THREE.AmbientLight {
   const folder = gui.addFolder("Ambient Light").close();
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
 
@@ -36,6 +36,7 @@ export function addAmbientLight(scene: THREE.Scene, gui: GUI) {
   );
 
   scene.add(ambientLight);
+  return ambientLight;
 }
 
 export function createSpotLight(

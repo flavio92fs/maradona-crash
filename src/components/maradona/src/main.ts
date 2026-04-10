@@ -22,6 +22,7 @@ import {
   addVideoGrassPlane,
 } from "./environment";
 import { addMaradona } from "./character";
+import { setupCinematicAnimation, cinematicState } from "./cinematicAnimation";
 import emitter from "@/eventEmitter";
 
 export function initScene(container: HTMLElement) {
@@ -177,7 +178,7 @@ export function initScene(container: HTMLElement) {
   cameraControls.startAnimation();
 
   // Lights
-  addAmbientLight(scene, lightsFolderGUI);
+  const ambientLight = addAmbientLight(scene, lightsFolderGUI);
   const spotLight = createSpotLight(
     scene,
     lightsFolderGUI,
@@ -227,7 +228,9 @@ export function initScene(container: HTMLElement) {
   );
   addStadio(scene, gui, gltfLoader, textureLoader);
   addShadowPlane(scene, gui);
-  addVideoGrassPlane(scene, gui, gltfLoader, textureLoader)
+  addVideoGrassPlane(scene, gui, gltfLoader, textureLoader).then((videoGrassPlane) => {
+    setupCinematicAnimation(gui, camera, cameraControls, ambientLight, spotLight, videoGrassPlane);
+  });
 
   // Character
   addMaradona(
@@ -280,7 +283,9 @@ export function initScene(container: HTMLElement) {
       updateFireworkTexture(delta);
     }
 
-    cameraControls.orbitControls.update();
+    if (!cinematicState.active) {
+      cameraControls.orbitControls.update();
+    }
     renderer.render(scene, camera);
   }
 

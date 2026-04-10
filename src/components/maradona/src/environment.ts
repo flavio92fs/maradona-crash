@@ -69,6 +69,8 @@ export function addGrassPlane(
   gltfLoader.load("models/GLB/prato.glb", (gltf) => {
     const model = gltf.scene;
     model.rotation.set(0, THREE.MathUtils.degToRad(-90), 0);
+    model.scale.x = 0.9;
+    model.scale.z = 0.9;
 
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -378,80 +380,98 @@ export function addVideoGrassPlane(
   gui: GUI,
   gltfLoader: GLTFLoader,
   textureLoader: THREE.TextureLoader
-) {
+): Promise<THREE.Group> {
 
   const videoMaterial = new THREE.MeshStandardMaterial();
   addMaterialGUI(gui, videoMaterial, textureLoader, "Video Material");
 
-  gltfLoader.load("models/GLB/prato.glb", (gltf) => {
-    const video = document.createElement("video");
-    video.src = "video/best-moments-video.mp4";
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.autoplay = true;
-    video.preload = "auto";
+  return new Promise((resolve) => {
+    gltfLoader.load("models/GLB/prato.glb", (gltf) => {
+      const video = document.createElement("video");
+      video.src = "video/best-moments-video.mp4";
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.autoplay = true;
+      video.preload = "auto";
 
-    const videoTexture = new THREE.VideoTexture(video);
-    videoTexture.flipY = false;
-    videoTexture.center.set(0.5, 0.5);
-    videoTexture.rotation = THREE.MathUtils.degToRad(-180);
+      const videoTexture = new THREE.VideoTexture(video);
+      videoTexture.flipY = false;
+      videoTexture.center.set(0.5, 0.5);
+      videoTexture.rotation = THREE.MathUtils.degToRad(-180);
 
-    videoTexture.offset.x = -0.07;
-    videoTexture.offset.y = -0.02;
-    videoTexture.repeat.set(0.1, 0.1);
+      videoTexture.offset.x = -0.07;
+      videoTexture.offset.y = -0.02;
+      videoTexture.repeat.set(0.1, 0.1);
 
-    video.addEventListener("canplaythrough", () => video.play());
-    videoTexture.flipY = false;
+      video.addEventListener("canplaythrough", () => video.play());
+      videoTexture.flipY = false;
     
-    const model = gltf.scene;
-    model.traverse((child) => {
-    model.rotation.set(0, THREE.MathUtils.degToRad(90), 0);
-    model.position.y = 0.01
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        const mat = mesh.material as THREE.Material;
-        if (mat.name === "prato") {
-          (mesh.material as THREE.MeshBasicMaterial).map = videoTexture;
+      const model = gltf.scene;
+      model.traverse((child) => {
+      model.rotation.set(0, THREE.MathUtils.degToRad(90), 0);
+      model.position.y = 0.01
+      model.scale.x = 0.9
+      model.scale.z = 0.9
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          const mat = mesh.material as THREE.Material;
+          if (mat.name === "prato") {
+            (mesh.material as THREE.MeshBasicMaterial).map = videoTexture;
+          }
         }
-      }
+      });
+      
+
+
+      const params = { rotation: 0, scaleVideo: 1, offsetX: 0, offsetY: 0, positionY: 0, scaleX: 1 , scaleZ: 1};
+      const folder = gui.addFolder("Grass Video Plane").close();
+
+      folder
+        .add(params, "rotation", -180, 180, 1)
+        .name("Rotazione")
+        .onChange((deg: number) => {
+          videoTexture.rotation = THREE.MathUtils.degToRad(deg);
+        });
+      folder
+        .add(params, "scaleVideo", 0.1, 5, 0.1)
+        .name("Scala Video")
+        .onChange((s: number) => {
+          videoTexture.repeat.set(s, s);
+        });
+      folder
+        .add(params, "offsetX", -1, 1, 0.01)
+        .name("Offset X")
+        .onChange((v: number) => {
+          videoTexture.offset.x = v;
+        });
+      folder
+        .add(params, "offsetY", -1, 1, 0.01)
+        .name("Offset Y")
+        .onChange((v: number) => {
+          videoTexture.offset.y = v;
+        });
+      folder
+        .add(params, "positionY", -1, 1, 0.001)
+        .name("Plane Position Y")
+        .onChange((v: number) => {
+          model.position.y = v
+        });
+    folder
+        .add(params, "scaleX", -1, 1, 0.001)
+        .name("Plane ScaleX")
+        .onChange((v: number) => {
+          model.scale.x = v
+        });
+    folder
+        .add(params, "scaleZ", -1, 1, 0.001)
+        .name("Plane ScaleY")
+        .onChange((v: number) => {
+          model.scale.z = v
+        });
+
+      scene.add(model);
+      resolve(model);
     });
-
-
-    const params = { rotation: 0, scale: 1, offsetX: 0, offsetY: 0, positionY: 0, };
-    const folder = gui.addFolder("Grass Video Plane").close();
-
-    folder
-      .add(params, "rotation", -180, 180, 1)
-      .name("Rotazione")
-      .onChange((deg: number) => {
-        videoTexture.rotation = THREE.MathUtils.degToRad(deg);
-      });
-    folder
-      .add(params, "scale", 0.1, 5, 0.1)
-      .name("Scala")
-      .onChange((s: number) => {
-        videoTexture.repeat.set(s, s);
-      });
-    folder
-      .add(params, "offsetX", -1, 1, 0.01)
-      .name("Offset X")
-      .onChange((v: number) => {
-        videoTexture.offset.x = v;
-      });
-    folder
-      .add(params, "offsetY", -1, 1, 0.01)
-      .name("Offset Y")
-      .onChange((v: number) => {
-        videoTexture.offset.y = v;
-      });
-    folder
-      .add(params, "positionY", -1, 1, 0.001)
-      .name("Plane Position Y")
-      .onChange((v: number) => {
-        model.position.y = v
-      });
-
-    scene.add(model);
   });
 }

@@ -4,7 +4,7 @@
       <!-- <div class="flex-shrink-0 w-6 h-6 bg-gray-50 rounded-full"></div> -->
       <div class="flex flex-row items-center">
         <p class="font-bold text-xs mr-2">{{ message.user }}:</p>
-        <p>{{ message.text }}</p>
+        <p class="text-white">{{ message.text }}</p>
         <!-- <p class="text-xs text-right mt-2">
           {{ moment(message.timestamp).format("HH:mm") }}
         </p> -->

@@ -103,7 +103,14 @@
         </div>
       </div>
 
-      <div class="absolute w-full h-full z-[9] pointer-events-none">
+      <div
+        class="absolute w-full h-full z-[9] pointer-events-none rounded-b-xl"
+        :style="
+          isLandscape
+            ? 'background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 86%, rgb(0, 0, 0) 102%);'
+            : ''
+        "
+      >
         <img
           class="h-full w-full pointer-events-none"
           :src="'public/vignette.png'"
@@ -115,17 +122,32 @@
         id="game-multiplier-horizontal"
         class="absolute w-full"
         :class="isLandscape ? 'block' : 'hidden'"
+        :isLandscape="isLandscape"
       />
 
       <div
         class="absolute bottom-0 w-full z-[150] pb-0"
         :class="isLandscape ? 'hidden' : 'block'"
       >
-        <GameMultiplier id="game-multiplier" />
+        <GameMultiplier
+          id="game-multiplier"
+          class="flex items-end justify-center"
+          :isLandscape="isLandscape"
+          style="
+            height: 120px;
+            border-radius: 0;
+            background: linear-gradient(
+              to bottom,
+              rgba(255, 255, 255, 0) 0%,
+              rgba(0, 0, 0, 0) 0%,
+              rgb(0, 0, 0) 110%
+            );
+          "
+        />
         <div id="bet-overlay" class="game-overlay pt-3">
           <BetBoxMobile
             v-if="showBetBox"
-            class="mb-4 mx-2"
+            class="mb-4"
             @confirm="setButton"
             @close="closeBox"
             @click.stop="(e) => e.stopPropagation()"
@@ -407,21 +429,21 @@ onMounted(() => {
 }
 
 .game-overlay {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
-#history-overlay {
+/* #history-overlay {
   background-color: rgba(0, 0, 0, 0.4);
-}
+} */
 
 #history-container {
   background-color: rgba(0, 0, 0, 0.7);
   transition: all ease-in-out 0.3s;
 }
-
+/* 
 .btn-container {
   background-color: rgba(0, 0, 0, 0.6);
-}
+} */
 
 .bet-button {
   background-color: #57aadc;
@@ -430,6 +452,8 @@ onMounted(() => {
 .history-button {
   background-color: rgba(0, 0, 0, 0.7);
   user-select: none;
+  border: solid 1px;
+  @apply border-secondary;
 }
 
 .fullscreen-button {

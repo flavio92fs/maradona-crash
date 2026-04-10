@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center btn-container rounded-lg w-full mx-2 p-2">
+  <div class="flex items-center btn-container rounded-lg w-full p-2">
     <button
       class="relative flex md:flex-col btn rounded-xl text-xl p-2 w-full text-white text-start items-start justify-between"
       :disabled="!active"

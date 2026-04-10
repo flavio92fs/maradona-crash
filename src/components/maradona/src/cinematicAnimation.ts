@@ -14,23 +14,13 @@ const CINEMATIC_TARGET = {
   },
   ambientIntensity: 0.1,
   spotlight: {
-    positionX: 0,
-    positionY: 3.46,
-    positionZ: -0.33,
-    targetPositionY: 0,
-    cone: 1.08,
-    borderHardness: 0.15,
-    intensity: 42.96,
+    intensity: 0,
   },
 };
 
 interface SavedState {
   cameraPos: THREE.Vector3;
   ambientIntensity: number;
-  spotlightPos: THREE.Vector3;
-  spotlightTargetY: number;
-  spotlightAngle: number;
-  spotlightPenumbra: number;
   spotlightIntensity: number;
   orbitMaxDistance: number;
   orbitMinDistance: number;
@@ -55,10 +45,6 @@ export function setupCinematicAnimation(
     return {
       cameraPos: camera.position.clone(),
       ambientIntensity: ambientLight.intensity,
-      spotlightPos: spotLight.position.clone(),
-      spotlightTargetY: spotLight.target.position.y,
-      spotlightAngle: spotLight.angle,
-      spotlightPenumbra: spotLight.penumbra,
       spotlightIntensity: spotLight.intensity,
       orbitMaxDistance: cameraControls.orbitControls.maxDistance,
       orbitMinDistance: cameraControls.orbitControls.minDistance,
@@ -98,9 +84,6 @@ export function setupCinematicAnimation(
 
     // Spotlight position
     tl.to(spotLight.position, {
-      x: CINEMATIC_TARGET.spotlight.positionX,
-      y: CINEMATIC_TARGET.spotlight.positionY,
-      z: CINEMATIC_TARGET.spotlight.positionZ,
       duration: 2,
       ease: "power2.inOut",
       onUpdate: () => spotLight.target.updateMatrixWorld(),
@@ -108,8 +91,6 @@ export function setupCinematicAnimation(
 
     // Spotlight params
     tl.to(spotLight, {
-      angle: CINEMATIC_TARGET.spotlight.cone,
-      penumbra: CINEMATIC_TARGET.spotlight.borderHardness,
       intensity: CINEMATIC_TARGET.spotlight.intensity,
       duration: 2,
       ease: "power2.inOut",
@@ -117,7 +98,6 @@ export function setupCinematicAnimation(
 
     // Spotlight target
     tl.to(spotLight.target.position, {
-      y: CINEMATIC_TARGET.spotlight.targetPositionY,
       duration: 2,
       ease: "power2.inOut",
       onUpdate: () => spotLight.target.updateMatrixWorld(),
@@ -161,9 +141,6 @@ export function setupCinematicAnimation(
 
     // Spotlight position
     tl.to(spotLight.position, {
-      x: state.spotlightPos.x,
-      y: state.spotlightPos.y,
-      z: state.spotlightPos.z,
       duration: 2,
       ease: "power2.inOut",
       onUpdate: () => spotLight.target.updateMatrixWorld(),
@@ -171,8 +148,6 @@ export function setupCinematicAnimation(
 
     // Spotlight params
     tl.to(spotLight, {
-      angle: state.spotlightAngle,
-      penumbra: state.spotlightPenumbra,
       intensity: state.spotlightIntensity,
       duration: 2,
       ease: "power2.inOut",
@@ -180,7 +155,6 @@ export function setupCinematicAnimation(
 
     // Spotlight target
     tl.to(spotLight.target.position, {
-      y: state.spotlightTargetY,
       duration: 2,
       ease: "power2.inOut",
       onUpdate: () => spotLight.target.updateMatrixWorld(),

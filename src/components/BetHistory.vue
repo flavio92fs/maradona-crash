@@ -65,22 +65,22 @@
             <div class="table w-full">
               <div class="table-row">
                 <div
-                  class="table-cell text-center text-xs font-light text-gray-400"
+                  class="table-cell text-center text-xs font-light text-gray-400 px-2"
                 >
                   {{ $t("user") }}
                 </div>
                 <div
-                  class="table-cell text-center text-xs font-light text-gray-400"
+                  class="table-cell text-center text-xs font-light text-gray-400 px-2"
                 >
                   {{ $t("bet") }}
                 </div>
                 <div
-                  class="table-cell text-center text-xs font-light text-gray-400"
+                  class="table-cell text-center text-xs font-light text-gray-400 px-2"
                 >
                   {{ $t("multiplier") }}
                 </div>
                 <div
-                  class="table-cell text-center text-xs font-light text-gray-400"
+                  class="table-cell text-center text-xs font-light text-gray-400 px-2"
                 >
                   {{ $t("wins") }}
                 </div>

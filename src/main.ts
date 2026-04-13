@@ -4,7 +4,6 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import { createI18n } from "vue-i18n";
-import { defineCustomElements as defineIonPhaser } from "@ion-phaser/core";
 import { useToast } from "vue-toast-notification";
 import ToastPlugin from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-default.css";
@@ -24,8 +23,6 @@ const app = createApp(App);
 const $toast = useToast();
 
 app.config.globalProperties.$mitt = emitter;
-
-defineIonPhaser(window);
 
 app.use(router);
 app.use(store);

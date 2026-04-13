@@ -14,18 +14,12 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag: any) => ["ion-phaser"].includes(tag),
-        },
-      },
-    }),
+    vue(),
     vueJsx(),
     fullReload(['src/components/maradona/**/*']),
     //   obfuscator({
     //     include: [/\.ts$/, /\.js$/],
-    //     exclude: [/node_modules/], // Escludiamo phaser per sicurezza extra
+    //     exclude: [/node_modules/],
     //     apply: 'build',
     //     options: {
     //         compact: true,

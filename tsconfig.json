@@ -16,10 +16,6 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "custom_typings/"
-    ],
     "verbatimModuleSyntax": true,
     "noEmit": true
   },

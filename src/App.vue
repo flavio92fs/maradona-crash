@@ -136,16 +136,6 @@ export default {
         this.loading_progress = 0;
       }
     });
-    this.$mitt.on("GameScene", () => {
-      console.log("loaded");
-      // this.loading_progress = 100;
-      this.loading = false;
-    });
-    this.$mitt.on("LoadingScene", () => {
-      console.log("loaded");
-      // this.loading_progress = 100;
-      this.loading = false;
-    });
     this.$mitt.on("disconnection", () => {
       // this.loading_progress = 100;
       this.disconnected = true;

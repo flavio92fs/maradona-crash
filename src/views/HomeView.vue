@@ -68,11 +68,11 @@ import MultiplierHistory from "../components/MultiplierHistory.vue";
 import BetHistory from "../components/BetHistory.vue";
 import BetBox from "../components/BetBox.vue";
 import Chat from "../components/Chat.vue";
-import BetAudio from "../components/game/assets/Sounds/bet.mp3";
-import WinAudio from "../components/game/assets/Sounds/win.mp3";
 import UserBox from "@/components/UserBox.vue";
-import { game } from "../components/game/config.js";
 import { mapState, mapActions } from "vuex";
+
+const BetAudio = "sound/bet.mp3";
+const WinAudio = "sound/win.mp3";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
@@ -91,10 +91,7 @@ export default {
 
   data: () => ({
     initialize: false,
-    game: game,
-    gameInstance: {},
     gameData: {},
-    startedGame: false,
     turnDevice: false,
     height: window.innerHeight,
     width: window.innerWidth,
@@ -130,54 +127,22 @@ export default {
       this.width = window.innerWidth;
     },
 
-    initConnection() {
-      this.websocket.connect();
-      setInterval(this.websocket.pingPong, 15000);
-    },
-
-    changeScene(current_scene: string, new_scene: string) {
-      this.gameInstance.scene.keys[current_scene].loadScene(new_scene);
-    },
-
-    setMultiplier(value: number) {
-      this.gameInstance.scene.scenes[1].setMultiplier(value);
-    },
-
     setBet(value: any) {
       let betAudio = new Audio(BetAudio);
       betAudio.play();
-
-      this.gameInstance.scene.scenes[2].sendBet(
-        value.value,
-        value.id,
-        value.cashout_at
-      );
-    },
-
-    setAudio(value: any) {
-      this.gameInstance.scene.scenes[1].setAudio(value);
-      console.log("Audio is set");
-    },
-
-    setMusic(value: any) {
-      this.gameInstance.scene.scenes[1].setMusic(value);
-      this.gameInstance.scene.scenes[2].setMusic(value);
-      console.log("Music is set");
+      // TODO: wire to new Three.js game
     },
 
     cancelBet(buttonId: number) {
-      this.gameInstance.scene.scenes[2].cancelBet(buttonId);
+      // TODO: wire to new Three.js game
     },
 
     drawCash(buttonId: number) {
-      this.gameInstance.scene.scenes[1].drawCash(buttonId);
+      // TODO: wire to new Three.js game
     },
 
     getLeaderBoard(value: any) {
-      this.gameInstance.scene.scenes[1].getLeaderboard(
-        value.subtype,
-        value.period
-      );
+      // TODO: wire to new Three.js game
     },
 
     handleOrientation(e) {

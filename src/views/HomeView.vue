@@ -11,7 +11,7 @@
       :class="isLandscape ? 'flex-row' : 'flex-col'"
     >
       <div
-        class="justify-center sm:w-5/12 2xl:w-3/12 3xl:w-2/12 order-1 md:order-none my-1 mr-1 md:my-0"
+        class="justify-center sm:w-5/12 2xl:w-4/12 3xl:w-3/12 min-w-[280px] order-1 md:order-none my-1 mr-1 md:my-0"
         :class="isLandscape ? 'flex flex-col' : 'hidden'"
       >
         <UserBox class="mb-2" />

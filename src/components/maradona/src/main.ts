@@ -35,6 +35,8 @@ export function initScene(container: HTMLElement): () => void {
   let mixerMaradona: THREE.AnimationMixer;
   let mixerLuci: THREE.AnimationMixer;
   let mixerLuci2: THREE.AnimationMixer;
+  let cameraControls: CameraControls;
+  let resizeObserver: ResizeObserver;
   const fireworksState: FireworksState = { mixer: null, isPlaying: false };
 
   const allLights: THREE.Light[] = [];
@@ -166,7 +168,7 @@ export function initScene(container: HTMLElement): () => void {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(container.clientWidth, container.clientHeight);
   container.appendChild(renderer.domElement);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -175,7 +177,7 @@ export function initScene(container: HTMLElement): () => void {
   setupResize();
   setupCameraGUI();
 
-  const cameraControls = new CameraControls(camera, renderer, container, gui);
+  cameraControls = new CameraControls(camera, renderer, container, gui);
   cameraControls.startAnimation();
 
   // Lights
@@ -275,6 +277,7 @@ export function initScene(container: HTMLElement): () => void {
   function animate() {
     animationFrameId = requestAnimationFrame(animate);
     const delta = clock.getDelta();
+    (gui as any).__updateFPS?.();
     mixerMaradona?.update(delta);
     mixerLuci?.update(delta);
     mixerLuci2?.update(delta);
@@ -285,7 +288,7 @@ export function initScene(container: HTMLElement): () => void {
     }
 
     if (!cinematicState.active) {
-      cameraControls.orbitControls.update();
+      cameraControls?.orbitControls.update();
     }
     renderer.render(scene, camera);
   }
@@ -356,7 +359,6 @@ export function initScene(container: HTMLElement): () => void {
   }
 
   // --- Resize ---
-  let resizeObserver: ResizeObserver;
   function setupResize() {
     resizeObserver = new ResizeObserver(() => {
       const width = container.clientWidth - 1;

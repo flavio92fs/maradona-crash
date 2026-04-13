@@ -10,7 +10,8 @@ export function addFPSCounter(gui: GUI) {
   let lastTime = performance.now();
   let frames = 0;
 
-  function updateFPS() {
+  // Call this from the main animate() loop each frame
+  (gui as any).__updateFPS = function () {
     const now = performance.now();
     frames++;
     if (now - lastTime >= 1000) {
@@ -19,10 +20,7 @@ export function addFPSCounter(gui: GUI) {
       frames = 0;
       lastTime = now;
     }
-    requestAnimationFrame(updateFPS);
-  }
-
-  updateFPS();
+  };
 }
 
 export function addUiGUI(gui: GUI) {

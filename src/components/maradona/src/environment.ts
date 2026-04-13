@@ -5,6 +5,59 @@ import { gsap } from "gsap";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
 import { addMaterialGUI } from "./guiHelpers";
 
+// --- Video loading overlay helpers ---
+function createLoadingOverlay(): HTMLDivElement {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 99999;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.75);
+    font-family: sans-serif; color: #fff;
+  `;
+
+  const box = document.createElement("div");
+  box.style.cssText = `
+    text-align: center; padding: 32px 48px;
+    background: rgba(30,30,30,0.95); border-radius: 12px;
+  `;
+
+  const spinner = document.createElement("div");
+  spinner.style.cssText = `
+    width: 40px; height: 40px; margin: 0 auto 16px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: _vl_spin 0.8s linear infinite;
+  `;
+
+  const label = document.createElement("div");
+  label.className = "_vl_label";
+  label.textContent = "Caricamento video...";
+
+  // Inject keyframes once
+  if (!document.getElementById("_vl_style")) {
+    const style = document.createElement("style");
+    style.id = "_vl_style";
+    style.textContent = `@keyframes _vl_spin{to{transform:rotate(360deg)}}`;
+    document.head.appendChild(style);
+  }
+
+  box.appendChild(spinner);
+  box.appendChild(label);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function showLoadingOverlay(overlay: HTMLDivElement, fileName: string) {
+  const label = overlay.querySelector("._vl_label") as HTMLDivElement;
+  if (label) label.textContent = `Caricamento: ${fileName}`;
+  overlay.style.display = "flex";
+}
+
+function hideLoadingOverlay(overlay: HTMLDivElement) {
+  overlay.style.display = "none";
+}
+
 export function addDOM(
   scene: THREE.Scene,
   gui: GUI,
@@ -317,6 +370,9 @@ export function addStadio(
     video.preload = "auto";
 
     const videoTexture = new THREE.VideoTexture(video);
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+    videoTexture.generateMipmaps = false;
     videoTexture.flipY = false;
     videoTexture.center.set(0.5, 0.5);
     videoTexture.rotation = THREE.MathUtils.degToRad(-180);
@@ -328,12 +384,14 @@ export function addStadio(
     stadioTexture.flipY = false;
 
     const model = gltf.scene;
+    const videoMat = new THREE.MeshBasicMaterial({ map: videoTexture });
+
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         const mat = mesh.material as THREE.Material;
         if (mat.name === "video") {
-          (mesh.material as THREE.MeshBasicMaterial).map = videoTexture;
+          mesh.material = videoMat;
         }
         if (mat.name === "stadio") {
           mesh.material = stadioMaterial;
@@ -411,24 +469,51 @@ export function addVideoGrassPlane(
       videoTexture.flipY = false;
     
       const model = gltf.scene;
-      model.traverse((child) => {
       model.rotation.set(0, THREE.MathUtils.degToRad(90), 0);
-      model.position.y = 0.01
-      model.scale.x = 0.9
-      model.scale.z = 0.9
+      model.position.y = 0.01;
+      model.scale.x = 0.9;
+      model.scale.z = 0.9;
+      model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
           const mat = mesh.material as THREE.Material;
           if (mat.name === "prato") {
-            (mesh.material as THREE.MeshBasicMaterial).map = videoTexture;
+            mesh.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+            mesh.material.name = "prato";
           }
         }
       });
       
 
 
-      const params = { rotation: 0, scaleVideo: 1, offsetX: 0, offsetY: 0, positionY: 0, scaleX: 1 , scaleZ: 1};
+      // collect meshes with "prato" material for material toggling
+      const pratoMeshes: THREE.Mesh[] = [];
+      model.traverse((c) => {
+        if ((c as THREE.Mesh).isMesh) {
+          const m = c as THREE.Mesh;
+          if ((m.material as THREE.Material).name === "prato") pratoMeshes.push(m);
+        }
+      });
+
+      const params = { rotation: 0, scaleVideo: 1, offsetX: 0, offsetY: 0, positionY: 0, scaleX: 1, scaleZ: 1, materialType: "Basic" };
       const folder = gui.addFolder("Grass Video Plane").close();
+
+      folder
+        .add(params, "materialType", ["Standard", "Basic"])
+        .name("Materiale")
+        .onChange((type: string) => {
+          pratoMeshes.forEach((mesh) => {
+            const oldMat = mesh.material as THREE.Material;
+            const { opacity, transparent } = oldMat;
+            if (type === "Basic") {
+              mesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, opacity, transparent });
+            } else {
+              mesh.material = new THREE.MeshStandardMaterial({ map: videoTexture, opacity, transparent });
+            }
+            mesh.material.name = "prato";
+            oldMat.dispose();
+          });
+        });
 
       folder
         .add(params, "rotation", -180, 180, 1)
@@ -472,6 +557,56 @@ export function addVideoGrassPlane(
         .onChange((v: number) => {
           model.scale.z = v
         });
+
+      // --- Load Video button ---
+      const loadingOverlay = createLoadingOverlay();
+
+      const actions = {
+        loadVideo: () => {
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "video/*";
+          input.onchange = () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            showLoadingOverlay(loadingOverlay, file.name);
+
+            const url = URL.createObjectURL(file);
+            const oldSrc = video.src;
+
+            video.pause();
+            video.src = url;
+            video.load();
+
+            video.addEventListener(
+              "canplaythrough",
+              () => {
+                hideLoadingOverlay(loadingOverlay);
+                video.play();
+                // Revoke old blob URL if it was one
+                if (oldSrc.startsWith("blob:")) URL.revokeObjectURL(oldSrc);
+                statusCtrl.setValue("✓ " + file.name);
+              },
+              { once: true }
+            );
+
+            video.addEventListener(
+              "error",
+              () => {
+                hideLoadingOverlay(loadingOverlay);
+                statusCtrl.setValue("✗ Errore caricamento");
+              },
+              { once: true }
+            );
+          };
+          input.click();
+        },
+      };
+
+      folder.add(actions, "loadVideo").name("📁 Carica Video");
+      const status = { video: "default" };
+      const statusCtrl = folder.add(status, "video").name("Stato").disable();
 
       scene.add(model);
       resolve(model);

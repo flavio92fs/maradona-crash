@@ -25,12 +25,13 @@ import { addMaradona } from "./character";
 import { setupCinematicAnimation, cinematicState } from "./cinematicAnimation";
 import emitter from "@/eventEmitter";
 
-export function initScene(container: HTMLElement) {
+export function initScene(container: HTMLElement): () => void {
   const gui = new GUI().close();
   addFPSCounter(gui);
   addUiGUI(gui);
 
   const clock = new THREE.Clock();
+  let animationFrameId: number;
   let mixerMaradona: THREE.AnimationMixer;
   let mixerLuci: THREE.AnimationMixer;
   let mixerLuci2: THREE.AnimationMixer;
@@ -272,7 +273,7 @@ export function initScene(container: HTMLElement) {
 
   // Animation loop
   function animate() {
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
     const delta = clock.getDelta();
     mixerMaradona?.update(delta);
     mixerLuci?.update(delta);
@@ -296,7 +297,6 @@ export function initScene(container: HTMLElement) {
       textureAnimator.currentFrame =
         (textureAnimator.currentFrame + 1) % fireWorkTextures.length;
       fireworksMaterial.map = fireWorkTextures[textureAnimator.currentFrame]!;
-      fireworksMaterial.needsUpdate = true;
     }
   }
 
@@ -356,8 +356,9 @@ export function initScene(container: HTMLElement) {
   }
 
   // --- Resize ---
+  let resizeObserver: ResizeObserver;
   function setupResize() {
-    const resizeObserver = new ResizeObserver(() => {
+    resizeObserver = new ResizeObserver(() => {
       const width = container.clientWidth - 1;
       const height = container.clientHeight - 1;
       renderer.setSize(width, height);
@@ -400,4 +401,46 @@ export function initScene(container: HTMLElement) {
       "reset"
     );
   }
+
+  // --- Dispose / Cleanup ---
+  function dispose() {
+    cancelAnimationFrame(animationFrameId);
+    resizeObserver?.disconnect();
+
+    emitter.off("toggleDayTime");
+    emitter.off("setMusic");
+
+    // Dispose all scene objects (geometries, materials, textures)
+    scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        const mesh = obj as THREE.Mesh;
+        mesh.geometry?.dispose();
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        materials.forEach((mat) => {
+          if (mat) {
+            Object.values(mat).forEach((val) => {
+              if (val instanceof THREE.Texture) {
+                val.dispose();
+              }
+            });
+            mat.dispose();
+          }
+        });
+      }
+    });
+
+    // Stop and remove video elements
+    container.querySelectorAll("video").forEach((v) => {
+      v.pause();
+      v.removeAttribute("src");
+      v.load();
+    });
+
+    renderer.dispose();
+    renderer.forceContextLoss();
+    container.removeChild(renderer.domElement);
+    gui.destroy();
+  }
+
+  return dispose;
 }

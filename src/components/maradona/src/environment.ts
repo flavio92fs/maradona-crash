@@ -396,6 +396,9 @@ export function addVideoGrassPlane(
       video.preload = "auto";
 
       const videoTexture = new THREE.VideoTexture(video);
+      videoTexture.minFilter = THREE.LinearFilter;
+      videoTexture.magFilter = THREE.LinearFilter;
+      videoTexture.generateMipmaps = false;
       videoTexture.flipY = false;
       videoTexture.center.set(0.5, 0.5);
       videoTexture.rotation = THREE.MathUtils.degToRad(-180);

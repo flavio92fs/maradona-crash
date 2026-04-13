@@ -254,7 +254,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import store from "@/store";
 import {
   MoonIcon,
@@ -395,15 +395,24 @@ function setButton(value) {
   closeBox();
 }
 
+let disposeScene = null;
+
 onMounted(() => {
   // console.log(threeGameContainer.value);
   if (threeGameContainer.value) {
-    initScene(threeGameContainer.value);
+    disposeScene = initScene(threeGameContainer.value);
   }
 
   document
     .getElementsByTagName("canvas")[0]
     .addEventListener("click", closeHistory);
+});
+
+onUnmounted(() => {
+  if (disposeScene) {
+    disposeScene();
+    disposeScene = null;
+  }
 });
 </script>
 

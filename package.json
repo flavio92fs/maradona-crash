@@ -1,5 +1,5 @@
 {
-  "name": "duck-hunt",
+  "name": "maradona-crash",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -57,6 +57,7 @@
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.6",
     "vite": "^7.1.7",
+    "vite-plugin-full-reload": "^1.2.0",
     "vite-plugin-javascript-obfuscator": "^3.1.0",
     "vue-tsc": "^3.1.0"
   }

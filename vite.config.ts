@@ -1,4 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
+import fullReload from 'vite-plugin-full-reload';
+
 import obfuscator from "vite-plugin-javascript-obfuscator";
 
 import { defineConfig } from "vite";
@@ -20,6 +22,7 @@ export default defineConfig({
       },
     }),
     vueJsx(),
+    fullReload(['src/components/maradona/**/*']),
     //   obfuscator({
     //     include: [/\.ts$/, /\.js$/],
     //     exclude: [/node_modules/], // Escludiamo phaser per sicurezza extra

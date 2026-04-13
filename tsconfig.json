@@ -1,23 +1,4 @@
 {
-  "module": "commonjs" /* Specify what module code is generated. */,
-  "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-  "resolveJsonModule": true /* Enable importing .json files. */,
-
-  "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
-  "sourceMap": true /* Create source map files for emitted JavaScript files. */,
-  "outDir": "./dist" /* Specify an output folder for all emitted files. */,
-
-  "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
-  "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-  "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
-
-  "skipLibCheck": true,
-  "typeRoots": [
-    "./node_modules/phaser/types",
-    "node_modules/@types",
-    "custom_typings/"
-  ],
-  "types": ["Phaser"],
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
@@ -25,17 +6,23 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "target": "ES5" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "strict": true /* Enable all strict type-checking options. */,
+    "target": "ES5",
+    "strict": true,
     "allowJs": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "custom_typings/"
+    ],
     "verbatimModuleSyntax": true,
-    "noEmit": false
+    "noEmit": true
   },
-
   "references": [
     {
       "path": "./tsconfig.config.json"

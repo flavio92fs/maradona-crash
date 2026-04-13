@@ -9,6 +9,7 @@
   "compilerOptions": {
     "composite": true,
     "types": ["node"],
+    "allowImportingTsExtensions": false,
     "noEmit": false
   }
 }

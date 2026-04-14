@@ -58,7 +58,7 @@ export default class CameraControls{
             this.folder = gui.addFolder('Camera Controls').close();
 
             this.addGUIControls(this.folder);
-            const initialAnimationGUI = gui?.addFolder('Camera Start Animation');
+            const initialAnimationGUI = gui?.addFolder('Camera Start Animation').close();
 
             const startAnimation = {
                 startAnimation: () => { this.startAnimation(); }

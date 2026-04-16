@@ -2,26 +2,7 @@
 import GUI from "lil-gui";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
 
-export function addFPSCounter(gui: GUI) {
-  const fpsParams = { fps: 0 };
-  const folder = gui.addFolder("Performance");
-  const fpsController = folder.add(fpsParams, "fps").listen().disable(true);
 
-  let lastTime = performance.now();
-  let frames = 0;
-
-  // Call this from the main animate() loop each frame
-  (gui as any).__updateFPS = function () {
-    const now = performance.now();
-    frames++;
-    if (now - lastTime >= 1000) {
-      fpsParams.fps = frames;
-      fpsController.updateDisplay();
-      frames = 0;
-      lastTime = now;
-    }
-  };
-}
 
 export function addUiGUI(gui: GUI) {
   const STORAGE_KEY = "UI";

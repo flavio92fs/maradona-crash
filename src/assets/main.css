@@ -26,6 +26,11 @@ a,
   z-index: 9999 !important;
 }
 
+.lil-gui.root {
+  position: fixed !important;
+  touch-action: none;
+}
+
 .button-70 {
   background-image: linear-gradient(#0dccea, #0d70ea);
   border: 0;
@@ -112,9 +117,12 @@ input[type="number"] {
   @apply rounded-md;
 }
 
-@media screen and (width < 768px) {
+@media screen and (max-width: 768px) {
   .lil-gui {
-    display: none !important;
+    --width: 260px;
+    font-size: 12px;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 }
 

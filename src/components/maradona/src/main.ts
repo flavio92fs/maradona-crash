@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
+import Stats from "stats.js";
 import LoadingManager from "./loadingManager";
 import CameraControls from "./orbitControls";
 import AudioManager from "./audioManager";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
-import { addFPSCounter, addUiGUI } from "./guiHelpers";
+import { addUiGUI } from "./guiHelpers";
 import {
   addAmbientLight,
   createSpotLight,
@@ -25,10 +26,66 @@ import { addMaradona } from "./character";
 import { setupCinematicAnimation, cinematicState } from "./cinematicAnimation";
 import emitter from "@/eventEmitter";
 
+function makeDraggable(el: HTMLElement) {
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  const titleBar = el.querySelector(".title") as HTMLElement | null;
+  const handle = titleBar ?? el;
+
+  function onStart(clientX: number, clientY: number) {
+    const rect = el.getBoundingClientRect();
+    offsetX = clientX - rect.left;
+    offsetY = clientY - rect.top;
+    isDragging = true;
+  }
+
+  function onMove(clientX: number, clientY: number) {
+    if (!isDragging) return;
+    const x = Math.max(0, Math.min(clientX - offsetX, window.innerWidth - el.offsetWidth));
+    const y = Math.max(0, Math.min(clientY - offsetY, window.innerHeight - 40));
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.style.right = "auto";
+  }
+
+  function onEnd() {
+    isDragging = false;
+  }
+
+  handle.addEventListener("mousedown", (e) => { onStart(e.clientX, e.clientY); });
+  window.addEventListener("mousemove", (e) => { onMove(e.clientX, e.clientY); });
+  window.addEventListener("mouseup", onEnd);
+
+  handle.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    if (t) onStart(t.clientX, t.clientY);
+  }, { passive: true });
+  window.addEventListener("touchmove", (e) => {
+    const t = e.touches[0];
+    if (t) onMove(t.clientX, t.clientY);
+  }, { passive: true });
+  window.addEventListener("touchend", onEnd);
+
+  handle.style.cursor = "grab";
+}
+
 export function initScene(container: HTMLElement): () => void {
   const gui = new GUI().close();
-  addFPSCounter(gui);
   addUiGUI(gui);
+  makeDraggable(gui.domElement);
+
+  // Stats.js (FPS / MS / MB)
+  const stats = new Stats();
+  stats.showPanel(0);
+  const isMobile = window.innerWidth < 768;
+  const statsScale = isMobile ? 1 : 1.5;
+  stats.dom.style.cssText =
+    `position:fixed;top:0;left:0;z-index:10000;cursor:pointer;` +
+    `transform:scale(${statsScale});transform-origin:top left;`;
+  makeDraggable(stats.dom);
+  container.appendChild(stats.dom);
 
   const clock = new THREE.Clock();
   let animationFrameId: number;
@@ -265,19 +322,45 @@ export function initScene(container: HTMLElement): () => void {
     else setDay();
   });
 
-  // Toggle GUI visibility
+  // Toggle GUI visibility (H = gui, S = stats)
   window.addEventListener("keydown", (e) => {
     if (e.key === "h") {
       gui.domElement.style.display =
         gui.domElement.style.display === "none" ? "" : "none";
     }
+    if (e.key === "s") {
+      stats.dom.style.display =
+        stats.dom.style.display === "none" ? "" : "none";
+    }
   });
+
+  // lil-gui: GUI Options subfolder (always last)
+  const guiOptionsFolder = gui.addFolder("GUI Options").close();
+
+  guiOptionsFolder.add({ toggleStats() {
+    stats.dom.style.display =
+      stats.dom.style.display === "none" ? "" : "none";
+  }}, "toggleStats").name("Show/Hide FPS");
+
+  guiOptionsFolder.add({ hideGUI() {
+    gui.domElement.style.display = "none";
+  }}, "hideGUI").name("Hide GUI (reload to show)");
+
+  // Keep GUI Options at the bottom even after async folders are added
+  const observer = new MutationObserver(() => {
+    const container = gui.domElement.querySelector(".children");
+    const folder = guiOptionsFolder.domElement;
+    if (container && folder.parentElement === container && folder !== container.lastElementChild) {
+      container.appendChild(folder);
+    }
+  });
+  observer.observe(gui.domElement, { childList: true, subtree: true });
 
   // Animation loop
   function animate() {
     animationFrameId = requestAnimationFrame(animate);
+    stats.begin();
     const delta = clock.getDelta();
-    (gui as any).__updateFPS?.();
     mixerMaradona?.update(delta);
     mixerLuci?.update(delta);
     mixerLuci2?.update(delta);
@@ -291,6 +374,7 @@ export function initScene(container: HTMLElement): () => void {
       cameraControls?.orbitControls.update();
     }
     renderer.render(scene, camera);
+    stats.end();
   }
 
   function updateFireworkTexture(delta: number) {

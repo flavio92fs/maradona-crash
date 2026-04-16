@@ -1,4 +1,4 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 import GUI from "lil-gui";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
 
@@ -123,7 +123,7 @@ export function addMaterialGUI(
         loadTexture: () => {
           const input = document.createElement("input");
           input.type = "file";
-          input.accept = ".png,.jpg,.jpeg";
+          input.accept = ".png,.jpg,.jpeg,.webp";
           input.addEventListener("change", (e: Event) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
@@ -250,7 +250,7 @@ export function addSuitsGUI(
         loadTexture: () => {
           const input = document.createElement("input");
           input.type = "file";
-          input.accept = ".png,.jpg,.jpeg";
+          input.accept = ".png,.jpg,.jpeg,.webp";
           input.addEventListener("change", (e: Event) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;

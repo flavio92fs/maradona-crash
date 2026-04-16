@@ -113,7 +113,7 @@
       >
         <img
           class="h-full w-full pointer-events-none"
-          :src="'vignette.png'"
+          :src="'vignette.webp'"
           style="border-radius: 10px"
         />
       </div>

@@ -64,12 +64,12 @@ export function initScene(container: HTMLElement): () => void {
   const textureLoader = loadingManager.textureLoader;
 
   // Dome textures
-  const domeTextureNight = textureLoader.load("DOM.png", (texture) => {
+  const domeTextureNight = textureLoader.load("DOM.webp", (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.SRGBColorSpace;
     scene.environment = texture;
   });
-  const domeTextureDay = textureLoader.load("DOM2.png", (texture) => {
+  const domeTextureDay = textureLoader.load("DOM2.webp", (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.SRGBColorSpace;
     scene.environment = texture;
@@ -78,17 +78,17 @@ export function initScene(container: HTMLElement): () => void {
 
   // Maradona textures
   const pelleBaseColor = textureLoader.load(
-    "textures/maradona/Maradona_pelle.png"
+    "textures/maradona/Maradona_pelle.webp"
   );
   pelleBaseColor.colorSpace = THREE.SRGBColorSpace;
 
   const capelliBaseColor = textureLoader.load(
-    "textures/maradona/Capelli_Diffuse.png"
+    "textures/maradona/Capelli_Diffuse.webp"
   );
   capelliBaseColor.colorSpace = THREE.SRGBColorSpace;
 
   const pallaBaseColor = textureLoader.load(
-    "textures/palla/palla_BaseColor.png"
+    "textures/palla/palla_BaseColor.webp"
   );
   pallaBaseColor.colorSpace = THREE.SRGBColorSpace;
 
@@ -96,7 +96,7 @@ export function initScene(container: HTMLElement): () => void {
   const textureAnimator = { elapsed: 0, currentFrame: 0, fps: 30 };
   const fireWorkTextures: THREE.Texture[] = [];
   for (let i = 1; i <= 20; i++) {
-    const tex = textureLoader.load(`textures/fontana/${i}.png`);
+    const tex = textureLoader.load(`textures/fontana/${i}.webp`);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
     tex.repeat.y = -1;
@@ -112,27 +112,27 @@ export function initScene(container: HTMLElement): () => void {
   // Suits textures
   const maradonaSuitsTexture: Record<string, THREE.Texture> = {
     argentina: textureLoader.load(
-      "textures/maradona/Maradona_divisa_argentina.png",
+      "textures/maradona/Maradona_divisa_argentina.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
     barcellona: textureLoader.load(
-      "textures/maradona/Maradona_divisa_barcellona.png",
+      "textures/maradona/Maradona_divisa_barcellona.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
     boca: textureLoader.load(
-      "textures/maradona/Maradona_divisa_boca.png",
+      "textures/maradona/Maradona_divisa_boca.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
     napoliUfficiale: textureLoader.load(
-      "textures/maradona/Maradona_divisa_napoli_ufficiale.png",
+      "textures/maradona/Maradona_divisa_napoli_ufficiale.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
     napoli: textureLoader.load(
-      "textures/maradona/Maradona_divisa_napoli.png",
+      "textures/maradona/Maradona_divisa_napoli.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
     sevilla: textureLoader.load(
-      "textures/maradona/Maradona_divisa_sevilla.png",
+      "textures/maradona/Maradona_divisa_sevilla.webp",
       (t) => (t.colorSpace = THREE.SRGBColorSpace)
     ),
   };

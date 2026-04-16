@@ -23,7 +23,7 @@ export default class AudioManager {
     this._gui = gui;
 
     // carica audio
-    this._audioLoader.load("sound/background.mp3", (buffer) => {
+    this._audioLoader.load("sound/background.ogg", (buffer) => {
       this._backgroundSound.setBuffer(buffer);
       this._backgroundSound.setLoop(true);
     });

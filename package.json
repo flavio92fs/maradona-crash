@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
-    "host": "vite --host"
+    "host": "vite --host",
+    "deploy": "npm run build && node deploy.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.13",

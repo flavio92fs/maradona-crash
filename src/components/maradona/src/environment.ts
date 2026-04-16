@@ -111,7 +111,7 @@ export function addGrassPlane(
     gltfLoader: GLTFLoader,
     textureLoader: THREE.TextureLoader,
 ) {
-    const pratoTexture = textureLoader.load("textures/grass/texture.png");
+    const pratoTexture = textureLoader.load("textures/grass/texture.webp");
     pratoTexture.colorSpace = THREE.SRGBColorSpace;
     pratoTexture.wrapS = THREE.RepeatWrapping;
     pratoTexture.wrapT = THREE.RepeatWrapping;
@@ -211,7 +211,7 @@ export function addCartelloni(
     textureLoader: THREE.TextureLoader,
 ) {
     const texture = textureLoader.load(
-        "textures/stadio/BannerTestCartelloniAnimated2.png",
+        "textures/stadio/BannerTestCartelloniAnimated2.webp",
     );
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
@@ -249,7 +249,7 @@ export function addAnimatedLights(
     glbName: string,
 ): Promise<THREE.AnimationMixer> {
     return new Promise((resolve) => {
-        const lightTexture = textureLoader.load("textures/luce.png");
+        const lightTexture = textureLoader.load("textures/luce.webp");
         lightTexture.colorSpace = THREE.SRGBColorSpace;
         lightTexture.flipY = false;
 
@@ -353,7 +353,7 @@ export function addStadio(
     textureLoader: THREE.TextureLoader,
 ) {
     const stadioTexture = textureLoader.load(
-        "textures/stadio/textureProps.png",
+        "textures/stadio/textureProps.webp",
     );
     const stadioMaterial = new THREE.MeshStandardMaterial({
         map: stadioTexture,

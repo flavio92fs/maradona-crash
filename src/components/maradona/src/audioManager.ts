@@ -75,6 +75,30 @@ export default class AudioManager {
         }
       }
     });
+
+    // Unlock audio on the first user gesture ANYWHERE on the page.
+    // Browsers block audio playback until a user interaction: without this,
+    // in portrait the canvas area doesn't count as a "button click" and the
+    // music never starts.
+    const unlock = () => {
+      const ctx = this._listener.context;
+      if (ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+      if (
+        !this._backgroundSound.isPlaying &&
+        !this._userStopped &&
+        this._backgroundSound.buffer
+      ) {
+        this.playBackgroundMusic();
+      }
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("touchstart", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+    window.addEventListener("pointerdown", unlock, { once: false });
+    window.addEventListener("touchstart", unlock, { once: false, passive: true });
+    window.addEventListener("keydown", unlock, { once: false });
   }
 
   public playBackgroundMusic() {

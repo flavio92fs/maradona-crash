@@ -15,6 +15,52 @@
         closeBox();
       "
     >
+      <!-- Black overlay shown during the betting/loading phase.
+           Sits above the canvas but below all UI overlays (multiplier, bet buttons). -->
+      <Transition name="splash">
+        <div
+          v-if="phase === 'betting' && showNextRoundCounter"
+          class="absolute inset-0 z-[5] bg-black pointer-events-none"
+        ></div>
+      </Transition>
+
+      <!-- Centered MARADONA + loading bar during betting phase.
+           Absolutely positioned on the three.js canvas, re-centers automatically
+           when the orientation (and therefore the canvas size) changes. -->
+      <Transition name="splash">
+        <div
+          v-if="phase === 'betting' && showNextRoundCounter"
+          class="absolute inset-0 z-[10] flex flex-col items-center justify-center pointer-events-none text-white text-center"
+          style="text-shadow: 1.8px 1.8px rgba(0, 0, 0, 0.6)"
+        >
+          <div
+            class="maradona-font tracking-widest mb-4"
+            :style="{
+              fontSize: isLandscape ? '72px' : '44px',
+              lineHeight: 1,
+            }"
+          >
+            MARADONA
+          </div>
+          <span class="text-sm tracking-wider opacity-90 mb-2">PROSSIMO ROUND</span>
+          <div
+            class="relative rounded-full bg-black/60 overflow-hidden border border-white/20"
+            :style="{
+              width: isLandscape ? '320px' : '220px',
+              height: isLandscape ? '20px' : '14px',
+            }"
+          >
+            <div
+              class="h-full transition-[width] duration-75 ease-linear"
+              :style="{
+                width: (bettingProgress * 100).toFixed(1) + '%',
+                background:
+                  'linear-gradient(90deg, rgba(73,179,70,1) 0%, rgba(172,219,101,1) 100%)',
+              }"
+            ></div>
+          </div>
+        </div>
+      </Transition>
       <div class="container-top absolute top-0 w-full">
         <!-- <Navigation
           class="rounded-none z-[15]"
@@ -37,9 +83,9 @@
           >
             <MultiplierLabel
               class="rounded-md py-0.5 px-2 mx-1 text-sm font-bold"
-              v-for="i in 100"
+              v-for="(mul, i) in history"
               :key="i"
-              :value="Math.floor(Math.random() * (10 - 1) + 1)"
+              :value="mul"
             />
           </div>
           <div class="flex-grow mr-4">
@@ -157,19 +203,33 @@
 
           <div class="flex justify-center w-100">
             <BetButton
-              :id="1"
+              :id="0"
               :bet-value="button1amount"
               :active="!showBetBox"
               :menu-open="selectedBetBox"
-              @sub-click="toggleBetBox(1)"
+              :phase="phase"
+              :has-bet="!!bet1"
+              :cashed-out="bet1?.cashedOut ?? false"
+              :for-next-round="bet1?.forNextRound ?? false"
+              :current-multiplier="currentMultiplier"
+              :currency="currency.symbol"
+              @sub-click="toggleBetBox(0)"
+              @action="buttonAction(0)"
             />
 
             <BetButton
-              :id="2"
+              :id="1"
               :bet-value="button2amount"
               :active="!showBetBox"
               :menu-open="selectedBetBox"
-              @sub-click="toggleBetBox(2)"
+              :phase="phase"
+              :has-bet="!!bet2"
+              :cashed-out="bet2?.cashedOut ?? false"
+              :for-next-round="bet2?.forNextRound ?? false"
+              :current-multiplier="currentMultiplier"
+              :currency="currency.symbol"
+              @sub-click="toggleBetBox(1)"
+              @action="buttonAction(1)"
             />
           </div>
 
@@ -254,8 +314,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import store from "@/store";
+import { toast } from "vue3-toastify";
 import {
   MoonIcon,
   SunIcon,
@@ -272,6 +333,7 @@ import BetBoxMobile from "./BetBoxMobile.vue";
 import Navigation from "./Navigation.vue";
 import GameMultiplier from "./GameMultiplier.vue";
 import emitter from "@/eventEmitter";
+import simulatedBackend from "@/simulatedBackend";
 
 //Data
 
@@ -289,7 +351,7 @@ const props = defineProps({
 
 const threeGameContainer = ref(null);
 let showBetBox = ref(false);
-let selectedBetBox = ref(0);
+let selectedBetBox = ref(-1);
 let isOpen = ref(false);
 let selected_category = ref(0);
 let close_timer = ref(() => {});
@@ -299,6 +361,21 @@ let isMorning = ref(true);
 let isMusicOn = ref(true);
 let chatIsOpen = ref(false);
 let isHistoryExtended = ref(false);
+
+// Crash-game state driven by the simulated backend
+const phase = ref("betting"); // "betting" | "running" | "crashed"
+const currentMultiplier = ref(1);
+const bettingTimer = ref(0);
+const bettingDuration = ref(10);
+const bettingProgress = computed(() => {
+  if (bettingDuration.value <= 0) return 0;
+  return Math.max(0, Math.min(1, 1 - bettingTimer.value / bettingDuration.value));
+});
+const showNextRoundCounter = ref(true);
+const bet1 = ref(null); // { amount, autoCashoutAt, cashedOut }
+const bet2 = ref(null);
+const history = ref([]);
+const currency = computed(() => store.state.currency);
 
 //Methods
 
@@ -359,7 +436,7 @@ function exitFullscreen() {
 
 function closeBox() {
   if (showBetBox.value == true) {
-    selectedBetBox.value = 0;
+    selectedBetBox.value = -1;
     showBetBox.value = false;
   }
 }
@@ -371,7 +448,7 @@ function toggleBetBox(id) {
   // startCloseTimer(closeBox, bet_box_close_time);
 
   if (showBetBox.value == true) {
-    selectedBetBox.value = 0;
+    selectedBetBox.value = -1;
   } else {
     selectedBetBox.value = id;
   }
@@ -381,12 +458,12 @@ function toggleBetBox(id) {
 
 function setButton(value) {
   switch (selectedBetBox.value) {
-    case 1: {
+    case 0: {
       button1amount.value = value;
       break;
     }
 
-    case 2: {
+    case 1: {
       button2amount.value = value;
       break;
     }
@@ -397,8 +474,126 @@ function setButton(value) {
 
 let disposeScene = null;
 
+// --- Crash-game handlers ---
+
+function buttonAction(buttonId) {
+  const bet = buttonId === 0 ? bet1.value : bet2.value;
+  const amount = parseFloat(
+    buttonId === 0 ? button1amount.value : button2amount.value
+  );
+
+  // Has a bet -> cancel (betting / pending) or cashout (running)
+  if (bet) {
+    if (bet.forNextRound || phase.value === "betting") {
+      emitter.emit("game:cancelBet", { id: buttonId });
+    } else if (phase.value === "running" && !bet.cashedOut) {
+      emitter.emit("game:cashout", { id: buttonId });
+    }
+    return;
+  }
+
+  // No bet -> place one. Backend validates balance + phase placement.
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  emitter.emit("game:placeBet", {
+    id: buttonId,
+    amount,
+    autoCashoutAt: null,
+  });
+}
+
+function onPhase(p) {
+  phase.value = p.phase;
+  if (p.phase === "betting") {
+    currentMultiplier.value = 1;
+    if (typeof p.duration === "number") {
+      bettingDuration.value = p.duration;
+      bettingTimer.value = p.duration;
+    }
+    // Pending bets from the previous round are now active -> clear the flag.
+    if (bet1.value?.forNextRound) bet1.value = { ...bet1.value, forNextRound: false };
+    if (bet2.value?.forNextRound) bet2.value = { ...bet2.value, forNextRound: false };
+  }
+}
+function onMul(p) { currentMultiplier.value = p.value; }
+function onTimer(p) { bettingTimer.value = p.remaining; }
+function onHistory(list) {
+  // Backend sends newest-first; render as-is.
+  history.value = Array.isArray(list) ? [...list] : [];
+}
+function onConfirmed(p) {
+  const entry = {
+    amount: p.amount,
+    autoCashoutAt: p.autoCashoutAt,
+    cashedOut: false,
+    forNextRound: !!p.forNextRound,
+  };
+  if (p.id === 0) bet1.value = entry;
+  else if (p.id === 1) bet2.value = entry;
+  // Play the bet SFX for every confirmed bet, regardless of which UI
+  // (portrait BetButton or landscape BetBox) placed it.
+  try {
+    const a = new Audio("sound/bet.mp3");
+    a.volume = 0.8;
+    a.play().catch(() => {});
+  } catch {}
+}
+function onCancelled(p) {
+  if (p.id === 0) bet1.value = null;
+  else if (p.id === 1) bet2.value = null;
+}
+function onWon(p) {
+  const target = p.id === 0 ? bet1 : p.id === 1 ? bet2 : null;
+  if (target && target.value) {
+    target.value = { ...target.value, cashedOut: true, cashOutMultiplier: p.multiplier };
+  }
+  toast(`Hai ritirato ${p.amount.toFixed(2)}${currency.value.symbol} @ x${p.multiplier.toFixed(2)}`, {
+    autoClose: 2500,
+    position: toast.POSITION.TOP_CENTER,
+    toastStyle: { backgroundColor: "green", color: "white" },
+    hideProgressBar: true,
+  });
+}
+function onLost(p) {
+  if (p.id === 0) bet1.value = null;
+  else if (p.id === 1) bet2.value = null;
+}
+function onRejected(p) {
+  toast(
+    p?.reason === "nextRoundDisabled"
+      ? "Puntate per il prossimo round disabilitate"
+      : "Credito insufficiente",
+    {
+      autoClose: 2500,
+      position: toast.POSITION.TOP_CENTER,
+      toastStyle: { backgroundColor: "red", color: "white" },
+      hideProgressBar: true,
+    }
+  );
+}
+function onToggleNextRoundCounter(show) {
+  showNextRoundCounter.value = !!show;
+}
+function onSceneComplete() {
+  // Fresh round -> clear any still-flagged cashed-out bets
+  if (bet1.value?.cashedOut) bet1.value = null;
+  if (bet2.value?.cashedOut) bet2.value = null;
+}
+
 onMounted(() => {
-  // console.log(threeGameContainer.value);
+  emitter.on("game:phase", onPhase);
+  emitter.on("game:multiplier", onMul);
+  emitter.on("game:timer", onTimer);
+  emitter.on("game:history", onHistory);
+  emitter.on("game:bet:confirmed", onConfirmed);
+  emitter.on("game:bet:cancelled", onCancelled);
+  emitter.on("game:bet:won", onWon);
+  emitter.on("game:bet:lost", onLost);
+  emitter.on("game:bet:rejected", onRejected);
+  emitter.on("sceneComplete", onSceneComplete);
+  emitter.on("ui:showNextRoundCounter", onToggleNextRoundCounter);
+
+  // initScene builds the lil-gui panel, which emits the persisted UI flags
+  // and starts/stops the simulated backend according to the "Game" folder.
   if (threeGameContainer.value) {
     disposeScene = initScene(threeGameContainer.value);
   }
@@ -409,14 +604,34 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  simulatedBackend.stopGame();
   if (disposeScene) {
     disposeScene();
     disposeScene = null;
   }
+  emitter.off("game:phase", onPhase);
+  emitter.off("game:multiplier", onMul);
+  emitter.off("game:timer", onTimer);
+  emitter.off("game:history", onHistory);
+  emitter.off("game:bet:confirmed", onConfirmed);
+  emitter.off("game:bet:cancelled", onCancelled);
+  emitter.off("game:bet:won", onWon);
+  emitter.off("game:bet:lost", onLost);
+  emitter.off("game:bet:rejected", onRejected);
+  emitter.off("sceneComplete", onSceneComplete);
+  emitter.off("ui:showNextRoundCounter", onToggleNextRoundCounter);
 });
 </script>
 
 <style scoped>
+.splash-enter-active,
+.splash-leave-active {
+  transition: opacity 0.6s ease;
+}
+.splash-enter-from,
+.splash-leave-to {
+  opacity: 0;
+}
 #container {
   width: 100%;
   height: 100%;

@@ -211,21 +211,22 @@ export function addCartelloni(
     textureLoader: THREE.TextureLoader,
 ) {
     const texture = textureLoader.load(
-        "textures/stadio/BannerTestCartelloniAnimated2.webp",
+        "textures/stadio/BannerTestCartelloniAnimated3.png",
     );
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;
-    texture.offset.y = 0.62;
+    texture.offset.y = 0.61;
 
     gsap.timeline({ repeat: -1, repeatDelay: 10 })
         .to(texture.offset, { y: 0.42, duration: 1, ease: "none" })
         .to(texture.offset, { y: 0.42, duration: 10, ease: "none" })
-        .to(texture.offset, { y: 0.62, duration: 1, ease: "none" });
+        .to(texture.offset, { y: 0.61, duration: 1, ease: "none" });
 
     const cartelloniMaterial = new THREE.MeshBasicMaterial({ map: texture });
     cartelloniMaterial.name = "Cartelloni Material";
     addMaterialGUI(gui, cartelloniMaterial, textureLoader);
+    gui.add(texture.offset, "y").step(0.01);
 
     gltfLoader.load("models/GLB/cartelloni.glb", (gltf) => {
         const model = gltf.scene;

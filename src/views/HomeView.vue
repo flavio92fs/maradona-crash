@@ -128,9 +128,8 @@ export default {
     },
 
     setBet(value: any) {
-      let betAudio = new Audio(BetAudio);
-      betAudio.play();
-      // TODO: wire to new Three.js game
+      // Audio and game wiring are handled centrally in MaradonaGame via the
+      // simulated backend's "game:bet:confirmed" event.
     },
 
     cancelBet(buttonId: number) {

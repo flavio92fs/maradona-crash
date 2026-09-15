@@ -2,6 +2,7 @@ import * as THREE from "three";
 import GUI from "lil-gui";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { addMaterialGUI, addSuitsGUI } from "./guiHelpers";
+import emitter from "@/eventEmitter";
 
 export function addMaradona(
   scene: THREE.Scene,
@@ -169,6 +170,13 @@ export function addMaradona(
     animationsGUI.add(animControls, "palleggio1").name("⚽ Palleggio 1");
     animationsGUI.add(animControls, "palleggio2").name("⚽ Palleggio 2");
     animationsGUI.close();
+
+    // --- Simulated-backend driven animation events ---
+    emitter.on("anim:riscaldamento", () => animControls.riscaldamento());
+    emitter.on("anim:palleggio1", () => animControls.palleggio1());
+    emitter.on("anim:palleggio2", () => animControls.palleggio2());
+    // Final crash animation: placeholder (reuse palleggio2 until the real FBX clip exists).
+    emitter.on("anim:final", () => animControls.palleggio2());
 
     onLoaded(mixer);
   });

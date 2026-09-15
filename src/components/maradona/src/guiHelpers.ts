@@ -1,8 +1,107 @@
 ﻿import * as THREE from "three";
 import GUI from "lil-gui";
+import Stats from "stats.js";
 import { loadSettings, saveSettings, resetSettings } from "./saveLoadGUI";
+import emitter from "@/eventEmitter";
+import simulatedBackend from "@/simulatedBackend";
 
+export function addFPSCounter(gui: GUI) {
+  const STORAGE_KEY = "FPS";
+  const stats = new Stats();
+  stats.dom.style.position = "absolute";
+  stats.dom.style.top = "0px";
+  stats.dom.style.left = "0px";
+  stats.dom.style.zIndex = "1000";
+  document.body.appendChild(stats.dom);
 
+  const defaultParams = { showFPS: false };
+  let params = { ...defaultParams };
+  loadSettings(STORAGE_KEY, defaultParams, params);
+
+  function showFPS(show: boolean) {
+    stats.dom.style.display = show ? "" : "none";
+  }
+  showFPS(params.showFPS);
+
+  function tick() {
+    stats.update();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  const folder = gui.addFolder("FPS").close();
+  folder.add(params, "showFPS").name("Mostra FPS").onChange((val: boolean) => {
+    showFPS(val);
+    saveSettings(STORAGE_KEY, params);
+  });
+
+  return stats;
+}
+
+export function addGameGUI(gui: GUI) {
+  const STORAGE_KEY = "GAME";
+  const folder = gui.addFolder("Game").close();
+  const backendCfg = simulatedBackend.getConfig();
+
+  const defaultParams = {
+    backendEnabled: true,
+    allowNextRound: true,
+    showNextRoundCounter: true,
+  };
+
+  let params = { ...defaultParams };
+  loadSettings(STORAGE_KEY, defaultParams, params);
+
+  // `?backend=off` wins over the persisted GUI value.
+  if (!simulatedBackend.isEnabledByUrl()) params.backendEnabled = false;
+
+  backendCfg.allowNextRound = params.allowNextRound;
+  emitter.emit("ui:showNextRoundCounter", params.showNextRoundCounter);
+
+  function applyBackend(on: boolean) {
+    simulatedBackend.setEnabled(on);
+    allowNextRoundCtrl.enable(on);
+    counterCtrl.enable(on);
+  }
+
+  folder
+    .add(params, "backendEnabled")
+    .name("Backend Simulato")
+    .onChange((val: boolean) => {
+      applyBackend(val);
+      saveSettings(STORAGE_KEY, params);
+    });
+
+  const allowNextRoundCtrl = folder
+    .add(params, "allowNextRound")
+    .name("Next Round")
+    .onChange((val: boolean) => {
+      backendCfg.allowNextRound = val;
+      saveSettings(STORAGE_KEY, params);
+    });
+
+  const counterCtrl = folder
+    .add(params, "showNextRoundCounter")
+    .name("Schermata Next Round")
+    .onChange((val: boolean) => {
+      emitter.emit("ui:showNextRoundCounter", val);
+      saveSettings(STORAGE_KEY, params);
+    });
+
+  folder.add(
+    {
+      reset: () => {
+        resetSettings(STORAGE_KEY, defaultParams, params, folder);
+        backendCfg.allowNextRound = params.allowNextRound;
+        emitter.emit("ui:showNextRoundCounter", params.showNextRoundCounter);
+        applyBackend(params.backendEnabled);
+      },
+    },
+    "reset"
+  );
+
+  applyBackend(params.backendEnabled);
+}
 
 export function addUiGUI(gui: GUI) {
   const STORAGE_KEY = "UI";

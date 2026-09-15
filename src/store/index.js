@@ -2,8 +2,8 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    balance: 0.0,
-    currency: { default_bet: 0.1 },
+    balance: 100.0,
+    currency: { default_bet: 0.1, symbol: "€", max_bet: 100 },
     coins: [1, 2, 5, 10],
     player: {},
     chatMessages: [],

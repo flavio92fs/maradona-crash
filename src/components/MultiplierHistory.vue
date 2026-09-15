@@ -5,9 +5,9 @@
     >
       <MultiplierLabel
         class="flex-1 w-20 rounded-md px-5 py-1 m-1 text-sm font-medium box-border whitespace-nowrap"
-        v-for="i in 100"
+        v-for="(mul, i) in multipliersHistory"
         :key="i"
-        :value="Math.floor(Math.random() * (10 - 1) + 1)"
+        :value="mul"
       />
     </div>
     <div class="h-full ml-2">
@@ -32,9 +32,9 @@
       >
         <MultiplierLabel
           class="rounded-md w-20 py-1 px-2 mx-1 text-sm font-medium"
-          v-for="i in 100"
+          v-for="(mul, i) in multipliersHistory"
           :key="i"
-          :value="Math.floor(Math.random() * (10 - 1) + 1)"
+          :value="mul"
         />
       </div>
     </div>
@@ -60,13 +60,15 @@ export default {
   }),
 
   created() {
+    this.$mitt.on("game:history", (list) => {
+      this.multipliersHistory = Array.isArray(list) ? [...list] : [];
+    });
     this.$mitt.on("history", (historyData) => {
       this.multipliersHistory = historyData.data.reverse();
     });
     this.$mitt.on("crash", (historyData) => {
       this.multipliersHistory.splice(-1, 1);
       this.multipliersHistory.unshift(historyData.multiplier);
-      console.log(this.multipliersHistory);
     });
   },
 };

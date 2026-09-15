@@ -42,7 +42,7 @@
           <AmountSetter
             v-model="betAmount"
             :currency="currency.symbol"
-            :disabled="isAutoPlay || betInProgress || amountClaimed"
+            :disabled="isAutoPlay"
             :minimumValue="currency.default_bet"
             :maximumValue="currency.max_bet"
             @increase="increaseBetAmount('manual')"
@@ -55,12 +55,8 @@
           <button
             v-for="coin in coins"
             class="pill h-8"
-            :class="[
-              isAutoPlay || betInProgress || amountClaimed
-                ? 'disabled text-secondary'
-                : '',
-            ]"
-            :disabled="isAutoPlay || betInProgress || amountClaimed"
+            :class="[isAutoPlay ? 'disabled text-secondary' : '']"
+            :disabled="isAutoPlay"
             @click="increaseBetAmount('auto', coin)"
           >
             {{ coin }}{{ currency.symbol }}
@@ -74,9 +70,7 @@
             <button
               class="px-5 py-2 w-full"
               :class="
-                betAmount == currency.default_bet ||
-                betInProgress ||
-                amountClaimed
+                betAmount == currency.default_bet
                   ? 'button-70-disabled'
                   : 'button-70-red'
               "
@@ -86,11 +80,7 @@
                 initialAutoAmount = 0;
                 betAmount = parseFloat(currency.default_bet).toFixed(2);
               "
-              :disabled="
-                betAmount == currency.default_bet ||
-                betInProgress ||
-                amountClaimed
-              "
+              :disabled="betAmount == currency.default_bet"
             >
               {{ $t("clear") }}
             </button>
@@ -100,17 +90,11 @@
             <button
               class="px-5 py-2 w-full"
               :class="
-                betAmount == currency.default_bet ||
-                betInProgress ||
-                amountClaimed
+                betAmount == currency.default_bet
                   ? 'button-70-disabled text-secondary'
                   : 'button-70'
               "
-              :disabled="
-                betAmount == currency.default_bet ||
-                betInProgress ||
-                amountClaimed
-              "
+              :disabled="betAmount == currency.default_bet"
               @click="confirmOptions()"
             >
               Confirm

@@ -138,18 +138,31 @@
           CANCEL
         </button>
 
+        <!-- Running / crashed phase: place a bet for the NEXT round -->
+        <button
+          v-else-if="!betInProgress"
+          @click="sendBet()"
+          class="w-full text-white rounded-md font-bold text-xl h-full green-gradient"
+        >
+          BET (PROSSIMO ROUND)
+        </button>
+
+        <!-- Bet pending for next round -> cancel it -->
+        <button
+          v-else-if="betInProgress && pendingForNext"
+          @click="cancelBet()"
+          class="w-full text-white rounded-md font-bold text-xl h-full bg-red-700"
+        >
+          CANCEL (PROSSIMO)
+        </button>
+
+        <!-- Active bet in current running round -> draw / cashout -->
         <button
           v-else
           @click="drawCash()"
-          class="w-20 h-20 text-white rounded-full font-medium text-xl"
-          :class="
-            betInProgress
-              ? 'bg-green-600 shadow-[0px_0px_3px_3px_rgba(22,173,62,1)]'
-              : 'bg-gray-500'
-          "
-          :disabled="!betInProgress"
+          class="w-20 h-20 text-white rounded-full font-medium text-xl bg-green-600 shadow-[0px_0px_3px_3px_rgba(22,173,62,1)]"
         >
-          {{ betInProgress ? "DRAW" : "WAIT" }}
+          DRAW
         </button>
 
         <!-- <div class="flex flex-col mt-5">
@@ -249,6 +262,7 @@ import { mapState, mapActions } from "vuex";
 import AutoplayModal from "./AutoplayModal.vue";
 import AmountSetter from "./AmountSetter.vue";
 import { toast } from "vue3-toastify";
+import simulatedBackend from "@/simulatedBackend";
 
 export default {
   name: "BetBox",
@@ -282,6 +296,7 @@ export default {
     amountClaimed: false,
     initialState: true,
     valueSkip: true,
+    pendingForNext: false,
   }),
 
   created() {
@@ -289,6 +304,7 @@ export default {
       this.betInProgress = false;
       this.inGame = false;
       this.amountClaimed = false;
+      this.pendingForNext = false;
       this.manageAutoPlay();
     }),
       this.$mitt.on("started", () => {
@@ -304,10 +320,42 @@ export default {
       this.cancelDisabled = true;
       this.checkBalance();
     });
+    this.$mitt.on("game:bet:confirmed", (p) => {
+      if (p.id !== this.id) return;
+      this.pendingForNext = !!p.forNextRound;
+      this.betInProgress = true;
+      this.amountClaimed = false;
+      this.betAmount = parseFloat(p.amount).toFixed(2);
+    });
+    this.$mitt.on("game:bet:cancelled", (p) => {
+      if (p.id !== this.id) return;
+      this.betInProgress = false;
+      this.pendingForNext = false;
+    });
+    this.$mitt.on("game:bet:lost", (p) => {
+      if (p.id !== this.id) return;
+      this.betInProgress = false;
+      this.pendingForNext = false;
+    });
+    this.$mitt.on("game:bet:won", (p) => {
+      if (p.id !== this.id) return;
+      this.betInProgress = false;
+      this.amountClaimed = true;
+    });
+    this.$mitt.on("game:bet:rejected", (p) => {
+      if (p.id !== this.id) return;
+      toast("Credito insufficiente", {
+        autoClose: 2500,
+        position: toast.POSITION.TOP_CENTER,
+        toastStyle: { backgroundColor: "red", color: "white" },
+        hideProgressBar: true,
+      });
+    });
     this.$mitt.on("cashout-success", (gameData) => {
       if (
         this.autoCash &&
-        gameData.data.multiplier.toFixed(2) >= this.autoCashAmount.toFixed(2)
+        gameData.data.multiplier.toFixed(2) >=
+          parseFloat(this.autoCashAmount).toFixed(2)
       ) {
         this.betInProgress = false;
         this.amountClaimed = true;
@@ -316,6 +364,27 @@ export default {
       this.win = gameData.data.amount;
       this.checkBalance();
     });
+  },
+
+  mounted() {
+    // Hydrate from the backend (handles portrait <-> landscape rotation where
+    // this component remounts fresh while a bet is already active).
+    try {
+      const state = simulatedBackend.getState();
+      const active = state.bets.find((b) => b.id === this.id);
+      const pending = state.pendingBets.find((b) => b.id === this.id);
+      const existing = active || pending;
+      if (existing) {
+        this.betInProgress = true;
+        this.pendingForNext = !!pending;
+        this.betAmount = parseFloat(existing.amount).toFixed(2);
+        if (existing.cashedOut) this.amountClaimed = true;
+      }
+      if (state.phase === "running") {
+        this.inGame = true;
+        this.isStarted = false;
+      }
+    } catch {}
   },
 
   computed: {
@@ -428,24 +497,24 @@ export default {
         return;
       }
 
-      const roundedAutoCash = this.autoCashAmount.toFixed(2);
+      const roundedAutoCash = parseFloat(this.autoCashAmount).toFixed(2);
       console.log("Rounded AutoCash: " + roundedAutoCash);
 
-      this.decreaseBalance(this.betAmount);
-      this.betInProgress = true;
-      if (!this.autoCash) {
-        this.$emit("sendBet", {
-          value: this.betAmount,
-          id: this.id,
-          cashout_at: -1,
-        });
-      } else {
-        this.$emit("sendBet", {
-          value: this.betAmount,
-          id: this.id,
-          cashout_at: roundedAutoCash,
-        });
-      }
+      // Backend is the single source of truth: it deducts the balance,
+      // and echoes "game:bet:confirmed" / "game:bet:rejected" which syncs
+      // betInProgress via the listeners set up in created().
+      const payload = {
+        value: this.betAmount,
+        id: this.id,
+        cashout_at: this.autoCash ? roundedAutoCash : -1,
+      };
+      this.$emit("sendBet", payload);
+
+      this.$mitt.emit("game:placeBet", {
+        id: this.id,
+        amount: parseFloat(this.betAmount),
+        autoCashoutAt: this.autoCash ? parseFloat(roundedAutoCash) : null,
+      });
     },
 
     cancelBet() {
@@ -453,14 +522,13 @@ export default {
         this.isAutoPlay = false;
         this.autoPlayData.number_of_rounds == 0;
       }
-      this.increaseBalance(parseFloat(this.betAmount));
-      this.betInProgress = false;
+      // Backend refunds the balance on cancel.
+      this.$mitt.emit("game:cancelBet", { id: this.id });
       this.$emit("cancelBet");
     },
 
     drawCash() {
-      this.betInProgress = false;
-      this.amountClaimed = true;
+      this.$mitt.emit("game:cashout", { id: this.id });
       this.$emit("drawCash");
     },
 
